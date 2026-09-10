@@ -98,84 +98,64 @@
 
         .loading { color: #888; padding: 20px; text-align: center; }
         .error { color: #c00; padding: 20px; text-align: center; }
-    /* ═══════════════════════════════════════════
-   МОБИЛЬНАЯ АДАПТАЦИЯ
-   ═══════════════════════════════════════════ */
-   /* Подсветка зон в таблице */
-tr.zone-champions td:first-child {
-    border-left: 4px solid #2ecc71;
-}
-tr.zone-europa td:first-child {
-    border-left: 4px solid #3498db;
-}
-tr.zone-conference td:first-child {
-    border-left: 4px solid #1abc9c;
-}
-tr.zone-relegation td:first-child {
-    border-left: 4px solid #e74c3c;
-}
-.diff { font-weight: 600; color: #555; }
-@media (max-width: 600px) {
-    body {
-        padding: 12px;
-        -webkit-text-size-adjust: 100%;
-    }
-    h1 { font-size: 22px; }
-    h2 { font-size: 18px; margin: 24px 0 12px; }
-    .subtitle { font-size: 14px; }
 
-    /* Карточка матча — вертикальная раскладка */
-    .match {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        padding: 12px;
-    }
-    .match-date {
-        font-size: 12px;
-        min-width: auto;
-        text-align: center;
-        color: #888;
-    }
-    /* Дата / команды / счёт — в 3 колонки */
-    .match-teams {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-    }
-    .team {
-        font-size: 14px;
-        word-break: break-word;
-        line-height: 1.2;
-    }
-    .team.away { text-align: right; }
-    .score {
-        font-size: 14px;
-        min-width: 50px;
-        padding: 4px 8px;
-    }
-    .score.pending { font-size: 12px; }
+        /* Подсветка зон в таблице */
+        tr.zone-champions td:first-child { border-left: 4px solid #2ecc71; }
+        tr.zone-europa td:first-child { border-left: 4px solid #3498db; }
+        tr.zone-conference td:first-child { border-left: 4px solid #1abc9c; }
+        tr.zone-relegation td:first-child { border-left: 4px solid #e74c3c; }
+        .diff { font-weight: 600; color: #555; }
 
-    /* Фильтр на всю ширину */
-    .controls { flex-direction: column; align-items: stretch; }
-    select { width: 100%; min-width: auto; }
+        /* Мобильная адаптация */
+        @media (max-width: 600px) {
+            body { padding: 12px; -webkit-text-size-adjust: 100%; }
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; margin: 24px 0 12px; }
+            .subtitle { font-size: 14px; }
 
-    /* Таблица — компактнее */
-    th, td { padding: 8px 3px; font-size: 11px; }
-    th { font-size: 11px; }
-    .pos { width: 22px; }
-}
+            .match {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 12px;
+            }
+            .match-date {
+                font-size: 12px;
+                min-width: auto;
+                text-align: center;
+                color: #888;
+            }
+            .match-teams {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+            }
+            .team {
+                font-size: 14px;
+                word-break: break-word;
+                line-height: 1.2;
+            }
+            .team.away { text-align: right; }
+            .score { font-size: 14px; min-width: 50px; padding: 4px 8px; }
+            .score.pending { font-size: 12px; }
 
-/* Очень узкие экраны (iPhone SE и т.п.) */
-@media (max-width: 400px) {
-    .team { font-size: 13px; }
-    .score { font-size: 13px; min-width: 44px; padding: 3px 6px; }
-    th, td { padding: 6px 3px; font-size: 11px; }
-    .pos { width: 18px; }
-}
-</style>
+            .controls { flex-direction: column; align-items: stretch; }
+            select { width: 100%; min-width: auto; }
+
+            th, td { padding: 8px 3px; font-size: 11px; }
+            th { font-size: 11px; }
+            .pos { width: 22px; }
+        }
+
+        @media (max-width: 400px) {
+            .team { font-size: 13px; }
+            .score { font-size: 13px; min-width: 44px; padding: 3px 6px; }
+            th, td { padding: 6px 3px; font-size: 11px; }
+            .pos { width: 18px; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -184,18 +164,18 @@ tr.zone-relegation td:first-child {
 
         <h2>Матчи</h2>
         <div class="controls">
-    <select id="seasonFilter">
-        <option value="2024">Сезон 2024/25</option>
-        <option value="2023">Сезон 2023/24</option>
-        <option value="2022">Сезон 2022/23</option>
-        <option value="2021">Сезон 2021/22</option>
-        <option value="2020">Сезон 2020/21</option>
-        <option value="2019">Сезон 2019/20</option>
-    </select>
-    <select id="roundFilter">
-        <option value="all">Все туры</option>
-    </select>
-</div>
+            <select id="seasonFilter">
+                <option value="2024">Сезон 2024/25</option>
+                <option value="2023">Сезон 2023/24</option>
+                <option value="2022">Сезон 2022/23</option>
+                <option value="2021">Сезон 2021/22</option>
+                <option value="2020">Сезон 2020/21</option>
+                <option value="2019">Сезон 2019/20</option>
+            </select>
+            <select id="roundFilter">
+                <option value="all">Все туры</option>
+            </select>
+        </div>
         <div id="matches" class="loading">Загрузка матчей...</div>
 
         <h2>Турнирная таблица</h2>
@@ -208,6 +188,7 @@ tr.zone-relegation td:first-child {
 
         let currentSeason = '2024';
         let allMatches = [];
+
         function formatDate(iso) {
             if (!iso) return '—';
             const d = new Date(iso);
@@ -217,30 +198,28 @@ tr.zone-relegation td:first-child {
         }
 
         async function loadMatches() {
-    try {
-        const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${currentSeason}`);
-        allMatches = await res.json();
+            try {
+                const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${currentSeason}`);
+                allMatches = await res.json();
 
-        // Очищаем фильтр туров от старых значений
-        const filter = document.getElementById('roundFilter');
-        filter.innerHTML = '<option value="all">Все туры</option>';
+                const filter = document.getElementById('roundFilter');
+                filter.innerHTML = '<option value="all">Все туры</option>';
 
-        // Заполняем фильтр туров
-        const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
-        rounds.forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r;
-    // Переводим "1. Spieltag" → "1-й тур"
-    const match = r.match(/^(\d+)\.\s*Spieltag$/i);
-    opt.textContent = match ? `${match[1]}-й тур` : r;
-    filter.appendChild(opt);
-});
-        renderMatches('all');
-    } catch (e) {
-        document.getElementById('matches').innerHTML =
-            '<div class="error">Ошибка загрузки матчей</div>';
-    }
-}
+                const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
+                rounds.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r;
+                    const match = r.match(/^(\d+)\.\s*Spieltag$/i);
+                    opt.textContent = match ? `${match[1]}-й тур` : r;
+                    filter.appendChild(opt);
+                });
+
+                renderMatches('all');
+            } catch (e) {
+                document.getElementById('matches').innerHTML =
+                    '<div class="error">Ошибка загрузки матчей</div>';
+            }
+        }
 
         function renderMatches(round) {
             const container = document.getElementById('matches');
@@ -276,76 +255,119 @@ tr.zone-relegation td:first-child {
         }
 
         async function loadTable() {
-    try {
-        const res = await fetch(`${API_BASE}/getbltable/${LEAGUE}/${currentSeason}`);
-        const data = await res.json();
+            try {
+                // Считаем статистику из матчей
+                const stats = {};
 
-       const rows = data.map((t, i) => {
-    const pos = i + 1;
-    const diff = t.goalsFor - t.goalsAgainst;
-    const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+                allMatches.forEach(m => {
+                    if (!m.matchIsFinished) return;
+                    const result = m.matchResults?.[0];
+                    if (!result) return;
 
-    // Подсветка зон
-    let rowClass = '';
-    if (pos <= 4) rowClass = 'zone-champions';   // ЛЧ
-    else if (pos === 5) rowClass = 'zone-europa'; // ЛЕ
-    else if (pos === 6) rowClass = 'zone-conference'; // ЛК
-    else if (pos >= 16) rowClass = 'zone-relegation'; // Вылет
+                    const t1 = m.team1.teamName;
+                    const t2 = m.team2.teamName;
+                    const g1 = result.pointsTeam1;
+                    const g2 = result.pointsTeam2;
 
-    return `
-        <tr class="${rowClass}">
-            <td class="pos">${pos}</td>
-            <td>${t.teamName}</td>
-            <td>${t.matches}</td>
-            <td>${t.won}</td>
-            <td>${t.draw}</td>
-            <td>${t.lost}</td>
-            <td>${t.goalsFor}</td>
-            <td>${t.goalsAgainst}</td>
-            <td class="diff">${diffText}</td>
-            <td class="pts">${t.points}</td>
-        </tr>
-    `;
-}).join('');
-        document.getElementById('table').innerHTML = `
-            <table>
-               <thead>
-    <tr>
-        <th>#</th>
-        <th>Команда</th>
-        <th>И</th>
-        <th>В</th>
-        <th>Н</th>
-        <th>П</th>
-        <th>ЗМ</th>
-        <th>ПМ</th>
-        <th>РМ</th>
-        <th>О</th>
-    </tr>
-</thead>
-                <tbody>${rows}</tbody>
-            </table>
-        `;
-    } catch (e) {
-        document.getElementById('table').innerHTML =
-            '<div class="error">Ошибка загрузки таблицы</div>';
-    }
-}
+                    if (!stats[t1]) stats[t1] = { name: t1, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
+                    if (!stats[t2]) stats[t2] = { name: t2, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
 
-      document.getElementById('seasonFilter').addEventListener('change', (e) => {
-    currentSeason = e.target.value;
-    document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
-    document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
-    loadMatches();
-    loadTable();
-});
+                    stats[t1].matches++;
+                    stats[t2].matches++;
+                    stats[t1].gf += g1;
+                    stats[t1].ga += g2;
+                    stats[t2].gf += g2;
+                    stats[t2].ga += g1;
 
-document.getElementById('roundFilter').addEventListener('change', (e) => {
-    renderMatches(e.target.value);
-});
+                    if (g1 > g2) {
+                        stats[t1].won++; stats[t1].points += 3;
+                        stats[t2].lost++;
+                    } else if (g1 < g2) {
+                        stats[t2].won++; stats[t2].points += 3;
+                        stats[t1].lost++;
+                    } else {
+                        stats[t1].draw++; stats[t1].points += 1;
+                        stats[t2].draw++; stats[t2].points += 1;
+                    }
+                });
 
-loadMatches();
-loadTable();
+                // Сортируем: очки → разница мячей → забитые
+                const data = Object.values(stats).sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    const diffA = a.gf - a.ga;
+                    const diffB = b.gf - b.ga;
+                    if (diffB !== diffA) return diffB - diffA;
+                    return b.gf - a.gf;
+                });
+
+                const rows = data.map((t, i) => {
+                    const pos = i + 1;
+                    const diff = t.gf - t.ga;
+                    const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+
+                    let rowClass = '';
+                    if (pos <= 4) rowClass = 'zone-champions';
+                    else if (pos === 5) rowClass = 'zone-europa';
+                    else if (pos === 6) rowClass = 'zone-conference';
+                    else if (pos >= 16) rowClass = 'zone-relegation';
+
+                    return `
+                        <tr class="${rowClass}">
+                            <td class="pos">${pos}</td>
+                            <td>${t.name}</td>
+                            <td>${t.matches}</td>
+                            <td>${t.won}</td>
+                            <td>${t.draw}</td>
+                            <td>${t.lost}</td>
+                            <td>${t.gf}</td>
+                            <td>${t.ga}</td>
+                            <td class="diff">${diffText}</td>
+                            <td class="pts">${t.points}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                document.getElementById('table').innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Команда</th>
+                                <th>И</th>
+                                <th>В</th>
+                                <th>Н</th>
+                                <th>П</th>
+                                <th>ЗМ</th>
+                                <th>ПМ</th>
+                                <th>РМ</th>
+                                <th>О</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (e) {
+                document.getElementById('table').innerHTML =
+                    '<div class="error">Ошибка загрузки таблицы</div>';
+            }
+        }
+
+        document.getElementById('seasonFilter').addEventListener('change', async (e) => {
+            currentSeason = e.target.value;
+            document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
+            document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
+            await loadMatches();
+            await loadTable();
+        });
+
+        document.getElementById('roundFilter').addEventListener('change', (e) => {
+            renderMatches(e.target.value);
+        });
+
+        (async () => {
+            await loadMatches();
+            await loadTable();
+        })();
     </script>
 </body>
 </html>
