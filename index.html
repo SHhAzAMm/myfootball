@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бундеслига 2024 — Матчи и таблица</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        h2 { font-size: 20px; margin: 32px 0 16px; color: #333; }
+        .subtitle { color: #666; margin-bottom: 24px; }
+
+        .controls {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        select {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 15px;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .match {
+            background: white;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .match-date {
+            font-size: 13px;
+            color: #888;
+            min-width: 110px;
+        }
+        .match-teams {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .team { flex: 1; }
+        .team.away { text-align: right; }
+        .score {
+            font-weight: bold;
+            background: #1a1a2e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            min-width: 60px;
+            text-align: center;
+            font-size: 15px;
+        }
+        .score.pending { background: #ccc; font-size: 13px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        th {
+            background: #1a1a2e;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f9f9f9; }
+        .pos { font-weight: bold; color: #666; width: 30px; }
+        .pts { font-weight: bold; }
+
+        .loading { color: #888; padding: 20px; text-align: center; }
+        .error { color: #c00; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚽ Бундеслига 2024</h1>
+        <p class="subtitle">Матчи и турнирная таблица</p>
+
+        <h2>Матчи</h2>
+        <div class="controls">
+            <select id="roundFilter">
+                <option value="all">Все туры</option>
+            </select>
+        </div>
+        <div id="matches" class="loading">Загрузка матчей...</div>
+
+        <h2>Турнирная таблица</h2>
+        <div id="table" class="loading">Загрузка таблицы...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.openligadb.de';
+        const LEAGUE = 'bl1';
+        const SEASON = '2024';
+
+        let allMatches = [];
+
+        function formatDate(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleDateString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+        }
+
+        async function loadMatches() {
+            try {
+                const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${SEASON}`);
+                allMatches = await res.json();
+
+                // Заполняем фильтр туров
+                const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
+                const filter = document.getElementById('roundFilter');
+                rounds.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r;
+                    opt.textContent = r;
+                    filter.appendChild(opt);
+                });
+
+                filter.addEventListener('change', () => renderMatches(filter.value));
+                renderMatches('all');
+            } catch (e) {
+                document.getElementById('matches').innerHTML =
+                    '<div class="error">Ошибка загрузки матчей</div>';
+            }
+        }
+
+        function renderMatches(round) {
+            const container = document.getElementById('matches');
+            let list = allMatches;
+            if (round !== 'all') {
+                list = allMatches.filter(m => m.group?.groupName === round);
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="loading">Нет матчей</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(m => {
+                const result = m.matchResults?.[0];
+                const isFinished = result && m.matchIsFinished;
+                const score = isFinished
+                    ? `${result.pointsTeam1} : ${result.pointsTeam2}`
+                    : '—';
+                const scoreClass = isFinished ? 'score' : 'score pending';
+
+                return `
+                    <div class="match">
+                        <div class="match-date">${formatDate(m.matchDateTime)}</div>
+                        <div class="match-teams">
+                            <span class="team">${m.team1.teamName}</span>
+                            <span class="${scoreClass}">${score}</span>
+                            <span class="team away">${m.team2.teamName}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadTable() {
+            try {
+                const res = await fetch(`${API_BASE}/getbltable/${LEAGUE}/${SEASON}`);
+                const data = await res.json();
+
+                const rows = data.map((t, i) => `
+                    <tr>
+                        <td class="pos">${i + 1}</td>
+                        <td>${t.teamName}</td>
+                        <td>${t.matches}</td>
+                        <td>${t.won}</td>
+                        <td>${t.draw}</td>
+                        <td>${t.lost}</td>
+                        <td>${t.goalsFor}:${t.goalsAgainst}</td>
+                        <td class="pts">${t.points}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('table').innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Команда</th>
+                                <th>И</th>
+                                <th>В</th>
+                                <th>Н</th>
+                                <th>П</th>
+                                <th>Мячи</th>
+                                <th>О</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (e) {
+                document.getElementById('table').innerHTML =
+                    '<div class="error">Ошибка загрузки таблицы</div>';
+            }
+        }
+
+        loadMatches();
+        loadTable();
+    </script>
+</body>
+</html>
