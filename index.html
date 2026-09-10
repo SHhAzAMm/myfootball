@@ -101,6 +101,20 @@
     /* ═══════════════════════════════════════════
    МОБИЛЬНАЯ АДАПТАЦИЯ
    ═══════════════════════════════════════════ */
+   /* Подсветка зон в таблице */
+tr.zone-champions td:first-child {
+    border-left: 4px solid #2ecc71;
+}
+tr.zone-europa td:first-child {
+    border-left: 4px solid #3498db;
+}
+tr.zone-conference td:first-child {
+    border-left: 4px solid #1abc9c;
+}
+tr.zone-relegation td:first-child {
+    border-left: 4px solid #e74c3c;
+}
+.diff { font-weight: 600; color: #555; }
 @media (max-width: 600px) {
     body {
         padding: 12px;
@@ -149,7 +163,7 @@
     select { width: 100%; min-width: auto; }
 
     /* Таблица — компактнее */
-    th, td { padding: 8px 4px; font-size: 12px; }
+    th, td { padding: 8px 3px; font-size: 11px; }
     th { font-size: 11px; }
     .pos { width: 22px; }
 }
@@ -266,33 +280,49 @@
         const res = await fetch(`${API_BASE}/getbltable/${LEAGUE}/${currentSeason}`);
         const data = await res.json();
 
-        const rows = data.map((t, i) => `
-            <tr>
-                <td class="pos">${i + 1}</td>
-                <td>${t.teamName}</td>
-                <td>${t.matches}</td>
-                <td>${t.won}</td>
-                <td>${t.draw}</td>
-                <td>${t.lost}</td>
-                <td>${t.goalsFor}:${t.goalsAgainst}</td>
-                <td class="pts">${t.points}</td>
-            </tr>
-        `).join('');
+       const rows = data.map((t, i) => {
+    const pos = i + 1;
+    const diff = t.goalsFor - t.goalsAgainst;
+    const diffText = diff > 0 ? `+${diff}` : `${diff}`;
 
+    // Подсветка зон
+    let rowClass = '';
+    if (pos <= 4) rowClass = 'zone-champions';   // ЛЧ
+    else if (pos === 5) rowClass = 'zone-europa'; // ЛЕ
+    else if (pos === 6) rowClass = 'zone-conference'; // ЛК
+    else if (pos >= 16) rowClass = 'zone-relegation'; // Вылет
+
+    return `
+        <tr class="${rowClass}">
+            <td class="pos">${pos}</td>
+            <td>${t.teamName}</td>
+            <td>${t.matches}</td>
+            <td>${t.won}</td>
+            <td>${t.draw}</td>
+            <td>${t.lost}</td>
+            <td>${t.goalsFor}</td>
+            <td>${t.goalsAgainst}</td>
+            <td class="diff">${diffText}</td>
+            <td class="pts">${t.points}</td>
+        </tr>
+    `;
+}).join('');
         document.getElementById('table').innerHTML = `
             <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Команда</th>
-                        <th>И</th>
-                        <th>В</th>
-                        <th>Н</th>
-                        <th>П</th>
-                        <th>Мячи</th>
-                        <th>О</th>
-                    </tr>
-                </thead>
+               <thead>
+    <tr>
+        <th>#</th>
+        <th>Команда</th>
+        <th>И</th>
+        <th>В</th>
+        <th>Н</th>
+        <th>П</th>
+        <th>ЗМ</th>
+        <th>ПМ</th>
+        <th>РМ</th>
+        <th>О</th>
+    </tr>
+</thead>
                 <tbody>${rows}</tbody>
             </table>
         `;
