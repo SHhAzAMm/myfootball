@@ -159,8 +159,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Бундеслига 2024 (обновлено)</h1>
-        <p class="subtitle">Матчи и турнирная таблица — работает автодеплой!</p>
+        <h1 id="pageTitle">⚽ Бундеслига 2024/25</h1>
+<p class="subtitle" id="pageSubtitle">Матчи и турнирная таблица</p>
 
         <h2>Матчи</h2>
         <div class="controls">
@@ -183,7 +183,21 @@
     </div>
 
     <script>
-        const API_BASE = 'https://api.openligadb.de';
+       function formatSeason(season) {
+    // "2024" → "2024/25"
+    const year = parseInt(season);
+    const next = (year + 1) % 100;
+    return `${year}/${next.toString().padStart(2, '0')}`;
+}
+
+function updateTitle() {
+    const title = document.getElementById('pageTitle');
+    const subtitle = document.getElementById('pageSubtitle');
+    title.textContent = `⚽ Бундеслига ${formatSeason(currentSeason)}`;
+    subtitle.textContent = `Матчи и турнирная таблица — сезон ${formatSeason(currentSeason)}`;
+}
+
+       const API_BASE = 'https://api.openligadb.de';
         const LEAGUE = 'bl1';
 
         let currentSeason = '2024';
@@ -352,22 +366,25 @@
             }
         }
 
-        document.getElementById('seasonFilter').addEventListener('change', async (e) => {
-            currentSeason = e.target.value;
-            document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
-            document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
-            await loadMatches();
-            await loadTable();
-        });
+            document.getElementById('seasonFilter').addEventListener('change', async (e) => {
+    currentSeason = e.target.value;
+    updateTitle();
+    document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
+    document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
+    await loadMatches();
+    await loadTable();
+});
 
-        document.getElementById('roundFilter').addEventListener('change', (e) => {
-            renderMatches(e.target.value);
-        });
+document.getElementById('roundFilter').addEventListener('change', (e) => {
+    renderMatches(e.target.value);
+});
 
-        (async () => {
-            await loadMatches();
-            await loadTable();
-        })();
+(async () => {
+    updateTitle();
+    await loadMatches();
+    await loadTable();
+})();
+        
     </script>
 </body>
 </html>
