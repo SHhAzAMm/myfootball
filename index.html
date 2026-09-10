@@ -214,12 +214,13 @@
         // Заполняем фильтр туров
         const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
         rounds.forEach(r => {
-            const opt = document.createElement('option');
-            opt.value = r;
-            opt.textContent = r;
-            filter.appendChild(opt);
-        });
-
+    const opt = document.createElement('option');
+    opt.value = r;
+    // Переводим "1. Spieltag" → "1-й тур"
+    const match = r.match(/^(\d+)\.\s*Spieltag$/i);
+    opt.textContent = match ? `${match[1]}-й тур` : r;
+    filter.appendChild(opt);
+});
         renderMatches('all');
     } catch (e) {
         document.getElementById('matches').innerHTML =
