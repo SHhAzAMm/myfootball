@@ -170,10 +170,18 @@
 
         <h2>Матчи</h2>
         <div class="controls">
-            <select id="roundFilter">
-                <option value="all">Все туры</option>
-            </select>
-        </div>
+    <select id="seasonFilter">
+        <option value="2024">Сезон 2024/25</option>
+        <option value="2023">Сезон 2023/24</option>
+        <option value="2022">Сезон 2022/23</option>
+        <option value="2021">Сезон 2021/22</option>
+        <option value="2020">Сезон 2020/21</option>
+        <option value="2019">Сезон 2019/20</option>
+    </select>
+    <select id="roundFilter">
+        <option value="all">Все туры</option>
+    </select>
+</div>
         <div id="matches" class="loading">Загрузка матчей...</div>
 
         <h2>Турнирная таблица</h2>
@@ -183,10 +191,9 @@
     <script>
         const API_BASE = 'https://api.openligadb.de';
         const LEAGUE = 'bl1';
-        const SEASON = '2024';
 
+        let currentSeason = '2024';
         let allMatches = [];
-
         function formatDate(iso) {
             if (!iso) return '—';
             const d = new Date(iso);
@@ -196,27 +203,29 @@
         }
 
         async function loadMatches() {
-            try {
-                const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${SEASON}`);
-                allMatches = await res.json();
+    try {
+        const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${currentSeason}`);
+        allMatches = await res.json();
 
-                // Заполняем фильтр туров
-                const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
-                const filter = document.getElementById('roundFilter');
-                rounds.forEach(r => {
-                    const opt = document.createElement('option');
-                    opt.value = r;
-                    opt.textContent = r;
-                    filter.appendChild(opt);
-                });
+        // Очищаем фильтр туров от старых значений
+        const filter = document.getElementById('roundFilter');
+        filter.innerHTML = '<option value="all">Все туры</option>';
 
-                filter.addEventListener('change', () => renderMatches(filter.value));
-                renderMatches('all');
-            } catch (e) {
-                document.getElementById('matches').innerHTML =
-                    '<div class="error">Ошибка загрузки матчей</div>';
-            }
-        }
+        // Заполняем фильтр туров
+        const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
+        rounds.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r;
+            opt.textContent = r;
+            filter.appendChild(opt);
+        });
+
+        renderMatches('all');
+    } catch (e) {
+        document.getElementById('matches').innerHTML =
+            '<div class="error">Ошибка загрузки матчей</div>';
+    }
+}
 
         function renderMatches(round) {
             const container = document.getElementById('matches');
@@ -252,48 +261,60 @@
         }
 
         async function loadTable() {
-            try {
-                const res = await fetch(`${API_BASE}/getbltable/${LEAGUE}/${SEASON}`);
-                const data = await res.json();
+    try {
+        const res = await fetch(`${API_BASE}/getbltable/${LEAGUE}/${currentSeason}`);
+        const data = await res.json();
 
-                const rows = data.map((t, i) => `
+        const rows = data.map((t, i) => `
+            <tr>
+                <td class="pos">${i + 1}</td>
+                <td>${t.teamName}</td>
+                <td>${t.matches}</td>
+                <td>${t.won}</td>
+                <td>${t.draw}</td>
+                <td>${t.lost}</td>
+                <td>${t.goalsFor}:${t.goalsAgainst}</td>
+                <td class="pts">${t.points}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('table').innerHTML = `
+            <table>
+                <thead>
                     <tr>
-                        <td class="pos">${i + 1}</td>
-                        <td>${t.teamName}</td>
-                        <td>${t.matches}</td>
-                        <td>${t.won}</td>
-                        <td>${t.draw}</td>
-                        <td>${t.lost}</td>
-                        <td>${t.goalsFor}:${t.goalsAgainst}</td>
-                        <td class="pts">${t.points}</td>
+                        <th>#</th>
+                        <th>Команда</th>
+                        <th>И</th>
+                        <th>В</th>
+                        <th>Н</th>
+                        <th>П</th>
+                        <th>Мячи</th>
+                        <th>О</th>
                     </tr>
-                `).join('');
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    } catch (e) {
+        document.getElementById('table').innerHTML =
+            '<div class="error">Ошибка загрузки таблицы</div>';
+    }
+}
 
-                document.getElementById('table').innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Команда</th>
-                                <th>И</th>
-                                <th>В</th>
-                                <th>Н</th>
-                                <th>П</th>
-                                <th>Мячи</th>
-                                <th>О</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
-            } catch (e) {
-                document.getElementById('table').innerHTML =
-                    '<div class="error">Ошибка загрузки таблицы</div>';
-            }
-        }
+      document.getElementById('seasonFilter').addEventListener('change', (e) => {
+    currentSeason = e.target.value;
+    document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
+    document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
+    loadMatches();
+    loadTable();
+});
 
-        loadMatches();
-        loadTable();
+document.getElementById('roundFilter').addEventListener('change', (e) => {
+    renderMatches(e.target.value);
+});
+
+loadMatches();
+loadTable();
     </script>
 </body>
 </html>
