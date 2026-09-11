@@ -81,6 +81,11 @@
         .score.pending { background: #ccc; font-size: 15px; }
 
         /* Таблица */
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -193,6 +198,19 @@
             h1 { font-size: 24px; }
             h2 { font-size: 20px; margin: 28px 0 14px; }
             .subtitle { font-size: 15px; }
+
+            /* Таблица прокручивается по горизонтали */
+            .table-scroll {
+                margin-left: -14px;
+                margin-right: -14px;
+                padding-left: 14px;
+                padding-right: 14px;
+                border-radius: 0;
+            }
+            .table-scroll table {
+                min-width: 680px;
+            }
+            td.team-cell { white-space: normal; }
 
             .match {
                 flex-direction: column;
@@ -463,23 +481,25 @@
                 }).join('');
 
                 document.getElementById('table').innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Команда</th>
-                                <th>И</th>
-                                <th>В</th>
-                                <th>Н</th>
-                                <th>П</th>
-                                <th>ЗМ</th>
-                                <th>ПМ</th>
-                                <th>РМ</th>
-                                <th>О</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Команда</th>
+                                    <th>И</th>
+                                    <th>В</th>
+                                    <th>Н</th>
+                                    <th>П</th>
+                                    <th>ЗМ</th>
+                                    <th>ПМ</th>
+                                    <th>РМ</th>
+                                    <th>О</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
                 `;
             } catch (e) {
                 document.getElementById('table').innerHTML =
