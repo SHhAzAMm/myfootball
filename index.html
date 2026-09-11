@@ -99,7 +99,6 @@
         .loading { color: #888; padding: 24px; text-align: center; font-size: 16px; }
         .error { color: #c00; padding: 24px; text-align: center; font-size: 16px; }
 
-        /* Подсветка зон */
         tr.zone-champions td:first-child {
             border-left: 5px solid #1a5f9e;
             background: rgba(26, 95, 158, 0.12);
@@ -117,7 +116,6 @@
             background: rgba(231, 76, 60, 0.1);
         }
 
-        /* Логотипы */
         .team-logo {
             width: 36px !important;
             height: 36px !important;
@@ -144,7 +142,6 @@
             margin-right: 8px;
         }
 
-        /* Легенда */
         .legend {
             display: flex;
             flex-wrap: wrap;
@@ -159,7 +156,6 @@
         .legend-item { display: flex; align-items: center; gap: 8px; color: #555; }
         .legend-color { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
-        /* Бомбардиры */
         .scorer {
             display: grid;
             grid-template-columns: 40px 1fr auto 60px;
@@ -184,7 +180,6 @@
             text-align: center;
         }
 
-        /* Мобильная адаптация */
         @media (max-width: 600px) {
             body { padding: 14px; -webkit-text-size-adjust: 100%; }
             h1 { font-size: 24px; }
@@ -218,21 +213,17 @@
             .controls { flex-direction: column; align-items: stretch; }
             select { width: 100%; min-width: auto; font-size: 15px; }
 
-            /* Таблица */
             th, td { padding: 10px 5px; font-size: 13px; }
             th { font-size: 12px; }
             .pos { width: 26px; }
 
-            /* Логотипы на мобильном */
             .team-logo { width: 26px !important; height: 26px !important; }
             .table-logo { width: 24px !important; height: 24px !important; }
             .scorer-logo { width: 18px; height: 18px; }
 
-            /* Легенда */
             .legend { gap: 12px; padding: 12px 14px; font-size: 13px; }
             .legend-color { width: 12px; height: 12px; }
 
-            /* Бомбардиры */
             .scorer {
                 grid-template-columns: 28px 1fr 44px;
                 gap: 10px;
@@ -492,14 +483,16 @@
                     .sort((a, b) => b.goalCount - a.goalCount)
                     .slice(0, 10);
 
+                // Собираем логотипы по teamId (а не по имени)
                 const teamLogos = {};
                 allMatches.forEach(m => {
-                    teamLogos[m.team1.teamName] = m.team1.teamIconUrl;
-                    teamLogos[m.team2.teamName] = m.team2.teamIconUrl;
+                    teamLogos[m.team1.teamId] = m.team1.teamIconUrl;
+                    teamLogos[m.team2.teamId] = m.team2.teamIconUrl;
                 });
 
                 const rows = top.map((s, i) => {
-                    const logo = teamLogos[s.teamName] || '';
+                    // API бомбардиров отдаёт teamId — используем его
+                    const logo = teamLogos[s.teamId] || '';
                     return `
                         <div class="scorer">
                             <span class="scorer-pos">${i + 1}</span>
