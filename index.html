@@ -300,9 +300,15 @@
                     <div class="match">
                         <div class="match-date">${formatDate(m.matchDateTime)}</div>
                         <div class="match-teams">
-                            <span class="team">${m.team1.teamName}</span>
-                            <span class="${scoreClass}">${score}</span>
-                            <span class="team away">${m.team2.teamName}</span>
+                          <span class="team">
+                           <img src="${m.team1.teamIconUrl}" alt="" class="team-logo">
+                           ${m.team1.teamName}
+                           </span>
+                           <span class="${scoreClass}">${score}</span>
+                           <span class="team away">
+                             ${m.team2.teamName}
+                             <img src="${m.team2.teamIconUrl}" alt="" class="team-logo">
+                         </span>
                         </div>
                     </div>
                 `;
@@ -323,8 +329,8 @@
                     const g1 = result.pointsTeam1;
                     const g2 = result.pointsTeam2;
 
-                    if (!stats[t1]) stats[t1] = { name: t1, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
-                    if (!stats[t2]) stats[t2] = { name: t2, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
+                    if (!stats[t1]) stats[t1] = { name: t1, logo: m.team1.teamIconUrl, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
+                    if (!stats[t2]) stats[t2] = { name: t2, logo: m.team2.teamIconUrl, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
 
                     stats[t1].matches++;
                     stats[t2].matches++;
@@ -367,7 +373,7 @@
                     return `
                         <tr class="${rowClass}">
                             <td class="pos">${pos}</td>
-                            <td>${t.name}</td>
+                            <td><img src="${t.logo}" alt="" class="table-logo">${t.name}</td>
                             <td>${t.matches}</td>
                             <td>${t.won}</td>
                             <td>${t.draw}</td>
