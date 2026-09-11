@@ -35,6 +35,7 @@
             min-width: 220px;
         }
 
+        /* Карточка матча */
         .match {
             background: white;
             padding: 18px 22px;
@@ -57,16 +58,16 @@
             align-items: center;
             gap: 16px;
         }
-       .team {
-    flex: 1;
-    font-size: 17px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.team.away {
-    justify-content: flex-end;
-}
+        .team {
+            flex: 1;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .team.away {
+            justify-content: flex-end;
+        }
         .score {
             font-weight: bold;
             background: #1a1a2e;
@@ -79,6 +80,7 @@
         }
         .score.pending { background: #ccc; font-size: 15px; }
 
+        /* Таблица */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -92,6 +94,7 @@
             text-align: left;
             border-bottom: 1px solid #eee;
             font-size: 16px;
+            vertical-align: middle;
         }
         th {
             background: #1a1a2e;
@@ -104,9 +107,15 @@
         .pts { font-weight: bold; }
         .diff { font-weight: 600; color: #555; }
 
+        /* Ячейка с командой — логотип и текст на одной линии */
+        td.team-cell {
+            white-space: nowrap;
+        }
+
         .loading { color: #888; padding: 24px; text-align: center; font-size: 16px; }
         .error { color: #c00; padding: 24px; text-align: center; font-size: 16px; }
 
+        /* Подсветка зон */
         tr.zone-champions td:first-child {
             border-left: 5px solid #1a5f9e;
             background: rgba(26, 95, 158, 0.12);
@@ -124,34 +133,22 @@
             background: rgba(231, 76, 60, 0.1);
         }
 
-         
-            .team-logo {
-    width: 36px !important;
-    height: 36px !important;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-        
+        /* Логотипы */
+        .team-logo {
+            width: 36px !important;
+            height: 36px !important;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
         .table-logo {
-    width: 32px !important;
-    height: 32px !important;
-    object-fit: contain;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-td:nth-child(2) {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-        .scorer-logo {
-            width: 26px;
-            height: 26px;
+            width: 32px !important;
+            height: 32px !important;
             object-fit: contain;
             vertical-align: middle;
-            margin-right: 8px;
+            margin-right: 10px;
         }
 
+        /* Легенда */
         .legend {
             display: flex;
             flex-wrap: wrap;
@@ -166,22 +163,21 @@ td:nth-child(2) {
         .legend-item { display: flex; align-items: center; gap: 8px; color: #555; }
         .legend-color { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
+        /* Бомбардиры */
         .scorer {
-    display: grid;
-    grid-template-columns: 40px 1fr 60px;
-    align-items: center;
-    gap: 16px;
-    background: white;
-    padding: 16px 20px;
-    margin: 10px 0;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    font-size: 17px;
-}
-        
+            display: grid;
+            grid-template-columns: 40px 1fr 60px;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            padding: 16px 20px;
+            margin: 10px 0;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            font-size: 17px;
+        }
         .scorer-pos { font-weight: bold; color: #666; text-align: center; }
         .scorer-name { font-weight: 600; }
-        .scorer-team { color: #888; font-size: 15px; }
         .scorer-goals {
             font-weight: bold;
             background: #1a1a2e;
@@ -191,6 +187,7 @@ td:nth-child(2) {
             text-align: center;
         }
 
+        /* Мобильная адаптация */
         @media (max-width: 600px) {
             body { padding: 14px; -webkit-text-size-adjust: 100%; }
             h1 { font-size: 24px; }
@@ -217,14 +214,14 @@ td:nth-child(2) {
                 width: 100%;
             }
             .team {
-    font-size: 15px;
-    word-break: break-word;
-    line-height: 1.2;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.team.away { justify-content: flex-end; }
+                font-size: 15px;
+                word-break: break-word;
+                line-height: 1.2;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .team.away { justify-content: flex-end; }
             .score { font-size: 16px; min-width: 56px; padding: 5px 10px; }
             .score.pending { font-size: 14px; }
 
@@ -237,7 +234,6 @@ td:nth-child(2) {
 
             .team-logo { width: 26px !important; height: 26px !important; }
             .table-logo { width: 24px !important; height: 24px !important; }
-            .scorer-logo { width: 18px; height: 18px; }
 
             .legend { gap: 12px; padding: 12px 14px; font-size: 13px; }
             .legend-color { width: 12px; height: 12px; }
@@ -248,7 +244,6 @@ td:nth-child(2) {
                 padding: 12px 14px;
                 font-size: 15px;
             }
-            .scorer-team { display: none; }
             .scorer-goals { padding: 4px 10px; font-size: 14px; }
         }
 
@@ -454,7 +449,7 @@ td:nth-child(2) {
                     return `
                         <tr class="${rowClass}">
                             <td class="pos">${pos}</td>
-                            <td><img src="${t.logo}" alt="" class="table-logo">${t.name}</td>
+                            <td class="team-cell"><img src="${t.logo}" alt="" class="table-logo">${t.name}</td>
                             <td>${t.matches}</td>
                             <td>${t.won}</td>
                             <td>${t.draw}</td>
@@ -493,28 +488,28 @@ td:nth-child(2) {
         }
 
         async function loadScorers() {
-    try {
-        const res = await fetch(`${API_BASE}/getgoalgetters/${LEAGUE}/${currentSeason}`);
-        const data = await res.json();
+            try {
+                const res = await fetch(`${API_BASE}/getgoalgetters/${LEAGUE}/${currentSeason}`);
+                const data = await res.json();
 
-        const top = data
-            .sort((a, b) => b.goalCount - a.goalCount)
-            .slice(0, 10);
+                const top = data
+                    .sort((a, b) => b.goalCount - a.goalCount)
+                    .slice(0, 10);
 
-        const rows = top.map((s, i) => `
-            <div class="scorer">
-                <span class="scorer-pos">${i + 1}</span>
-                <span class="scorer-name">${s.goalGetterName}</span>
-                <span class="scorer-goals">${s.goalCount}</span>
-            </div>
-        `).join('');
+                const rows = top.map((s, i) => `
+                    <div class="scorer">
+                        <span class="scorer-pos">${i + 1}</span>
+                        <span class="scorer-name">${s.goalGetterName}</span>
+                        <span class="scorer-goals">${s.goalCount}</span>
+                    </div>
+                `).join('');
 
-        document.getElementById('scorers').innerHTML = rows;
-    } catch (e) {
-        document.getElementById('scorers').innerHTML =
-            '<div class="error">Ошибка загрузки бомбардиров</div>';
-    }
-}
+                document.getElementById('scorers').innerHTML = rows;
+            } catch (e) {
+                document.getElementById('scorers').innerHTML =
+                    '<div class="error">Ошибка загрузки бомбардиров</div>';
+            }
+        }
 
         document.getElementById('seasonFilter').addEventListener('change', async (e) => {
             currentSeason = e.target.value;
