@@ -14,9 +14,118 @@
             line-height: 1.5;
         }
         .container { max-width: 1200px; margin: 0 auto; }
-        h1 { font-size: 34px; margin-bottom: 10px; }
+
+        /* ═══ ШАПКА ЛИГИ ═══ */
+        .league-header {
+            background: white;
+            border-radius: 14px;
+            padding: 22px 26px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .league-top {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .league-logo {
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+        .league-title-block {
+            flex: 1;
+        }
+        .league-title {
+            font-size: 30px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin: 0 0 4px 0;
+            letter-spacing: -0.3px;
+        }
+        .followers {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+        .followers b { color: #1a1a2e; font-weight: 800; }
+        .fav-btn {
+            background: #4355eb;
+            color: white;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .fav-btn:hover { background: #3444c9; }
+        .fav-btn .star { font-size: 15px; }
+
+        .league-sub {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .country-flag {
+            width: 28px;
+            height: 20px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
+        .country-name {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 15px;
+        }
+        .season-select {
+            padding: 6px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #f9fafb;
+            cursor: pointer;
+            color: #1a1a2e;
+            min-width: auto;
+            margin-left: 4px;
+        }
+
+        .season-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .progress-track {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #1a1a2e;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        .progress-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* ═══ ОБЩИЕ ЭЛЕМЕНТЫ ═══ */
         h2 { font-size: 24px; margin: 40px 0 20px; color: #333; }
-        .subtitle { color: #666; margin-bottom: 28px; font-size: 17px; }
 
         .controls {
             margin-bottom: 20px;
@@ -34,6 +143,7 @@
             cursor: pointer;
             min-width: 220px;
         }
+        .controls select { min-width: 220px; }
 
         /* Карточка матча */
         .match {
@@ -65,9 +175,7 @@
             align-items: center;
             gap: 10px;
         }
-        .team.away {
-            justify-content: flex-end;
-        }
+        .team.away { justify-content: flex-end; }
         .score {
             font-weight: bold;
             background: #1a1a2e;
@@ -111,34 +219,16 @@
         .pos { font-weight: bold; color: #666; width: 40px; }
         .pts { font-weight: bold; }
         .diff { font-weight: 600; color: #555; }
-
-        /* Ячейка с командой — логотип и текст на одной линии */
-        td.team-cell {
-            white-space: nowrap;
-        }
+        td.team-cell { white-space: nowrap; }
 
         .loading { color: #888; padding: 24px; text-align: center; font-size: 16px; }
         .error { color: #c00; padding: 24px; text-align: center; font-size: 16px; }
 
-        /* Подсветка зон */
-        tr.zone-champions td:first-child {
-            border-left: 5px solid #1a5f9e;
-            background: rgba(26, 95, 158, 0.12);
-        }
-        tr.zone-europa td:first-child {
-            border-left: 5px solid #f58220;
-            background: rgba(245, 130, 32, 0.15);
-        }
-        tr.zone-conference td:first-child {
-            border-left: 5px solid #009f4f;
-            background: rgba(0, 159, 79, 0.12);
-        }
-        tr.zone-relegation td:first-child {
-            border-left: 5px solid #e74c3c;
-            background: rgba(231, 76, 60, 0.1);
-        }
+        tr.zone-champions td:first-child { border-left: 5px solid #1a5f9e; background: rgba(26, 95, 158, 0.12); }
+        tr.zone-europa td:first-child { border-left: 5px solid #f58220; background: rgba(245, 130, 32, 0.15); }
+        tr.zone-conference td:first-child { border-left: 5px solid #009f4f; background: rgba(0, 159, 79, 0.12); }
+        tr.zone-relegation td:first-child { border-left: 5px solid #e74c3c; background: rgba(231, 76, 60, 0.1); }
 
-        /* Логотипы */
         .team-logo {
             width: 36px !important;
             height: 36px !important;
@@ -195,11 +285,17 @@
         /* Мобильная адаптация */
         @media (max-width: 600px) {
             body { padding: 14px; -webkit-text-size-adjust: 100%; }
-            h1 { font-size: 24px; }
             h2 { font-size: 20px; margin: 28px 0 14px; }
-            .subtitle { font-size: 15px; }
 
-            /* Таблица прокручивается по горизонтали */
+            /* Шапка на мобильном */
+            .league-header { padding: 16px 18px; }
+            .league-logo { width: 52px; height: 52px; }
+            .league-title { font-size: 22px; }
+            .followers { font-size: 12px; }
+            .fav-btn { padding: 9px 14px; font-size: 11px; }
+            .fav-btn .star { font-size: 13px; }
+            .country-name { font-size: 14px; }
+
             .table-scroll {
                 margin-left: -14px;
                 margin-right: -14px;
@@ -207,9 +303,7 @@
                 padding-right: 14px;
                 border-radius: 0;
             }
-            .table-scroll table {
-                min-width: 680px;
-            }
+            .table-scroll table { min-width: 680px; }
             td.team-cell { white-space: normal; }
 
             .match {
@@ -244,7 +338,7 @@
             .score.pending { font-size: 14px; }
 
             .controls { flex-direction: column; align-items: stretch; }
-            select { width: 100%; min-width: auto; font-size: 15px; }
+            .controls select { width: 100%; min-width: auto; font-size: 15px; }
 
             th, td { padding: 10px 5px; font-size: 13px; }
             th { font-size: 12px; }
@@ -266,6 +360,9 @@
         }
 
         @media (max-width: 400px) {
+            .league-title { font-size: 20px; }
+            .fav-btn { padding: 8px 10px; }
+            .fav-btn .btn-text { display: none; }
             .team { font-size: 14px; }
             .score { font-size: 15px; min-width: 50px; padding: 4px 8px; }
             th, td { padding: 8px 4px; font-size: 12px; }
@@ -275,25 +372,50 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="pageTitle">⚽ Бундеслига 2024/25</h1>
-        <p class="subtitle" id="pageSubtitle">Матчи и турнирная таблица</p>
 
-        <h2>Матчи</h2>
-        <div class="controls">
-            <select id="seasonFilter">
-                <option value="2024">Сезон 2024/25</option>
-                <option value="2023">Сезон 2023/24</option>
-                <option value="2022">Сезон 2022/23</option>
-                <option value="2021">Сезон 2021/22</option>
-                <option value="2020">Сезон 2020/21</option>
-                <option value="2019">Сезон 2019/20</option>
-            </select>
-            <select id="roundFilter">
-                <option value="all">Все туры</option>
-            </select>
-        </div>
-        <div id="matches" class="loading">Загрузка матчей...</div>
+        <!-- ═══ ШАПКА ЛИГИ ═══ -->
+        <header class="league-header">
+            <div class="league-top">
+                <img class="league-logo"
+                     src="https://upload.wikimedia.org/wikipedia/en/f/f9/Bundesliga_logo_%282017%29.svg"
+                     alt="Bundesliga">
+                <div class="league-title-block">
+                    <h1 class="league-title">Bundesliga <span id="headerSeason">2024/2025</span></h1>
+                    <div class="followers"><b>588k</b> followers</div>
+                </div>
+                <button class="fav-btn">
+                    <span class="star">★</span>
+                    <span class="btn-text">FAVOURITE</span>
+                </button>
+            </div>
 
+            <div class="league-sub">
+                <img class="country-flag"
+                     src="https://flagcdn.com/w40/de.png"
+                     alt="Germany">
+                <span class="country-name">Germany</span>
+                <select id="seasonFilter" class="season-select">
+                    <option value="2024">24/25</option>
+                    <option value="2023">23/24</option>
+                    <option value="2022">22/23</option>
+                    <option value="2021">21/22</option>
+                    <option value="2020">20/21</option>
+                    <option value="2019">19/20</option>
+                </select>
+            </div>
+
+            <div class="season-progress">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-dates">
+                    <span>28 Aug</span>
+                    <span>31 May</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══ ТУРНИРНАЯ ТАБЛИЦА ═══ -->
         <h2>Турнирная таблица</h2>
         <div id="table" class="loading">Загрузка таблицы...</div>
 
@@ -316,6 +438,16 @@
             </div>
         </div>
 
+        <!-- ═══ МАТЧИ ═══ -->
+        <h2>Матчи</h2>
+        <div class="controls">
+            <select id="roundFilter">
+                <option value="all">Все туры</option>
+            </select>
+        </div>
+        <div id="matches" class="loading">Загрузка матчей...</div>
+
+        <!-- ═══ БОМБАРДИРЫ ═══ -->
         <h2>Бомбардиры</h2>
         <div id="scorers" class="loading">Загрузка бомбардиров...</div>
     </div>
@@ -327,15 +459,22 @@
         let currentSeason = '2024';
         let allMatches = [];
 
-        function formatSeason(season) {
-            const year = parseInt(season);
-            const next = (year + 1) % 100;
-            return `${year}/${next.toString().padStart(2, '0')}`;
+        function updateTitle() {
+            const year = parseInt(currentSeason);
+            const next = year + 1;
+            document.getElementById('headerSeason').textContent = `${year}/${next}`;
+            updateProgress();
         }
 
-        function updateTitle() {
-            document.getElementById('pageTitle').textContent = `⚽ Бундеслига ${formatSeason(currentSeason)}`;
-            document.getElementById('pageSubtitle').textContent = `Матчи и турнирная таблица — сезон ${formatSeason(currentSeason)}`;
+        function updateProgress() {
+            const year = parseInt(currentSeason);
+            const start = new Date(year, 7, 28);     // 28 августа
+            const end = new Date(year + 1, 4, 31);   // 31 мая
+            const now = new Date();
+            let percent = ((now - start) / (end - start)) * 100;
+            if (percent < 0) percent = 0;
+            if (percent > 100) percent = 100;
+            document.getElementById('progressFill').style.width = percent + '%';
         }
 
         function formatDate(iso) {
