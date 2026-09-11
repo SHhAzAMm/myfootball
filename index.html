@@ -141,6 +141,25 @@
             border-radius: 6px;
             text-align: center;
         }
+        /* Логотипы команд */
+        .team-logo {
+            width: 20px !important;
+            height: 20px !important;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        .team.away .team-logo {
+            margin-right: 0;
+            margin-left: 6px;
+        }
+        .table-logo {
+            width: 18px !important;
+            height: 18px !important;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
 
         /* Мобильная адаптация */
         @media (max-width: 600px) {
@@ -189,7 +208,8 @@
             .scorer-team { display: none; }
             .scorer-goals { padding: 3px 8px; font-size: 13px; }
         }
-
+            .team-logo { width: 16px !important; height: 16px !important; }
+            .table-logo { width: 14px !important; height: 14px !important; } 
         @media (max-width: 400px) {
             .team { font-size: 13px; }
             .score { font-size: 13px; min-width: 44px; padding: 3px 6px; }
