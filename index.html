@@ -19,7 +19,7 @@
         /* Шапка */
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
         .header h1 {
             font-size: 42px;
@@ -32,6 +32,37 @@
             margin-bottom: 8px;
         }
         .header p { color: #94a3b8; font-size: 15px; }
+
+        /* Переключатель категорий */
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .cat-tab {
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .cat-tab:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .cat-tab.active {
+            background: linear-gradient(135deg, #ffd700, #ff9500);
+            color: #1a1a2e;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
+        }
 
         /* Статистика */
         .stats {
@@ -95,6 +126,7 @@
             letter-spacing: 1px;
             box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
             transition: transform 0.15s, box-shadow 0.15s;
+            font-family: inherit;
         }
         .open-btn:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -177,6 +209,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: background 0.15s;
+            font-family: inherit;
         }
         .reveal-close:hover { background: rgba(255,255,255,0.2); }
 
@@ -250,6 +283,7 @@
         @media (max-width: 600px) {
             body { padding: 14px; }
             .header h1 { font-size: 30px; }
+            .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 70px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
             .reveal-emoji { font-size: 80px; }
@@ -263,7 +297,13 @@
     <div class="container">
         <div class="header">
             <h1>🎁 BOXES</h1>
-            <p>Открывай боксы — собирай героев</p>
+            <p>Открывай боксы — собирай коллекцию</p>
+        </div>
+
+        <!-- Переключатель категорий -->
+        <div class="category-tabs">
+            <button class="cat-tab active" data-cat="anime">🎌 Аниме персонажи</button>
+            <button class="cat-tab" data-cat="gems">💎 Драгоценные камни</button>
         </div>
 
         <div class="stats">
@@ -277,7 +317,7 @@
             </div>
             <div class="stat">
                 <div class="stat-value" id="statTotal">0</div>
-                <div class="stat-label">Всего героев</div>
+                <div class="stat-label">Всего</div>
             </div>
         </div>
 
@@ -309,7 +349,9 @@
         //  ГЕРОИ — РЕДАКТИРУЙ ЗДЕСЬ
         //  rarities: common, rare, epic, legendary, mythical
         // ═══════════════════════════════════════════════
-        const HEROES = [
+
+        // 🎌 АНИМЕ ПЕРСОНАЖИ
+        const ANIME_HEROES = [
             { id: 'gojo',     name: 'Годжо',       emoji: '🥷', rarity: 'legendary', desc: 'Сильнейший' },
             { id: 'naruto',   name: 'Наруто',      emoji: '🍥', rarity: 'epic',      desc: 'Хокаге' },
             { id: 'goku',     name: 'Гоку',        emoji: '🔥', rarity: 'mythical',  desc: 'Супер Саян' },
@@ -332,6 +374,44 @@
             { id: 'ainz',     name: 'Айнз',        emoji: '💀', rarity: 'legendary', desc: 'Скелет' },
         ];
 
+        // 💎 ДРАГОЦЕННЫЕ КАМНИ
+        const GEM_HEROES = [
+            { id: 'diamond',     name: 'Алмаз',         emoji: '💎', rarity: 'mythical',  desc: 'Твёрдость 10' },
+            { id: 'alexandrite', name: 'Александрит',   emoji: '🔮', rarity: 'legendary', desc: 'Меняет цвет' },
+            { id: 'ruby',        name: 'Рубин',         emoji: '❤️‍🔥', rarity: 'legendary', desc: 'Камень страсти' },
+            { id: 'emerald',     name: 'Изумруд',       emoji: '💚', rarity: 'legendary', desc: 'Камень царей' },
+            { id: 'sapphire',    name: 'Сапфир',        emoji: '💙', rarity: 'legendary', desc: 'Небесный камень' },
+            { id: 'amethyst',    name: 'Аметист',       emoji: '💜', rarity: 'epic',      desc: 'Защита от сглаза' },
+            { id: 'topaz',       name: 'Топаз',         emoji: '🟡', rarity: 'epic',      desc: 'Солнечный камень' },
+            { id: 'opal',        name: 'Опал',          emoji: '🤍', rarity: 'epic',      desc: 'Все цвета радуги' },
+            { id: 'moonstone',   name: 'Лунный камень', emoji: '🌙', rarity: 'epic',      desc: 'Свет луны' },
+            { id: 'aquamarine',  name: 'Аквамарин',     emoji: '🌊', rarity: 'rare',      desc: 'Морская волна' },
+            { id: 'garnet',      name: 'Гранат',        emoji: '🍎', rarity: 'rare',      desc: 'Огонь и страсть' },
+            { id: 'tourmaline',  name: 'Турмалин',      emoji: '🌈', rarity: 'rare',      desc: 'Радужный камень' },
+            { id: 'malachite',   name: 'Малахит',       emoji: '🟢', rarity: 'rare',      desc: 'Зелёный узор' },
+            { id: 'obsidian',    name: 'Обсидиан',      emoji: '⚫', rarity: 'rare',      desc: 'Вулканическое стекло' },
+            { id: 'pearl',       name: 'Жемчуг',        emoji: '🦪', rarity: 'rare',      desc: 'Слёзы моря' },
+            { id: 'agate',       name: 'Агат',          emoji: '🟤', rarity: 'common',    desc: 'Полосатый камень' },
+            { id: 'quartz',      name: 'Кварц',         emoji: '⚪', rarity: 'common',    desc: 'Прозрачный кристалл' },
+            { id: 'amber',       name: 'Янтарь',        emoji: '🟠', rarity: 'common',    desc: 'Солнечная смола' },
+            { id: 'onyx',        name: 'Оникс',         emoji: '🖤', rarity: 'common',    desc: 'Чёрный камень' },
+            { id: 'pyrite',      name: 'Пирит',         emoji: '✨', rarity: 'common',    desc: 'Золото дураков' },
+        ];
+
+        // Категории
+        const CATEGORIES = {
+            anime: {
+                name: 'Аниме персонажи',
+                boxEmoji: '📦',
+                heroes: ANIME_HEROES,
+            },
+            gems: {
+                name: 'Драгоценные камни',
+                boxEmoji: '💠',
+                heroes: GEM_HEROES,
+            },
+        };
+
         // Шансы выпадения (в сумме = 100)
         const RARITY_CHANCES = {
             common:    55,
@@ -353,22 +433,35 @@
         //  ЛОГИКА — НЕ ТРОГАЙ, ЕСЛИ НЕ УВЕРЕН
         // ═══════════════════════════════════════════════
 
-        const STORAGE_KEY = 'boxes_progress_v1';
+        const STORAGE_KEY = 'boxes_progress_v2';
 
+        let currentCategory = 'anime';
         let state = {
-            opened: 0,
-            owned: {}, // id → count
+            opened: {}, // категория → число
+            owned: {},  // категория → { id: count }
         };
+
+        function initState() {
+            for (const cat of Object.keys(CATEGORIES)) {
+                if (state.opened[cat] === undefined) state.opened[cat] = 0;
+                if (!state.owned[cat]) state.owned[cat] = {};
+            }
+        }
 
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) state = JSON.parse(raw);
             } catch (e) { /* ignore */ }
+            initState();
         }
 
         function saveState() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function getHeroes() {
+            return CATEGORIES[currentCategory].heroes;
         }
 
         // Взвешенный рандом
@@ -382,12 +475,12 @@
             return 'common';
         }
 
-        // Случайный герой заданной редкости
+        // Случайный герой заданной редкости из текущей категории
         function pickHero(rarity) {
-            const pool = HEROES.filter(h => h.rarity === rarity);
+            const heroes = getHeroes();
+            const pool = heroes.filter(h => h.rarity === rarity);
             if (pool.length === 0) {
-                // если нет героев этой редкости — берём любого
-                return HEROES[Math.floor(Math.random() * HEROES.length)];
+                return heroes[Math.floor(Math.random() * heroes.length)];
             }
             return pool[Math.floor(Math.random() * pool.length)];
         }
@@ -399,7 +492,6 @@
             btn.disabled = true;
             box.classList.add('shaking');
 
-            // Имитация анимации
             await new Promise(r => setTimeout(r, 900));
 
             box.classList.remove('shaking');
@@ -407,8 +499,8 @@
             const rarity = rollRarity();
             const hero = pickHero(rarity);
 
-            state.opened++;
-            state.owned[hero.id] = (state.owned[hero.id] || 0) + 1;
+            state.opened[currentCategory]++;
+            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
             saveState();
 
             showReveal(hero);
@@ -436,20 +528,27 @@
         }
 
         function renderStats() {
-            document.getElementById('statOpened').textContent = state.opened;
-            document.getElementById('statCollected').textContent = Object.keys(state.owned).length;
-            document.getElementById('statTotal').textContent = HEROES.length;
+            const heroes = getHeroes();
+            const opened = state.opened[currentCategory] || 0;
+            const collected = Object.keys(state.owned[currentCategory] || {}).length;
+
+            document.getElementById('statOpened').textContent = opened;
+            document.getElementById('statCollected').textContent = collected;
+            document.getElementById('statTotal').textContent = heroes.length;
         }
 
         function renderCollection() {
             const container = document.getElementById('collection');
-            const sorted = [...HEROES].sort((a, b) => {
+            const heroes = getHeroes();
+            const owned = state.owned[currentCategory] || {};
+
+            const sorted = [...heroes].sort((a, b) => {
                 const order = ['mythical', 'legendary', 'epic', 'rare', 'common'];
                 return order.indexOf(a.rarity) - order.indexOf(b.rarity);
             });
 
             container.innerHTML = sorted.map(h => {
-                const count = state.owned[h.id] || 0;
+                const count = owned[h.id] || 0;
                 const locked = count === 0;
                 return `
                     <div class="hero-card ${h.rarity} ${locked ? 'locked' : ''}">
@@ -461,8 +560,26 @@
                 `;
             }).join('');
 
-            const collected = Object.keys(state.owned).length;
-            document.getElementById('collectionCount').textContent = `${collected} / ${HEROES.length}`;
+            const collected = Object.keys(owned).length;
+            document.getElementById('collectionCount').textContent = `${collected} / ${heroes.length}`;
+        }
+
+        function renderBox() {
+            document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
+        }
+
+        function switchCategory(cat) {
+            if (cat === currentCategory) return;
+            currentCategory = cat;
+
+            // Обновляем активную кнопку
+            document.querySelectorAll('.cat-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === cat);
+            });
+
+            renderBox();
+            renderStats();
+            renderCollection();
         }
 
         // Обработчики
@@ -472,8 +589,13 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
+        document.querySelectorAll('.cat-tab').forEach(btn => {
+            btn.addEventListener('click', () => switchCategory(btn.dataset.cat));
+        });
+
         // Старт
         loadState();
+        renderBox();
         renderStats();
         renderCollection();
     </script>
