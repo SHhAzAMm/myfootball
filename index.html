@@ -3,694 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бундеслига — Матчи, таблица, бомбардиры</title>
+    <title>🎁 Boxes — Открывай боксы</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f0f2f5;
-            color: #1a1a2e;
-            padding: 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
             line-height: 1.5;
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* ═══ ШАПКА ЛИГИ ═══ */
-        .league-header {
-            background: white;
-            border-radius: 14px;
-            padding: 22px 26px;
-            margin-bottom: 28px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        /* Шапка */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .league-top {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            margin-bottom: 18px;
+        .header h1 {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
-        .league-logo {
-            width: 72px;
-            height: 72px;
-            flex-shrink: 0;
-            object-fit: contain;
-        }
-        .league-title-block {
-            flex: 1;
-        }
-        .league-title {
-            font-size: 30px;
-            font-weight: 800;
-            color: #1a1a2e;
-            margin: 0 0 4px 0;
-            letter-spacing: -0.3px;
-        }
-        .followers {
-            font-size: 13px;
-            color: #6b7280;
-            font-weight: 600;
-        }
-        .followers b { color: #1a1a2e; font-weight: 800; }
-        .fav-btn {
-            background: #4355eb;
-            color: white;
-            border: none;
-            padding: 11px 22px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-        }
-        .fav-btn:hover { background: #3444c9; }
-        .fav-btn .star { font-size: 15px; }
+        .header p { color: #94a3b8; font-size: 15px; }
 
-        .league-sub {
+        /* Статистика */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 22px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #ffd700;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Кнопка открытия */
+        .open-zone {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+        .box-visual {
+            font-size: 100px;
+            margin-bottom: 20px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        .box-visual.shaking {
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-10deg) scale(1.05); }
+            75% { transform: rotate(10deg) scale(1.05); }
+        }
+        .open-btn {
+            background: linear-gradient(135deg, #ffd700, #ff9500);
+            color: #1a1a2e;
+            border: none;
+            padding: 16px 48px;
+            font-size: 18px;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .open-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255, 215, 0, 0.5);
+        }
+        .open-btn:active:not(:disabled) { transform: translateY(0); }
+        .open-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Модалка с результатом */
+        .reveal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .reveal-overlay.active { display: flex; }
+
+        .reveal-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 3px solid #475569;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .reveal-card.common   { border-color: #94a3b8; box-shadow: 0 0 40px rgba(148,163,184,0.5); }
+        .reveal-card.rare     { border-color: #3b82f6; box-shadow: 0 0 60px rgba(59,130,246,0.7); }
+        .reveal-card.epic     { border-color: #a855f7; box-shadow: 0 0 70px rgba(168,85,247,0.8); }
+        .reveal-card.legendary{ border-color: #f59e0b; box-shadow: 0 0 90px rgba(245,158,11,0.9); }
+        .reveal-card.mythical { border-color: #ef4444; box-shadow: 0 0 120px rgba(239,68,68,1); }
+
+        .reveal-rarity {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+        .reveal-card.common    .reveal-rarity { color: #94a3b8; }
+        .reveal-card.rare      .reveal-rarity { color: #60a5fa; }
+        .reveal-card.epic      .reveal-rarity { color: #c084fc; }
+        .reveal-card.legendary .reveal-rarity { color: #fbbf24; }
+        .reveal-card.mythical  .reveal-rarity { color: #f87171; }
+
+        .reveal-emoji {
+            font-size: 110px;
+            margin: 12px 0;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+        .reveal-name {
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        .reveal-desc {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .reveal-close {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 32px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .reveal-close:hover { background: rgba(255,255,255,0.2); }
+
+        /* Коллекция */
+        .collection-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
         }
-        .country-flag {
-            width: 28px;
-            height: 20px;
-            border-radius: 3px;
-            object-fit: cover;
-        }
-        .country-name {
-            font-weight: 700;
-            color: #1a1a2e;
-            font-size: 15px;
-        }
-        .season-select {
-            padding: 6px 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
+        .collection-title .count {
             font-size: 14px;
-            font-weight: 600;
-            background: #f9fafb;
-            cursor: pointer;
-            color: #1a1a2e;
-            min-width: auto;
-            margin-left: 4px;
-        }
-
-        .season-progress {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .progress-track {
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #1a1a2e;
-            border-radius: 2px;
-            transition: width 0.4s ease;
-        }
-        .progress-dates {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #6b7280;
+            color: #94a3b8;
             font-weight: 500;
         }
-
-        /* ═══ ОБЩИЕ ЭЛЕМЕНТЫ ═══ */
-        h2 { font-size: 24px; margin: 40px 0 20px; color: #333; }
-
-        .controls {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        select {
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            font-size: 16px;
-            cursor: pointer;
-            min-width: 220px;
-        }
-        .controls select { min-width: 220px; }
-
-        /* Карточка матча */
-        .match {
-            background: white;
-            padding: 18px 22px;
-            margin: 10px 0;
-            border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .match-date {
-            font-size: 15px;
-            color: #888;
-            min-width: 130px;
-        }
-        .match-teams {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-        }
-        .team {
-            flex: 1;
-            font-size: 17px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .team.away { justify-content: flex-end; }
-        .score {
-            font-weight: bold;
-            background: #1a1a2e;
-            color: white;
-            padding: 6px 16px;
-            border-radius: 8px;
-            min-width: 70px;
-            text-align: center;
-            font-size: 18px;
-        }
-        .score.pending { background: #ccc; font-size: 15px; }
-
-        /* Таблица */
-        .table-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 12px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-        }
-        th, td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
-            vertical-align: middle;
-        }
-        th {
-            background: #1a1a2e;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        tr:last-child td { border-bottom: none; }
-        .pos { font-weight: bold; color: #666; width: 40px; }
-        .pts { font-weight: bold; }
-        .diff { font-weight: 600; color: #555; }
-        td.team-cell { white-space: nowrap; }
-
-        .loading { color: #888; padding: 24px; text-align: center; font-size: 16px; }
-        .error { color: #c00; padding: 24px; text-align: center; font-size: 16px; }
-
-        tr.zone-champions td:first-child { border-left: 5px solid #1a5f9e; background: rgba(26, 95, 158, 0.12); }
-        tr.zone-europa td:first-child { border-left: 5px solid #f58220; background: rgba(245, 130, 32, 0.15); }
-        tr.zone-conference td:first-child { border-left: 5px solid #009f4f; background: rgba(0, 159, 79, 0.12); }
-        tr.zone-relegation td:first-child { border-left: 5px solid #e74c3c; background: rgba(231, 76, 60, 0.1); }
-
-        .team-logo {
-            width: 36px !important;
-            height: 36px !important;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-        .table-logo {
-            width: 32px !important;
-            height: 32px !important;
-            object-fit: contain;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        /* Легенда */
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            margin-top: 14px;
-            padding: 14px 18px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            font-size: 15px;
-        }
-        .legend-item { display: flex; align-items: center; gap: 8px; color: #555; }
-        .legend-color { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
-
-        /* Бомбардиры */
-        .scorer {
+        .collection {
             display: grid;
-            grid-template-columns: 40px 1fr 60px;
-            align-items: center;
-            gap: 16px;
-            background: white;
-            padding: 16px 20px;
-            margin: 10px 0;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .hero-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            font-size: 17px;
-        }
-        .scorer-pos { font-weight: bold; color: #666; text-align: center; }
-        .scorer-name { font-weight: 600; }
-        .scorer-goals {
-            font-weight: bold;
-            background: #1a1a2e;
-            color: white;
-            padding: 5px 14px;
-            border-radius: 8px;
+            padding: 16px 10px;
             text-align: center;
+            transition: transform 0.15s;
+            position: relative;
         }
+        .hero-card:hover { transform: translateY(-3px); }
+        .hero-card.locked {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+        .hero-card.common    { border-color: #94a3b8; }
+        .hero-card.rare      { border-color: #3b82f6; }
+        .hero-card.epic      { border-color: #a855f7; }
+        .hero-card.legendary { border-color: #f59e0b; }
+        .hero-card.mythical  { border-color: #ef4444; }
 
-        /* Мобильная адаптация */
+        .hero-emoji { font-size: 42px; margin-bottom: 8px; }
+        .hero-name {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .hero-count {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .hero-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.3);
+            text-transform: uppercase;
+        }
+        .hero-card.common    .hero-badge { color: #94a3b8; }
+        .hero-card.rare      .hero-badge { color: #60a5fa; }
+        .hero-card.epic      .hero-badge { color: #c084fc; }
+        .hero-card.legendary .hero-badge { color: #fbbf24; }
+        .hero-card.mythical  .hero-badge { color: #f87171; }
+
         @media (max-width: 600px) {
-            body { padding: 14px; -webkit-text-size-adjust: 100%; }
-            h2 { font-size: 20px; margin: 28px 0 14px; }
-
-            /* Шапка на мобильном */
-            .league-header { padding: 16px 18px; }
-            .league-logo { width: 52px; height: 52px; }
-            .league-title { font-size: 22px; }
-            .followers { font-size: 12px; }
-            .fav-btn { padding: 9px 14px; font-size: 11px; }
-            .fav-btn .star { font-size: 13px; }
-            .country-name { font-size: 14px; }
-
-            .table-scroll {
-                margin-left: -14px;
-                margin-right: -14px;
-                padding-left: 14px;
-                padding-right: 14px;
-                border-radius: 0;
-            }
-            .table-scroll table { min-width: 680px; }
-            td.team-cell { white-space: normal; }
-
-            .match {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-                padding: 14px;
-            }
-            .match-date {
-                font-size: 13px;
-                min-width: auto;
-                text-align: center;
-                color: #888;
-            }
-            .match-teams {
-                display: grid;
-                grid-template-columns: 1fr auto 1fr;
-                align-items: center;
-                gap: 10px;
-                width: 100%;
-            }
-            .team {
-                font-size: 15px;
-                word-break: break-word;
-                line-height: 1.2;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .team.away { justify-content: flex-end; }
-            .score { font-size: 16px; min-width: 56px; padding: 5px 10px; }
-            .score.pending { font-size: 14px; }
-
-            .controls { flex-direction: column; align-items: stretch; }
-            .controls select { width: 100%; min-width: auto; font-size: 15px; }
-
-            th, td { padding: 10px 5px; font-size: 13px; }
-            th { font-size: 12px; }
-            .pos { width: 26px; }
-
-            .team-logo { width: 26px !important; height: 26px !important; }
-            .table-logo { width: 24px !important; height: 24px !important; }
-
-            .legend { gap: 12px; padding: 12px 14px; font-size: 13px; }
-            .legend-color { width: 12px; height: 12px; }
-
-            .scorer {
-                grid-template-columns: 28px 1fr 44px;
-                gap: 10px;
-                padding: 12px 14px;
-                font-size: 15px;
-            }
-            .scorer-goals { padding: 4px 10px; font-size: 14px; }
-        }
-
-        @media (max-width: 400px) {
-            .league-title { font-size: 20px; }
-            .fav-btn { padding: 8px 10px; }
-            .fav-btn .btn-text { display: none; }
-            .team { font-size: 14px; }
-            .score { font-size: 15px; min-width: 50px; padding: 4px 8px; }
-            th, td { padding: 8px 4px; font-size: 12px; }
-            .pos { width: 22px; }
+            body { padding: 14px; }
+            .header h1 { font-size: 30px; }
+            .box-visual { font-size: 70px; }
+            .open-btn { padding: 14px 32px; font-size: 16px; }
+            .reveal-emoji { font-size: 80px; }
+            .reveal-name { font-size: 22px; }
+            .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .hero-emoji { font-size: 34px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="header">
+            <h1>🎁 BOXES</h1>
+            <p>Открывай боксы — собирай героев</p>
+        </div>
 
-        <!-- ═══ ШАПКА ЛИГИ ═══ -->
-        <header class="league-header">
-            <div class="league-top">
-                <img class="league-logo"
-                     src="https://upload.wikimedia.org/wikipedia/en/f/f9/Bundesliga_logo_%282017%29.svg"
-                     alt="Bundesliga">
-                <div class="league-title-block">
-                    <h1 class="league-title">Bundesliga <span id="headerSeason">2024/2025</span></h1>
-                    <div class="followers"><b>588k</b> followers</div>
-                </div>
-                <button class="fav-btn">
-                    <span class="star">★</span>
-                    <span class="btn-text">FAVOURITE</span>
-                </button>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="statOpened">0</div>
+                <div class="stat-label">Открыто</div>
             </div>
-
-            <div class="league-sub">
-                <img class="country-flag"
-                     src="https://flagcdn.com/w40/de.png"
-                     alt="Germany">
-                <span class="country-name">Germany</span>
-                <select id="seasonFilter" class="season-select">
-                    <option value="2024">24/25</option>
-                    <option value="2023">23/24</option>
-                    <option value="2022">22/23</option>
-                    <option value="2021">21/22</option>
-                    <option value="2020">20/21</option>
-                    <option value="2019">19/20</option>
-                </select>
+            <div class="stat">
+                <div class="stat-value" id="statCollected">0</div>
+                <div class="stat-label">Собрано</div>
             </div>
-
-            <div class="season-progress">
-                <div class="progress-track">
-                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-                </div>
-                <div class="progress-dates">
-                    <span>28 Aug</span>
-                    <span>31 May</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- ═══ ТУРНИРНАЯ ТАБЛИЦА ═══ -->
-        <h2>Турнирная таблица</h2>
-        <div id="table" class="loading">Загрузка таблицы...</div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <span class="legend-color" style="background: #1a5f9e;"></span>
-                <span>Лига Чемпионов (1–4)</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background: #f58220;"></span>
-                <span>Лига Европы (5)</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background: #009f4f;"></span>
-                <span>Лига конференций (6)</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background: #e74c3c;"></span>
-                <span>Зона вылета (16–18)</span>
+            <div class="stat">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Всего героев</div>
             </div>
         </div>
 
-        <!-- ═══ МАТЧИ ═══ -->
-        <h2>Матчи</h2>
-        <div class="controls">
-            <select id="roundFilter">
-                <option value="all">Все туры</option>
-            </select>
+        <div class="open-zone">
+            <div class="box-visual" id="boxVisual">📦</div>
+            <br>
+            <button class="open-btn" id="openBtn">ОТКРЫТЬ БОКС</button>
         </div>
-        <div id="matches" class="loading">Загрузка матчей...</div>
 
-        <!-- ═══ БОМБАРДИРЫ ═══ -->
-        <h2>Бомбардиры</h2>
-        <div id="scorers" class="loading">Загрузка бомбардиров...</div>
+        <div class="collection-title">
+            Коллекция <span class="count" id="collectionCount"></span>
+        </div>
+        <div class="collection" id="collection"></div>
+    </div>
+
+    <!-- Модалка с результатом -->
+    <div class="reveal-overlay" id="revealOverlay">
+        <div class="reveal-card" id="revealCard">
+            <div class="reveal-rarity" id="revealRarity"></div>
+            <div class="reveal-emoji" id="revealEmoji"></div>
+            <div class="reveal-name" id="revealName"></div>
+            <div class="reveal-desc" id="revealDesc"></div>
+            <button class="reveal-close" id="revealClose">Забрать</button>
+        </div>
     </div>
 
     <script>
-        const API_BASE = 'https://api.openligadb.de';
-        const LEAGUE = 'bl1';
+        // ═══════════════════════════════════════════════
+        //  ГЕРОИ — РЕДАКТИРУЙ ЗДЕСЬ
+        //  rarities: common, rare, epic, legendary, mythical
+        // ═══════════════════════════════════════════════
+        const HEROES = [
+            { id: 'gojo',     name: 'Годжо',       emoji: '🥷', rarity: 'legendary', desc: 'Сильнейший' },
+            { id: 'naruto',   name: 'Наруто',      emoji: '🍥', rarity: 'epic',      desc: 'Хокаге' },
+            { id: 'goku',     name: 'Гоку',        emoji: '🔥', rarity: 'mythical',  desc: 'Супер Саян' },
+            { id: 'luffy',    name: 'Луффи',       emoji: '🏴‍☠️', rarity: 'legendary', desc: 'Король пиратов' },
+            { id: 'zoro',     name: 'Зоро',        emoji: '⚔️', rarity: 'epic',      desc: 'Трёхмечевой' },
+            { id: 'saitama',  name: 'Сайтама',     emoji: '👊', rarity: 'mythical',  desc: 'One Punch' },
+            { id: 'levi',     name: 'Леви',        emoji: '🗡️', rarity: 'epic',      desc: 'Сильнейший солдат' },
+            { id: 'sasuke',   name: 'Саске',       emoji: '🌩️', rarity: 'rare',      desc: 'Мститель' },
+            { id: 'ichigo',   name: 'Ичиго',       emoji: '💀', rarity: 'rare',      desc: 'Синигами' },
+            { id: 'killua',   name: 'Киллуа',      emoji: '⚡', rarity: 'epic',      desc: 'Охотник' },
+            { id: 'tanjiro',  name: 'Танджиро',    emoji: '🌊', rarity: 'rare',      desc: 'Истребитель' },
+            { id: 'deku',     name: 'Деку',        emoji: '💪', rarity: 'rare',      desc: 'One For All' },
+            { id: 'bakugo',   name: 'Бакуго',      emoji: '💥', rarity: 'epic',      desc: 'Взрыв' },
+            { id: 'eren',     name: 'Эрен',        emoji: '👁️', rarity: 'legendary', desc: 'Титан' },
+            { id: 'mikasa',   name: 'Микаса',      emoji: '🧣', rarity: 'rare',      desc: 'Аккерман' },
+            { id: 'vegeta',   name: 'Вегета',      emoji: '👑', rarity: 'epic',      desc: 'Принц Саянов' },
+            { id: 'sanji',    name: 'Санджи',      emoji: '🚬', rarity: 'rare',      desc: 'Кок' },
+            { id: 'hinata',   name: 'Хината',      emoji: '🏐', rarity: 'common',    desc: 'Волейбол' },
+            { id: 'rimuru',   name: 'Римуру',      emoji: '🟦', rarity: 'legendary', desc: 'Слизь' },
+            { id: 'ainz',     name: 'Айнз',        emoji: '💀', rarity: 'legendary', desc: 'Скелет' },
+        ];
 
-        let currentSeason = '2024';
-        let allMatches = [];
+        // Шансы выпадения (в сумме = 100)
+        const RARITY_CHANCES = {
+            common:    55,
+            rare:      25,
+            epic:      13,
+            legendary:  6,
+            mythical:   1,
+        };
 
-        function updateTitle() {
-            const year = parseInt(currentSeason);
-            const next = year + 1;
-            document.getElementById('headerSeason').textContent = `${year}/${next}`;
-            updateProgress();
-        }
+        const RARITY_NAMES = {
+            common:    'Обычный',
+            rare:      'Редкий',
+            epic:      'Эпический',
+            legendary: 'Легендарный',
+            mythical:  'Мифический',
+        };
 
-        function updateProgress() {
-            const year = parseInt(currentSeason);
-            const start = new Date(year, 7, 28);     // 28 августа
-            const end = new Date(year + 1, 4, 31);   // 31 мая
-            const now = new Date();
-            let percent = ((now - start) / (end - start)) * 100;
-            if (percent < 0) percent = 0;
-            if (percent > 100) percent = 100;
-            document.getElementById('progressFill').style.width = percent + '%';
-        }
+        // ═══════════════════════════════════════════════
+        //  ЛОГИКА — НЕ ТРОГАЙ, ЕСЛИ НЕ УВЕРЕН
+        // ═══════════════════════════════════════════════
 
-        function formatDate(iso) {
-            if (!iso) return '—';
-            const d = new Date(iso);
-            return d.toLocaleDateString('ru-RU', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            });
-        }
+        const STORAGE_KEY = 'boxes_progress_v1';
 
-        async function loadMatches() {
+        let state = {
+            opened: 0,
+            owned: {}, // id → count
+        };
+
+        function loadState() {
             try {
-                const res = await fetch(`${API_BASE}/getmatchdata/${LEAGUE}/${currentSeason}`);
-                allMatches = await res.json();
-
-                const filter = document.getElementById('roundFilter');
-                filter.innerHTML = '<option value="all">Все туры</option>';
-
-                const rounds = [...new Set(allMatches.map(m => m.group?.groupName).filter(Boolean))];
-                rounds.forEach(r => {
-                    const opt = document.createElement('option');
-                    opt.value = r;
-                    const match = r.match(/^(\d+)\.\s*Spieltag$/i);
-                    opt.textContent = match ? `${match[1]}-й тур` : r;
-                    filter.appendChild(opt);
-                });
-
-                renderMatches('all');
-            } catch (e) {
-                document.getElementById('matches').innerHTML =
-                    '<div class="error">Ошибка загрузки матчей</div>';
-            }
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) state = JSON.parse(raw);
+            } catch (e) { /* ignore */ }
         }
 
-        function renderMatches(round) {
-            const container = document.getElementById('matches');
-            let list = allMatches;
-            if (round !== 'all') {
-                list = allMatches.filter(m => m.group?.groupName === round);
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        // Взвешенный рандом
+        function rollRarity() {
+            const roll = Math.random() * 100;
+            let acc = 0;
+            for (const [rarity, chance] of Object.entries(RARITY_CHANCES)) {
+                acc += chance;
+                if (roll < acc) return rarity;
             }
+            return 'common';
+        }
 
-            if (list.length === 0) {
-                container.innerHTML = '<div class="loading">Нет матчей</div>';
-                return;
+        // Случайный герой заданной редкости
+        function pickHero(rarity) {
+            const pool = HEROES.filter(h => h.rarity === rarity);
+            if (pool.length === 0) {
+                // если нет героев этой редкости — берём любого
+                return HEROES[Math.floor(Math.random() * HEROES.length)];
             }
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
 
-            container.innerHTML = list.map(m => {
-                const result = m.matchResults?.[0];
-                const isFinished = result && m.matchIsFinished;
-                const score = isFinished
-                    ? `${result.pointsTeam1} : ${result.pointsTeam2}`
-                    : '—';
-                const scoreClass = isFinished ? 'score' : 'score pending';
+        // Открытие бокса
+        async function openBox() {
+            const btn = document.getElementById('openBtn');
+            const box = document.getElementById('boxVisual');
+            btn.disabled = true;
+            box.classList.add('shaking');
 
+            // Имитация анимации
+            await new Promise(r => setTimeout(r, 900));
+
+            box.classList.remove('shaking');
+
+            const rarity = rollRarity();
+            const hero = pickHero(rarity);
+
+            state.opened++;
+            state.owned[hero.id] = (state.owned[hero.id] || 0) + 1;
+            saveState();
+
+            showReveal(hero);
+            renderStats();
+            renderCollection();
+
+            btn.disabled = false;
+        }
+
+        function showReveal(hero) {
+            const overlay = document.getElementById('revealOverlay');
+            const card = document.getElementById('revealCard');
+
+            card.className = 'reveal-card ' + hero.rarity;
+            document.getElementById('revealRarity').textContent = RARITY_NAMES[hero.rarity];
+            document.getElementById('revealEmoji').textContent = hero.emoji;
+            document.getElementById('revealName').textContent = hero.name;
+            document.getElementById('revealDesc').textContent = hero.desc || '';
+
+            overlay.classList.add('active');
+        }
+
+        function closeReveal() {
+            document.getElementById('revealOverlay').classList.remove('active');
+        }
+
+        function renderStats() {
+            document.getElementById('statOpened').textContent = state.opened;
+            document.getElementById('statCollected').textContent = Object.keys(state.owned).length;
+            document.getElementById('statTotal').textContent = HEROES.length;
+        }
+
+        function renderCollection() {
+            const container = document.getElementById('collection');
+            const sorted = [...HEROES].sort((a, b) => {
+                const order = ['mythical', 'legendary', 'epic', 'rare', 'common'];
+                return order.indexOf(a.rarity) - order.indexOf(b.rarity);
+            });
+
+            container.innerHTML = sorted.map(h => {
+                const count = state.owned[h.id] || 0;
+                const locked = count === 0;
                 return `
-                    <div class="match">
-                        <div class="match-date">${formatDate(m.matchDateTime)}</div>
-                        <div class="match-teams">
-                            <span class="team">
-                                <img src="${m.team1.teamIconUrl}" alt="" class="team-logo">
-                                ${m.team1.teamName}
-                            </span>
-                            <span class="${scoreClass}">${score}</span>
-                            <span class="team away">
-                                ${m.team2.teamName}
-                                <img src="${m.team2.teamIconUrl}" alt="" class="team-logo">
-                            </span>
-                        </div>
+                    <div class="hero-card ${h.rarity} ${locked ? 'locked' : ''}">
+                        <div class="hero-badge">${RARITY_NAMES[h.rarity].slice(0, 3)}</div>
+                        <div class="hero-emoji">${locked ? '❓' : h.emoji}</div>
+                        <div class="hero-name">${locked ? '???' : h.name}</div>
+                        <div class="hero-count">${locked ? 'не найден' : `×${count}`}</div>
                     </div>
                 `;
             }).join('');
+
+            const collected = Object.keys(state.owned).length;
+            document.getElementById('collectionCount').textContent = `${collected} / ${HEROES.length}`;
         }
 
-        async function loadTable() {
-            try {
-                const stats = {};
-
-                allMatches.forEach(m => {
-                    if (!m.matchIsFinished) return;
-                    const result = m.matchResults?.[0];
-                    if (!result) return;
-
-                    const t1 = m.team1.teamName;
-                    const t2 = m.team2.teamName;
-                    const g1 = result.pointsTeam1;
-                    const g2 = result.pointsTeam2;
-
-                    if (!stats[t1]) stats[t1] = { name: t1, logo: m.team1.teamIconUrl, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
-                    if (!stats[t2]) stats[t2] = { name: t2, logo: m.team2.teamIconUrl, matches: 0, won: 0, draw: 0, lost: 0, gf: 0, ga: 0, points: 0 };
-
-                    stats[t1].matches++;
-                    stats[t2].matches++;
-                    stats[t1].gf += g1;
-                    stats[t1].ga += g2;
-                    stats[t2].gf += g2;
-                    stats[t2].ga += g1;
-
-                    if (g1 > g2) {
-                        stats[t1].won++; stats[t1].points += 3;
-                        stats[t2].lost++;
-                    } else if (g1 < g2) {
-                        stats[t2].won++; stats[t2].points += 3;
-                        stats[t1].lost++;
-                    } else {
-                        stats[t1].draw++; stats[t1].points += 1;
-                        stats[t2].draw++; stats[t2].points += 1;
-                    }
-                });
-
-                const data = Object.values(stats).sort((a, b) => {
-                    if (b.points !== a.points) return b.points - a.points;
-                    const diffA = a.gf - a.ga;
-                    const diffB = b.gf - b.ga;
-                    if (diffB !== diffA) return diffB - diffA;
-                    return b.gf - a.gf;
-                });
-
-                const rows = data.map((t, i) => {
-                    const pos = i + 1;
-                    const diff = t.gf - t.ga;
-                    const diffText = diff > 0 ? `+${diff}` : `${diff}`;
-
-                    let rowClass = '';
-                    if (pos <= 4) rowClass = 'zone-champions';
-                    else if (pos === 5) rowClass = 'zone-europa';
-                    else if (pos === 6) rowClass = 'zone-conference';
-                    else if (pos >= 16) rowClass = 'zone-relegation';
-
-                    return `
-                        <tr class="${rowClass}">
-                            <td class="pos">${pos}</td>
-                            <td class="team-cell"><img src="${t.logo}" alt="" class="table-logo">${t.name}</td>
-                            <td>${t.matches}</td>
-                            <td>${t.won}</td>
-                            <td>${t.draw}</td>
-                            <td>${t.lost}</td>
-                            <td>${t.gf}</td>
-                            <td>${t.ga}</td>
-                            <td class="diff">${diffText}</td>
-                            <td class="pts">${t.points}</td>
-                        </tr>
-                    `;
-                }).join('');
-
-                document.getElementById('table').innerHTML = `
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Команда</th>
-                                    <th>И</th>
-                                    <th>В</th>
-                                    <th>Н</th>
-                                    <th>П</th>
-                                    <th>ЗМ</th>
-                                    <th>ПМ</th>
-                                    <th>РМ</th>
-                                    <th>О</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>
-                `;
-            } catch (e) {
-                document.getElementById('table').innerHTML =
-                    '<div class="error">Ошибка загрузки таблицы</div>';
-            }
-        }
-
-        async function loadScorers() {
-            try {
-                const res = await fetch(`${API_BASE}/getgoalgetters/${LEAGUE}/${currentSeason}`);
-                const data = await res.json();
-
-                const top = data
-                    .sort((a, b) => b.goalCount - a.goalCount)
-                    .slice(0, 10);
-
-                const rows = top.map((s, i) => `
-                    <div class="scorer">
-                        <span class="scorer-pos">${i + 1}</span>
-                        <span class="scorer-name">${s.goalGetterName}</span>
-                        <span class="scorer-goals">${s.goalCount}</span>
-                    </div>
-                `).join('');
-
-                document.getElementById('scorers').innerHTML = rows;
-            } catch (e) {
-                document.getElementById('scorers').innerHTML =
-                    '<div class="error">Ошибка загрузки бомбардиров</div>';
-            }
-        }
-
-        document.getElementById('seasonFilter').addEventListener('change', async (e) => {
-            currentSeason = e.target.value;
-            updateTitle();
-            document.getElementById('matches').innerHTML = '<div class="loading">Загрузка матчей...</div>';
-            document.getElementById('table').innerHTML = '<div class="loading">Загрузка таблицы...</div>';
-            document.getElementById('scorers').innerHTML = '<div class="loading">Загрузка бомбардиров...</div>';
-            await loadMatches();
-            await loadTable();
-            await loadScorers();
+        // Обработчики
+        document.getElementById('openBtn').addEventListener('click', openBox);
+        document.getElementById('revealClose').addEventListener('click', closeReveal);
+        document.getElementById('revealOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'revealOverlay') closeReveal();
         });
 
-        document.getElementById('roundFilter').addEventListener('change', (e) => {
-            renderMatches(e.target.value);
-        });
-
-        (async () => {
-            updateTitle();
-            await loadMatches();
-            await loadTable();
-            await loadScorers();
-        })();
+        // Старт
+        loadState();
+        renderStats();
+        renderCollection();
     </script>
 </body>
 </html>
