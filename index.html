@@ -82,18 +82,13 @@
             border: 2px dashed rgba(255,255,255,0.1);
         }
         .box-visual {
+            font-size: 140px;
+            line-height: 1;
             margin-bottom: 20px;
             display: inline-block;
             transition: transform 0.3s;
-            font-size: 100px;
-            line-height: 1;
-        }
-        .box-visual img {
-            width: 140px;
-            height: 140px;
-            object-fit: contain;
-            display: block;
-            filter: drop-shadow(0 0 40px rgba(168,85,247,0.6));
+            filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.5));
+            user-select: none;
         }
         .box-visual.shaking { animation: shake 0.5s infinite; }
         @keyframes shake {
@@ -226,9 +221,7 @@
             position: relative;
         }
         .hero-card:hover { transform: translateY(-3px); }
-        .hero-card.locked { opacity: 0.4; }
-        .hero-card.locked .hero-img { filter: grayscale(1) brightness(0.5); }
-        .hero-card.locked .hero-emoji { filter: grayscale(1); }
+        .hero-card.locked { opacity: 0.55; }
         .hero-card.common    { border-color: #94a3b8; }
         .hero-card.rare      { border-color: #3b82f6; }
         .hero-card.epic      { border-color: #a855f7; }
@@ -241,7 +234,14 @@
             object-fit: contain;
             margin-bottom: 8px;
         }
-        .hero-emoji { font-size: 42px; margin-bottom: 8px; }
+        .hero-emoji { font-size: 42px; margin-bottom: 8px; line-height: 1; }
+        .hero-locked-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+            line-height: 1;
+            color: #64748b;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
         .hero-name { font-size: 13px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
         .hero-count { font-size: 11px; color: #94a3b8; }
         .hero-badge {
@@ -265,14 +265,13 @@
             body { padding: 14px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
-            .box-visual { font-size: 70px; }
-            .box-visual img { width: 100px; height: 100px; }
+            .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
             .reveal-stone { width: 140px; height: 140px; }
             .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-            .hero-emoji { font-size: 34px; }
+            .hero-emoji, .hero-locked-icon { font-size: 34px; }
             .hero-img { width: 50px; height: 50px; }
         }
     </style>
@@ -305,7 +304,7 @@
         </div>
 
         <div class="open-zone">
-            <div class="box-visual" id="boxVisual"></div>
+            <div class="box-visual" id="boxVisual">🎁</div>
             <br>
             <button class="open-btn" id="openBtn">ОТКРЫТЬ БОКС</button>
         </div>
@@ -386,13 +385,11 @@
             anime: {
                 name: 'Аниме персонажи',
                 boxEmoji: '📦',
-                boxImg: null,
                 heroes: ANIME_HEROES,
             },
             gems: {
                 name: 'Драгоценные камни',
-                boxEmoji: null,
-                boxImg: 'stones/opal.jpg',
+                boxEmoji: '💎',
                 heroes: GEM_HEROES,
             },
         };
@@ -537,11 +534,14 @@
                 const count = owned[h.id] || 0;
                 const locked = count === 0;
 
+                // 🎯 Главное изменение: если не найден — показываем только ❓
                 let visual;
-                if (h.img) {
+                if (locked) {
+                    visual = `<div class="hero-locked-icon">❓</div>`;
+                } else if (h.img) {
                     visual = `<img src="${h.img}" alt="" class="hero-img">`;
                 } else {
-                    visual = `<div class="hero-emoji">${locked ? '❓' : h.emoji}</div>`;
+                    visual = `<div class="hero-emoji">${h.emoji}</div>`;
                 }
 
                 return `
@@ -560,12 +560,7 @@
 
         function renderBox() {
             const cat = CATEGORIES[currentCategory];
-            const el = document.getElementById('boxVisual');
-            if (cat.boxImg) {
-                el.innerHTML = `<img src="${cat.boxImg}" alt="Box">`;
-            } else {
-                el.textContent = cat.boxEmoji;
-            }
+            document.getElementById('boxVisual').textContent = cat.boxEmoji;
         }
 
         function switchCategory(cat) {
