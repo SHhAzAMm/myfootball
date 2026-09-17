@@ -6,15 +6,11 @@
     <title>🎁 Boxes — Открывай боксы</title>
     <style>
         * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-user-select: none; -moz-user-select: none;
+            -ms-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -25,10 +21,9 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* ═══ КНОПКА RESET В УГЛУ ═══ */
-        .reset-fab {
+        /* ═══ FAB-кнопки в углу ═══ */
+        .fab {
             position: fixed;
-            top: 18px;
             right: 18px;
             z-index: 90;
             background: rgba(255,255,255,0.06);
@@ -47,21 +42,25 @@
             transition: all 0.2s;
             backdrop-filter: blur(10px);
         }
-        .reset-fab:hover {
+        .fab:hover {
             background: rgba(255,255,255,0.12);
             color: #cbd5e1;
             transform: translateY(-2px);
         }
-        .reset-fab.ready {
+        .reset-fab { top: 18px; }
+        .craft-fab { top: 78px; }
+        .fab.ready {
             background: linear-gradient(135deg, #ffd700, #ff9500);
             color: #1a1a2e;
             border-color: transparent;
             box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
             animation: shakeReady 1.2s infinite;
         }
-        .reset-fab.ready:hover {
-            transform: translateY(-2px) scale(1.05);
-            animation-play-state: paused;
+        .fab.ready:hover { transform: translateY(-2px) scale(1.05); animation-play-state: paused; }
+        .craft-fab.ready {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.5);
         }
         @keyframes shakeReady {
             0%, 100% { transform: rotate(0deg) scale(1); }
@@ -71,79 +70,55 @@
             40% { transform: rotate(4deg) scale(1.02); }
             50% { transform: rotate(0deg) scale(1); }
         }
-        .reset-fab .icon { font-size: 18px; }
+        .fab .icon { font-size: 18px; }
 
         .header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
         .header h1 {
-            font-size: 42px;
-            font-weight: 900;
-            letter-spacing: 1px;
+            font-size: 42px; font-weight: 900; letter-spacing: 1px;
             background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 8px;
         }
         .header p { color: #94a3b8; font-size: 15px; }
 
         .category-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 10px;
+            margin-bottom: 28px; flex-wrap: wrap;
         }
         .cat-tab {
             background: rgba(255,255,255,0.06);
             border: 2px solid rgba(255,255,255,0.1);
-            color: #cbd5e1;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-family: inherit;
+            color: #cbd5e1; padding: 12px 24px; border-radius: 12px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: all 0.15s; font-family: inherit;
         }
         .cat-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .cat-tab.active {
             background: linear-gradient(135deg, #ffd700, #ff9500);
-            color: #1a1a2e;
-            border-color: transparent;
+            color: #1a1a2e; border-color: transparent;
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
         }
 
         .stats {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 16px;
+            margin-bottom: 30px; flex-wrap: wrap;
         }
         .stat {
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 22px;
-            border-radius: 10px;
-            text-align: center;
+            padding: 12px 22px; border-radius: 10px; text-align: center;
         }
         .stat-value { font-size: 24px; font-weight: 900; color: #ffd700; }
         .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .open-zone {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 40px 20px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 20px;
+            text-align: center; margin-bottom: 30px; padding: 40px 20px;
+            background: rgba(255,255,255,0.03); border-radius: 20px;
             border: 2px dashed rgba(255,255,255,0.1);
         }
         .box-visual {
-            font-size: 140px;
-            line-height: 1;
-            margin-bottom: 20px;
-            display: inline-block;
-            transition: transform 0.3s;
+            font-size: 140px; line-height: 1; margin-bottom: 20px;
+            display: inline-block; transition: transform 0.3s;
             filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.5));
             user-select: none;
         }
@@ -155,192 +130,165 @@
         }
         .open-btn {
             background: linear-gradient(135deg, #ffd700, #ff9500);
-            color: #1a1a2e;
-            border: none;
-            padding: 16px 48px;
-            font-size: 18px;
-            font-weight: 900;
-            border-radius: 12px;
-            cursor: pointer;
-            letter-spacing: 1px;
+            color: #1a1a2e; border: none; padding: 16px 48px;
+            font-size: 18px; font-weight: 900; border-radius: 12px;
+            cursor: pointer; letter-spacing: 1px;
             box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
-            transition: transform 0.15s, box-shadow 0.15s;
-            font-family: inherit;
+            transition: transform 0.15s, box-shadow 0.15s; font-family: inherit;
         }
         .open-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255, 215, 0, 0.5); }
-        .open-btn:active:not(:disabled) { transform: translateY(0); }
         .open-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ═══ МОДАЛКА RESET ═══ */
-        .reset-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 110;
-            padding: 20px;
+        /* ═══ МОДАЛКИ ═══ */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; align-items: center; justify-content: center;
+            z-index: 110; padding: 20px;
         }
-        .reset-overlay.active { display: flex; }
+        .overlay.active { display: flex; }
 
-        .reset-card {
+        .modal-card {
             position: relative;
             background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-radius: 20px;
-            padding: 40px 36px;
-            text-align: center;
-            max-width: 460px;
-            width: 100%;
+            border-radius: 20px; padding: 40px 36px; text-align: center;
+            max-width: 460px; width: 100%;
             border: 3px solid #475569;
             animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 90vh; overflow-y: auto;
         }
-        .reset-card.ready {
-            border-color: #f59e0b;
-            box-shadow: 0 0 80px rgba(245, 158, 11, 0.7);
-        }
+        .modal-card.ready { border-color: #f59e0b; box-shadow: 0 0 80px rgba(245, 158, 11, 0.7); }
         @keyframes popIn {
             0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .reset-x {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+        .modal-x {
+            position: absolute; top: 12px; right: 12px;
+            width: 36px; height: 36px; border-radius: 50%;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
-            color: #cbd5e1;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s, transform 0.15s;
-            font-family: inherit;
-            line-height: 1;
+            color: #cbd5e1; font-size: 20px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: all 0.15s;
+            font-family: inherit; line-height: 1;
         }
-        .reset-x:hover { background: rgba(255,255,255,0.18); color: #fff; transform: scale(1.08); }
+        .modal-x:hover { background: rgba(255,255,255,0.18); color: #fff; transform: scale(1.08); }
 
-        .reset-card-title {
-            font-size: 14px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 6px;
-            color: #94a3b8;
+        .modal-title {
+            font-size: 14px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 3px; margin-bottom: 6px; color: #94a3b8;
         }
-        .reset-card.ready .reset-card-title { color: #fbbf24; }
+        .modal-card.ready .modal-title { color: #fbbf24; }
+        .modal-sub { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+        .modal-sub b { color: #fff; }
 
-        .reset-card-sub {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 24px;
-        }
-        .reset-card-sub b { color: #fff; }
-
-        .reset-conditions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .reset-cond {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .cond-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; text-align: left; }
+        .cond {
+            display: flex; align-items: center; gap: 12px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 10px; padding: 12px 14px;
         }
-        .reset-cond.ok { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.06); }
-        .reset-cond-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: 900;
-            background: rgba(255,255,255,0.06);
-            color: #94a3b8;
-            flex-shrink: 0;
+        .cond.ok { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.06); }
+        .cond-icon {
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 900;
+            background: rgba(255,255,255,0.06); color: #94a3b8; flex-shrink: 0;
         }
-        .reset-cond.ok .reset-cond-icon { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
-        .reset-cond-text { font-size: 14px; color: #cbd5e1; line-height: 1.3; }
-        .reset-cond-text b { color: #fff; font-weight: 900; }
-        .reset-cond.ok .reset-cond-text b { color: #4ade80; }
+        .cond.ok .cond-icon { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .cond-text { font-size: 14px; color: #cbd5e1; line-height: 1.3; }
+        .cond-text b { color: #fff; font-weight: 900; }
+        .cond.ok .cond-text b { color: #4ade80; }
 
-        .reset-hint-box {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 24px;
-            padding: 12px 14px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            border-left: 3px solid rgba(255,255,255,0.15);
-            text-align: left;
-            line-height: 1.5;
+        .hint-box {
+            font-size: 13px; color: #94a3b8; margin-bottom: 24px;
+            padding: 12px 14px; background: rgba(255,255,255,0.03);
+            border-radius: 8px; border-left: 3px solid rgba(255,255,255,0.15);
+            text-align: left; line-height: 1.5;
         }
-        .reset-card.ready .reset-hint-box {
-            border-left-color: #f59e0b;
-            color: #fbbf24;
+        .modal-card.ready .hint-box {
+            border-left-color: #f59e0b; color: #fbbf24;
             background: rgba(245, 158, 11, 0.08);
         }
 
-        .reset-confirm-btn {
+        .confirm-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border: none;
-            padding: 16px 48px;
-            font-size: 17px;
-            font-weight: 900;
-            border-radius: 12px;
-            cursor: pointer;
-            letter-spacing: 1px;
+            color: white; border: none; padding: 16px 48px;
+            font-size: 17px; font-weight: 900; border-radius: 12px;
+            cursor: pointer; letter-spacing: 1px;
             box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
             transition: transform 0.15s, box-shadow 0.15s;
-            font-family: inherit;
-            opacity: 0.35;
-            cursor: not-allowed;
+            font-family: inherit; opacity: 0.35; cursor: not-allowed;
         }
-        .reset-card.ready .reset-confirm-btn {
-            opacity: 1;
-            cursor: pointer;
-        }
-        .reset-card.ready .reset-confirm-btn:hover {
+        .modal-card.ready .confirm-btn { opacity: 1; cursor: pointer; }
+        .modal-card.ready .confirm-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 32px rgba(239, 68, 68, 0.7);
         }
 
-        /* ═══ МОДАЛКА ПРЕДМЕТА ═══ */
-        .reveal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: none;
+        /* ═══ КРАФТ ═══ */
+        .craft-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        .craft-row {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
             align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: left;
+            transition: all 0.15s;
         }
-        .reveal-overlay.active { display: flex; }
+        .craft-row.ready {
+            border-color: rgba(168, 85, 247, 0.6);
+            background: rgba(168, 85, 247, 0.08);
+        }
+        .craft-row-max {
+            border-color: rgba(255,255,255,0.05);
+            opacity: 0.5;
+        }
+        .craft-dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+            border: 2px solid;
+        }
+        .craft-dot.common    { border-color: #94a3b8; color: #94a3b8; }
+        .craft-dot.rare      { border-color: #3b82f6; color: #60a5fa; }
+        .craft-dot.epic      { border-color: #a855f7; color: #c084fc; }
+        .craft-dot.legendary { border-color: #f59e0b; color: #fbbf24; }
 
+        .craft-info { line-height: 1.3; }
+        .craft-info-title { font-size: 14px; font-weight: 900; margin-bottom: 3px; }
+        .craft-info-progress { font-size: 12px; color: #94a3b8; }
+        .craft-row.ready .craft-info-progress { color: #c084fc; font-weight: 700; }
+
+        .craft-btn {
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8; border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 900; letter-spacing: 0.5px;
+            cursor: not-allowed; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .craft-row.ready .craft-btn {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff; border-color: transparent;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
+        }
+        .craft-row.ready .craft-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        /* ═══ ПАНЕЛЬ ПРЕДМЕТА ═══ */
         .reveal-card {
             position: relative;
             background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            border: 3px solid #475569;
+            border-radius: 20px; padding: 40px; text-align: center;
+            max-width: 400px; width: 100%; border: 3px solid #475569;
             animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .reveal-card.common   { border-color: #94a3b8; box-shadow: 0 0 40px rgba(148,163,184,0.5); }
@@ -349,35 +297,9 @@
         .reveal-card.legendary{ border-color: #f59e0b; box-shadow: 0 0 90px rgba(245,158,11,0.9); }
         .reveal-card.mythical { border-color: #ef4444; box-shadow: 0 0 120px rgba(239,68,68,1); }
 
-        .reveal-x {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #cbd5e1;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s, transform 0.15s;
-            font-family: inherit;
-            line-height: 1;
-        }
-        .reveal-x:hover { background: rgba(255,255,255,0.18); color: #fff; transform: scale(1.08); }
-
         .reveal-rarity {
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 12px;
-            margin-top: 8px;
+            font-size: 12px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 3px; margin-bottom: 12px; margin-top: 8px;
         }
         .reveal-card.common    .reveal-rarity { color: #94a3b8; }
         .reveal-card.rare      .reveal-rarity { color: #60a5fa; }
@@ -386,16 +308,11 @@
         .reveal-card.mythical  .reveal-rarity { color: #f87171; }
 
         .reveal-emoji {
-            margin: 12px 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
+            margin: 12px 0 20px; display: flex;
+            align-items: center; justify-content: center; min-height: 200px;
         }
         .reveal-stone {
-            width: 220px;
-            height: 220px;
-            object-fit: contain;
+            width: 220px; height: 220px; object-fit: contain;
             animation: floatStone 2s ease-in-out infinite;
             filter: drop-shadow(0 0 40px rgba(255,255,255,0.35));
         }
@@ -410,37 +327,23 @@
         .reveal-name { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
         .reveal-desc { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
         .reveal-count-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.08);
+            display: inline-block; background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #cbd5e1;
-            font-weight: 700;
-            margin-bottom: 20px;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 13px; color: #cbd5e1; font-weight: 700; margin-bottom: 20px;
         }
         .reveal-close {
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(255,255,255,0.1); color: white;
             border: 1px solid rgba(255,255,255,0.2);
-            padding: 12px 32px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.15s;
-            font-family: inherit;
+            padding: 12px 32px; border-radius: 10px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: background 0.15s; font-family: inherit;
         }
         .reveal-close:hover { background: rgba(255,255,255,0.2); }
 
         .collection-title {
-            font-size: 22px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-size: 22px; font-weight: 900; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 12px;
         }
         .collection-title .count { font-size: 14px; color: #94a3b8; font-weight: 500; }
         .collection {
@@ -451,17 +354,12 @@
         .hero-card {
             background: rgba(255,255,255,0.05);
             border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 16px 10px;
-            text-align: center;
-            transition: transform 0.15s, box-shadow 0.15s;
+            border-radius: 12px; padding: 16px 10px;
+            text-align: center; transition: transform 0.15s, box-shadow 0.15s;
             position: relative;
         }
         .hero-card.unlocked { cursor: pointer; }
-        .hero-card.unlocked:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
+        .hero-card.unlocked:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .hero-card.locked { opacity: 0.55; }
         .hero-card.common    { border-color: #94a3b8; }
         .hero-card.rare      { border-color: #3b82f6; }
@@ -470,31 +368,21 @@
         .hero-card.mythical  { border-color: #ef4444; }
 
         .hero-img {
-            width: 75px;
-            height: 75px;
-            object-fit: contain;
+            width: 75px; height: 75px; object-fit: contain;
             margin-bottom: 8px;
             filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
         }
         .hero-emoji { font-size: 42px; margin-bottom: 8px; line-height: 1; }
         .hero-locked-icon {
-            font-size: 42px;
-            margin-bottom: 8px;
-            line-height: 1;
-            color: #64748b;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 42px; margin-bottom: 8px; line-height: 1;
+            color: #64748b; text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
         .hero-name { font-size: 13px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
         .hero-count { font-size: 11px; color: #94a3b8; }
         .hero-badge {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            font-size: 10px;
-            font-weight: 900;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.3);
+            position: absolute; top: 6px; right: 6px;
+            font-size: 10px; font-weight: 900; padding: 2px 6px;
+            border-radius: 4px; background: rgba(0,0,0,0.3);
             text-transform: uppercase;
         }
         .hero-card.common    .hero-badge { color: #94a3b8; }
@@ -505,34 +393,41 @@
 
         @media (max-width: 600px) {
             body { padding: 14px; }
-            .reset-fab {
-                top: 12px; right: 12px;
-                padding: 10px 14px;
-                font-size: 12px;
-            }
-            .reset-fab .btn-text { display: none; }
-            .reset-fab .icon { font-size: 18px; }
+            .fab { right: 12px; padding: 10px 14px; font-size: 12px; }
+            .fab .btn-text { display: none; }
+            .fab .icon { font-size: 18px; }
+            .reset-fab { top: 12px; }
+            .craft-fab { top: 64px; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
-            .reveal-card, .reset-card { padding: 32px 22px; }
-            .reveal-x, .reset-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
+            .modal-card { padding: 32px 22px; }
+            .modal-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
             .reveal-stone { width: 180px; height: 180px; }
             .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .hero-emoji, .hero-locked-icon { font-size: 34px; }
             .hero-img { width: 65px; height: 65px; }
+            .craft-row { grid-template-columns: 36px 1fr auto; padding: 10px; gap: 8px; }
+            .craft-dot { width: 30px; height: 30px; font-size: 15px; }
+            .craft-info-title { font-size: 13px; }
+            .craft-info-progress { font-size: 11px; }
+            .craft-btn { padding: 6px 10px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
-    <!-- Кнопка RESET в углу -->
-    <button class="reset-fab" id="resetFab">
+    <button class="fab reset-fab" id="resetFab">
         <span class="icon">🔄</span>
         <span class="btn-text">RESET</span>
+    </button>
+
+    <button class="fab craft-fab" id="craftFab">
+        <span class="icon">⚗️</span>
+        <span class="btn-text">КРАФТ</span>
     </button>
 
     <div class="container">
@@ -575,23 +470,32 @@
     </div>
 
     <!-- Модалка RESET -->
-    <div class="reset-overlay" id="resetOverlay">
-        <div class="reset-card" id="resetCard">
-            <button class="reset-x" id="resetX" aria-label="Закрыть">×</button>
-            <div class="reset-card-title" id="resetTitle">🔄 ПРЕСТИЖ</div>
-            <div class="reset-card-sub" id="resetSub"></div>
+    <div class="overlay" id="resetOverlay">
+        <div class="modal-card" id="resetCard">
+            <button class="modal-x" id="resetX">×</button>
+            <div class="modal-title" id="resetTitle">🔄 Престиж</div>
+            <div class="modal-sub" id="resetSub"></div>
+            <div class="cond-list" id="resetConditions"></div>
+            <div class="hint-box" id="resetHint"></div>
+            <button class="confirm-btn" id="resetConfirmBtn" disabled>🔄 RESET</button>
+        </div>
+    </div>
 
-            <div class="reset-conditions" id="resetConditions"></div>
-            <div class="reset-hint-box" id="resetHint"></div>
-
-            <button class="reset-confirm-btn" id="resetConfirmBtn" disabled>🔄 RESET</button>
+    <!-- Модалка КРАФТ -->
+    <div class="overlay" id="craftOverlay">
+        <div class="modal-card" id="craftCard">
+            <button class="modal-x" id="craftX">×</button>
+            <div class="modal-title">⚗️ Плавка</div>
+            <div class="modal-sub">10 предметов одной редкости → 1 случайный следующей</div>
+            <div class="craft-options" id="craftOptions"></div>
+            <div class="hint-box" id="craftHint"></div>
         </div>
     </div>
 
     <!-- Модалка предмета -->
-    <div class="reveal-overlay" id="revealOverlay">
+    <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
-            <button class="reveal-x" id="revealX" aria-label="Закрыть">×</button>
+            <button class="modal-x" id="revealX">×</button>
             <div class="reveal-rarity" id="revealRarity"></div>
             <div class="reveal-emoji" id="revealEmoji"></div>
             <div class="reveal-name" id="revealName"></div>
@@ -606,6 +510,14 @@
         //  НАСТРОЙКИ
         // ═══════════════════════════════════════════════
         const RESET_BASE = 30;
+        const CRAFT_AMOUNT = 10;
+        const CRAFT_UPGRADE = {
+            common: 'rare',
+            rare: 'epic',
+            epic: 'legendary',
+            legendary: 'mythical',
+            // mythical — нельзя апгрейдить, это максимум
+        };
 
         // ═══════════════════════════════════════════════
         //  🎌 АНИМЕ ПЕРСОНАЖИ
@@ -659,14 +571,9 @@
             { id: 'pyrite',      name: 'Пирит',         img: 'stones/pyrite.png',      rarity: 'common',    desc: 'Золото дураков' },
         ];
 
-        // ═══════════════════════════════════════════════
-        //  🗂️ КАТЕГОРИИ
-        // ═══════════════════════════════════════════════
         const CATEGORIES = {
             anime: { name: 'Аниме персонажи', boxEmoji: '📦', heroes: ANIME_HEROES, unlockResets: 0 },
             gems:  { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES,  unlockResets: 0 },
-            // Животные — откроются после 2 ресетов
-            // animals: { name: 'Животные', boxEmoji: '🐾', heroes: ANIMAL_HEROES, unlockResets: 2 },
         };
 
         const RARITY_CHANCES = { common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1 };
@@ -674,8 +581,13 @@
             common: 'Обычный', rare: 'Редкий', epic: 'Эпический',
             legendary: 'Легендарный', mythical: 'Мифический',
         };
+        const RARITY_SHORT = { common: 'Обычные', rare: 'Редкие', epic: 'Эпические', legendary: 'Легендарные', mythical: 'Мифические' };
+        const RARITY_COLORS = {
+            common: '#94a3b8', rare: '#60a5fa', epic: '#c084fc',
+            legendary: '#fbbf24', mythical: '#f87171',
+        };
 
-        const STORAGE_KEY = 'boxes_progress_v3';
+        const STORAGE_KEY = 'boxes_progress_v4';
 
         let currentCategory = 'anime';
         let state = { opened: {}, owned: {}, resets: {} };
@@ -743,7 +655,7 @@
             showReveal(hero, false);
             renderStats();
             renderCollection();
-            updateResetFab();
+            updateFabs();
 
             btn.disabled = false;
         }
@@ -788,6 +700,131 @@
         }
 
         // ═══════════════════════════════════════════════
+        //  КРАФТ
+        // ═══════════════════════════════════════════════
+        function countByRarity(catId) {
+            const heroes = CATEGORIES[catId].heroes;
+            const owned = state.owned[catId] || {};
+            const counts = { common: 0, rare: 0, epic: 0, legendary: 0, mythical: 0 };
+            heroes.forEach(h => {
+                const c = owned[h.id] || 0;
+                if (c > 0) counts[h.rarity] += c;
+            });
+            return counts;
+        }
+
+        function canCraftAny() {
+            const counts = countByRarity(currentCategory);
+            return Object.keys(CRAFT_UPGRADE).some(r => counts[r] >= CRAFT_AMOUNT);
+        }
+
+        function openCraftPanel() {
+            renderCraftPanel();
+            document.getElementById('craftOverlay').classList.add('active');
+        }
+
+        function closeCraftPanel() {
+            document.getElementById('craftOverlay').classList.remove('active');
+        }
+
+        function renderCraftPanel() {
+            const container = document.getElementById('craftOptions');
+            const hintEl = document.getElementById('craftHint');
+            const counts = countByRarity(currentCategory);
+
+            const rows = Object.keys(CRAFT_UPGRADE).map(fromRarity => {
+                const nextRarity = CRAFT_UPGRADE[fromRarity];
+                const have = counts[fromRarity];
+                const ready = have >= CRAFT_AMOUNT;
+                const cls = ready ? 'ready' : '';
+
+                return `
+                    <div class="craft-row ${cls}" data-from="${fromRarity}">
+                        <div class="craft-dot ${fromRarity}">
+                            <span style="color: ${RARITY_COLORS[fromRarity]}">●</span>
+                        </div>
+                        <div class="craft-info">
+                            <div class="craft-info-title" style="color: ${RARITY_COLORS[fromRarity]}">
+                                ${RARITY_SHORT[fromRarity]} → ${RARITY_SHORT[nextRarity]}
+                            </div>
+                            <div class="craft-info-progress">${have} / ${CRAFT_AMOUNT}</div>
+                        </div>
+                        <button class="craft-btn" data-from="${fromRarity}" ${ready ? '' : 'disabled'}>
+                            ПЛАВИТЬ
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = rows;
+
+            // Обработчики
+            container.querySelectorAll('.craft-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const from = btn.dataset.from;
+                    craftUpgrade(from);
+                });
+            });
+
+            // Подсказка
+            const anyReady = Object.keys(CRAFT_UPGRADE).some(r => counts[r] >= CRAFT_AMOUNT);
+            if (anyReady) {
+                hintEl.textContent = '⚗️ Готово! Нажми «ПЛАВИТЬ», чтобы обменять 10 предметов на 1 случайный следующей редкости.';
+            } else {
+                const needed = Object.keys(CRAFT_UPGRADE)
+                    .map(r => `${RARITY_SHORT[r].toLowerCase()}: ${counts[r]}/${CRAFT_AMOUNT}`)
+                    .join(' · ');
+                hintEl.textContent = '📋 Накопи по 10 предметов одной редкости. Прогресс: ' + needed;
+            }
+        }
+
+        function craftUpgrade(fromRarity) {
+            const nextRarity = CRAFT_UPGRADE[fromRarity];
+            if (!nextRarity) return;
+
+            const catId = currentCategory;
+            const heroes = CATEGORIES[catId].heroes;
+            const owned = state.owned[catId] || {};
+
+            // Собираем все предметы этой редкости
+            const pool = [];
+            heroes.forEach(h => {
+                if (h.rarity === fromRarity) {
+                    const c = owned[h.id] || 0;
+                    for (let i = 0; i < c; i++) pool.push(h.id);
+                }
+            });
+
+            if (pool.length < CRAFT_AMOUNT) return;
+
+            // Удаляем CRAFT_AMOUNT случайных предметов
+            for (let i = 0; i < CRAFT_AMOUNT; i++) {
+                const idx = Math.floor(Math.random() * pool.length);
+                const id = pool.splice(idx, 1)[0];
+                owned[id]--;
+                if (owned[id] <= 0) delete owned[id];
+            }
+
+            // Добавляем 1 случайный следующей редкости
+            const nextPool = heroes.filter(h => h.rarity === nextRarity);
+            if (nextPool.length === 0) return;
+            const newHero = nextPool[Math.floor(Math.random() * nextPool.length)];
+            owned[newHero.id] = (owned[newHero.id] || 0) + 1;
+
+            saveState();
+
+            // Обновляем UI
+            renderCraftPanel();
+            renderStats();
+            renderCollection();
+            updateFabs();
+
+            // Показываем выпавший предмет
+            closeCraftPanel();
+            showReveal(newHero, false);
+        }
+
+        // ═══════════════════════════════════════════════
         //  RESET
         // ═══════════════════════════════════════════════
         function getResetStatus(catId) {
@@ -806,14 +843,15 @@
             };
         }
 
-        function updateResetFab() {
-            const fab = document.getElementById('resetFab');
-            const s = getResetStatus(currentCategory);
-            if (s.canReset) {
-                fab.classList.add('ready');
-            } else {
-                fab.classList.remove('ready');
-            }
+        function updateFabs() {
+            const resetFab = document.getElementById('resetFab');
+            const craftFab = document.getElementById('craftFab');
+            const rs = getResetStatus(currentCategory);
+            if (rs.canReset) resetFab.classList.add('ready');
+            else resetFab.classList.remove('ready');
+
+            if (canCraftAny()) craftFab.classList.add('ready');
+            else craftFab.classList.remove('ready');
         }
 
         function openResetPanel() {
@@ -837,17 +875,13 @@
             const cls2 = s.enoughOpened ? 'ok' : '';
 
             condEl.innerHTML = `
-                <div class="reset-cond ${cls1}">
-                    <div class="reset-cond-icon">${s.allCollected ? '✓' : '!'}</div>
-                    <div class="reset-cond-text">
-                        Собрать всех героев: <b>${s.collectedCount} / ${s.totalHeroes}</b>
-                    </div>
+                <div class="cond ${cls1}">
+                    <div class="cond-icon">${s.allCollected ? '✓' : '!'}</div>
+                    <div class="cond-text">Собрать всех героев: <b>${s.collectedCount} / ${s.totalHeroes}</b></div>
                 </div>
-                <div class="reset-cond ${cls2}">
-                    <div class="reset-cond-icon">${s.enoughOpened ? '✓' : '!'}</div>
-                    <div class="reset-cond-text">
-                        Открыть боксов: <b>${s.currentOpened} / ${s.requiredOpened}</b>
-                    </div>
+                <div class="cond ${cls2}">
+                    <div class="cond-icon">${s.enoughOpened ? '✓' : '!'}</div>
+                    <div class="cond-text">Открыть боксов: <b>${s.currentOpened} / ${s.requiredOpened}</b></div>
                 </div>
             `;
 
@@ -893,9 +927,7 @@
             if (!s.canReset) return;
 
             const catName = CATEGORIES[currentCategory].name;
-            if (!confirm(`Ресет категории «${catName}»?\n\nКоллекция обнулится, но ты получишь +1 к общему счётчику престижа.`)) {
-                return;
-            }
+            if (!confirm(`Ресет категории «${catName}»?\n\nКоллекция обнулится, но ты получишь +1 к общему счётчику престижа.`)) return;
 
             state.opened[currentCategory] = 0;
             state.owned[currentCategory] = {};
@@ -906,7 +938,7 @@
             renderTabs();
             renderStats();
             renderCollection();
-            updateResetFab();
+            updateFabs();
         }
 
         // ═══════════════════════════════════════════════
@@ -915,7 +947,6 @@
         function renderTabs() {
             const container = document.getElementById('categoryTabs');
             const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
-
             if (!unlocked.includes(currentCategory)) currentCategory = unlocked[0];
 
             container.innerHTML = unlocked.map(id => {
@@ -954,15 +985,10 @@
             container.innerHTML = sorted.map(h => {
                 const count = owned[h.id] || 0;
                 const locked = count === 0;
-
                 let visual;
-                if (locked) {
-                    visual = `<div class="hero-locked-icon">❓</div>`;
-                } else if (h.img) {
-                    visual = `<img src="${h.img}" alt="" class="hero-img">`;
-                } else {
-                    visual = `<div class="hero-emoji">${h.emoji}</div>`;
-                }
+                if (locked) visual = `<div class="hero-locked-icon">❓</div>`;
+                else if (h.img) visual = `<img src="${h.img}" alt="" class="hero-img">`;
+                else visual = `<div class="hero-emoji">${h.emoji}</div>`;
 
                 return `
                     <div class="hero-card ${h.rarity} ${locked ? 'locked' : 'unlocked'}" data-id="${h.id}">
@@ -976,8 +1002,7 @@
 
             container.querySelectorAll('.hero-card.unlocked').forEach(card => {
                 card.addEventListener('click', () => {
-                    const id = card.dataset.id;
-                    const hero = getHeroes().find(h => h.id === id);
+                    const hero = getHeroes().find(h => h.id === card.dataset.id);
                     if (hero) showReveal(hero, true);
                 });
             });
@@ -997,7 +1022,7 @@
             renderBox();
             renderStats();
             renderCollection();
-            updateResetFab();
+            updateFabs();
         }
 
         // ═══════════════════════════════════════════════
@@ -1009,6 +1034,12 @@
         document.getElementById('resetConfirmBtn').addEventListener('click', doReset);
         document.getElementById('resetOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'resetOverlay') closeResetPanel();
+        });
+
+        document.getElementById('craftFab').addEventListener('click', openCraftPanel);
+        document.getElementById('craftX').addEventListener('click', closeCraftPanel);
+        document.getElementById('craftOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'craftOverlay') closeCraftPanel();
         });
 
         document.getElementById('revealClose').addEventListener('click', closeReveal);
@@ -1025,7 +1056,7 @@
         renderBox();
         renderStats();
         renderCollection();
-        updateResetFab();
+        updateFabs();
     </script>
 </body>
 </html>
