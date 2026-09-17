@@ -16,7 +16,55 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        .header { text-align: center; margin-bottom: 24px; }
+        /* ═══ КНОПКА RESET В УГЛУ ═══ */
+        .reset-fab {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 90;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            color: #94a3b8;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .reset-fab:hover {
+            background: rgba(255,255,255,0.12);
+            color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        .reset-fab.ready {
+            background: linear-gradient(135deg, #ffd700, #ff9500);
+            color: #1a1a2e;
+            border-color: transparent;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
+            animation: shakeReady 1.2s infinite;
+        }
+        .reset-fab.ready:hover {
+            transform: translateY(-2px) scale(1.05);
+            animation-play-state: paused;
+        }
+        @keyframes shakeReady {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            10% { transform: rotate(-5deg) scale(1.03); }
+            20% { transform: rotate(5deg) scale(1.03); }
+            30% { transform: rotate(-4deg) scale(1.02); }
+            40% { transform: rotate(4deg) scale(1.02); }
+            50% { transform: rotate(0deg) scale(1); }
+        }
+        .reset-fab .icon { font-size: 18px; }
+
+        .header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
         .header h1 {
             font-size: 42px;
             font-weight: 900;
@@ -114,78 +162,155 @@
         .open-btn:active:not(:disabled) { transform: translateY(0); }
         .open-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ═══ RESET PANEL ═══ */
-        .reset-panel {
-            background: rgba(255,255,255,0.04);
-            border: 2px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 22px;
-            margin-bottom: 30px;
+        /* ═══ МОДАЛКА RESET ═══ */
+        .reset-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 110;
+            padding: 20px;
+        }
+        .reset-overlay.active { display: flex; }
+
+        .reset-card {
+            position: relative;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            padding: 40px 36px;
             text-align: center;
+            max-width: 460px;
+            width: 100%;
+            border: 3px solid #475569;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .reset-panel.ready {
-            border-color: rgba(239, 68, 68, 0.6);
-            box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
-            background: rgba(239, 68, 68, 0.06);
+        .reset-card.ready {
+            border-color: #f59e0b;
+            box-shadow: 0 0 80px rgba(245, 158, 11, 0.7);
         }
-        .reset-title {
-            font-size: 16px;
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .reset-x {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #cbd5e1;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.15s;
+            font-family: inherit;
+            line-height: 1;
+        }
+        .reset-x:hover { background: rgba(255,255,255,0.18); color: #fff; transform: scale(1.08); }
+
+        .reset-card-title {
+            font-size: 14px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
             color: #94a3b8;
         }
-        .reset-panel.ready .reset-title { color: #f87171; }
-        .reset-hint {
+        .reset-card.ready .reset-card-title { color: #fbbf24; }
+
+        .reset-card-sub {
             font-size: 13px;
             color: #94a3b8;
-            margin-bottom: 14px;
+            margin-bottom: 24px;
+        }
+        .reset-card-sub b { color: #fff; }
+
+        .reset-conditions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .reset-cond {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .reset-cond.ok { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.06); }
+        .reset-cond-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 900;
+            background: rgba(255,255,255,0.06);
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+        .reset-cond.ok .reset-cond-icon { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .reset-cond-text { font-size: 14px; color: #cbd5e1; line-height: 1.3; }
+        .reset-cond-text b { color: #fff; font-weight: 900; }
+        .reset-cond.ok .reset-cond-text b { color: #4ade80; }
+
+        .reset-hint-box {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid rgba(255,255,255,0.15);
+            text-align: left;
             line-height: 1.5;
         }
-        .reset-hint b { color: #fff; }
-        .reset-btn {
+        .reset-card.ready .reset-hint-box {
+            border-left-color: #f59e0b;
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .reset-confirm-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
-            padding: 14px 40px;
-            font-size: 16px;
+            padding: 16px 48px;
+            font-size: 17px;
             font-weight: 900;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             letter-spacing: 1px;
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
             transition: transform 0.15s, box-shadow 0.15s;
             font-family: inherit;
-            opacity: 0.4;
+            opacity: 0.35;
             cursor: not-allowed;
         }
-        .reset-panel.ready .reset-btn {
+        .reset-card.ready .reset-confirm-btn {
             opacity: 1;
             cursor: pointer;
         }
-        .reset-panel.ready .reset-btn:hover {
+        .reset-card.ready .reset-confirm-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.7);
+            box-shadow: 0 12px 32px rgba(239, 68, 68, 0.7);
         }
-        .reset-progress {
-            display: flex;
-            justify-content: center;
-            gap: 22px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            font-size: 13px;
-        }
-        .reset-progress-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #cbd5e1;
-        }
-        .reset-progress-item .check { font-size: 15px; }
-        .reset-progress-item .ok { color: #4ade80; }
-        .reset-progress-item .no { color: #94a3b8; }
 
+        /* ═══ МОДАЛКА ПРЕДМЕТА ═══ */
         .reveal-overlay {
             position: fixed;
             inset: 0;
@@ -208,10 +333,6 @@
             width: 100%;
             border: 3px solid #475569;
             animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
         }
         .reveal-card.common   { border-color: #94a3b8; box-shadow: 0 0 40px rgba(148,163,184,0.5); }
         .reveal-card.rare     { border-color: #3b82f6; box-shadow: 0 0 60px rgba(59,130,246,0.7); }
@@ -375,24 +496,36 @@
 
         @media (max-width: 600px) {
             body { padding: 14px; }
+            .reset-fab {
+                top: 12px; right: 12px;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+            .reset-fab .btn-text { display: none; }
+            .reset-fab .icon { font-size: 18px; }
+            .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
-            .reveal-card { padding: 32px 24px; }
-            .reveal-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
+            .reveal-card, .reset-card { padding: 32px 22px; }
+            .reveal-x, .reset-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
             .reveal-stone { width: 180px; height: 180px; }
             .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .hero-emoji, .hero-locked-icon { font-size: 34px; }
             .hero-img { width: 65px; height: 65px; }
-            .reset-panel { padding: 16px; }
-            .reset-btn { padding: 12px 28px; font-size: 15px; }
         }
     </style>
 </head>
 <body>
+    <!-- Кнопка RESET в углу -->
+    <button class="reset-fab" id="resetFab">
+        <span class="icon">🔄</span>
+        <span class="btn-text">RESET</span>
+    </button>
+
     <div class="container">
         <div class="header">
             <h1>🎁 BOXES</h1>
@@ -426,20 +559,27 @@
             <button class="open-btn" id="openBtn">ОТКРЫТЬ БОКС</button>
         </div>
 
-        <!-- ═══ RESET PANEL ═══ -->
-        <div class="reset-panel" id="resetPanel">
-            <div class="reset-title" id="resetTitle">🔄 ПРЕСТИЖ</div>
-            <div class="reset-progress" id="resetProgress"></div>
-            <div class="reset-hint" id="resetHint"></div>
-            <button class="reset-btn" id="resetBtn" disabled>🔄 RESET</button>
-        </div>
-
         <div class="collection-title">
             Коллекция <span class="count" id="collectionCount"></span>
         </div>
         <div class="collection" id="collection"></div>
     </div>
 
+    <!-- Модалка RESET -->
+    <div class="reset-overlay" id="resetOverlay">
+        <div class="reset-card" id="resetCard">
+            <button class="reset-x" id="resetX" aria-label="Закрыть">×</button>
+            <div class="reset-card-title" id="resetTitle">🔄 ПРЕСТИЖ</div>
+            <div class="reset-card-sub" id="resetSub"></div>
+
+            <div class="reset-conditions" id="resetConditions"></div>
+            <div class="reset-hint-box" id="resetHint"></div>
+
+            <button class="reset-confirm-btn" id="resetConfirmBtn" disabled>🔄 RESET</button>
+        </div>
+    </div>
+
+    <!-- Модалка предмета -->
     <div class="reveal-overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="reveal-x" id="revealX" aria-label="Закрыть">×</button>
@@ -456,8 +596,7 @@
         // ═══════════════════════════════════════════════
         //  НАСТРОЙКИ
         // ═══════════════════════════════════════════════
-        const RESET_BASE = 30;   // базовое число боксов для ресета
-                                  // требование = RESET_BASE × (ресетов + 1)
+        const RESET_BASE = 30;
 
         // ═══════════════════════════════════════════════
         //  🎌 АНИМЕ ПЕРСОНАЖИ
@@ -513,43 +652,15 @@
 
         // ═══════════════════════════════════════════════
         //  🗂️ КАТЕГОРИИ
-        //  unlockResets — сколько нужно ВСЕГО ресетов, чтобы категория открылась
         // ═══════════════════════════════════════════════
         const CATEGORIES = {
-            anime: {
-                name: 'Аниме персонажи',
-                boxEmoji: '📦',
-                heroes: ANIME_HEROES,
-                unlockResets: 0,
-            },
-            gems: {
-                name: 'Драгоценные камни',
-                boxEmoji: '💎',
-                heroes: GEM_HEROES,
-                unlockResets: 0,
-            },
-            // ─────────────────────────────────────────
-            //  ПРИМЕР: раскомментируй и добавь героев,
-            //  когда захочешь добавить новую категорию
-            // ─────────────────────────────────────────
-            // animals: {
-            //     name: 'Животные',
-            //     boxEmoji: '🐾',
-            //     heroes: ANIMAL_HEROES,   // твой массив
-            //     unlockResets: 2,          // откроется после 2 ресетов
-            // },
-            // memes: {
-            //     name: 'Мемы',
-            //     boxEmoji: '😂',
-            //     heroes: MEME_HEROES,
-            //     unlockResets: 5,
-            // },
+            anime: { name: 'Аниме персонажи', boxEmoji: '📦', heroes: ANIME_HEROES, unlockResets: 0 },
+            gems:  { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES,  unlockResets: 0 },
+            // Животные — откроются после 2 ресетов
+            // animals: { name: 'Животные', boxEmoji: '🐾', heroes: ANIMAL_HEROES, unlockResets: 2 },
         };
 
-        const RARITY_CHANCES = {
-            common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1,
-        };
-
+        const RARITY_CHANCES = { common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1 };
         const RARITY_NAMES = {
             common: 'Обычный', rare: 'Редкий', epic: 'Эпический',
             legendary: 'Легендарный', mythical: 'Мифический',
@@ -558,11 +669,7 @@
         const STORAGE_KEY = 'boxes_progress_v3';
 
         let currentCategory = 'anime';
-        let state = {
-            opened: {},
-            owned: {},
-            resets: {},   // ресеты по каждой категории
-        };
+        let state = { opened: {}, owned: {}, resets: {} };
 
         // ═══════════════════════════════════════════════
         //  СОСТОЯНИЕ
@@ -583,22 +690,13 @@
             initState();
         }
 
-        function saveState() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        }
-
-        function getTotalResets() {
-            return Object.values(state.resets).reduce((s, v) => s + v, 0);
-        }
-
-        function isCategoryUnlocked(catId) {
-            return getTotalResets() >= CATEGORIES[catId].unlockResets;
-        }
-
+        function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        function getTotalResets() { return Object.values(state.resets).reduce((s, v) => s + v, 0); }
+        function isCategoryUnlocked(catId) { return getTotalResets() >= CATEGORIES[catId].unlockResets; }
         function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
         // ═══════════════════════════════════════════════
-        //  ЛОГИКА ОТКРЫТИЯ
+        //  ОТКРЫТИЕ БОКСА
         // ═══════════════════════════════════════════════
         function rollRarity() {
             const roll = Math.random() * 100;
@@ -636,11 +734,14 @@
             showReveal(hero, false);
             renderStats();
             renderCollection();
-            renderResetPanel();
+            updateResetFab();
 
             btn.disabled = false;
         }
 
+        // ═══════════════════════════════════════════════
+        //  ПАНЕЛЬ ПРЕДМЕТА
+        // ═══════════════════════════════════════════════
         function showReveal(hero, isFromCollection) {
             const overlay = document.getElementById('revealOverlay');
             const card = document.getElementById('revealCard');
@@ -687,21 +788,103 @@
             const requiredOpened = RESET_BASE * (state.resets[catId] + 1);
             const currentOpened = state.opened[catId] || 0;
             const enoughOpened = currentOpened >= requiredOpened;
+            const collectedCount = Object.keys(owned).filter(id => owned[id] > 0).length;
             return {
-                allCollected,
-                enoughOpened,
-                currentOpened,
-                requiredOpened,
+                allCollected, enoughOpened,
+                currentOpened, requiredOpened, collectedCount,
+                totalHeroes: heroes.length,
                 canReset: allCollected && enoughOpened,
             };
         }
 
+        function updateResetFab() {
+            const fab = document.getElementById('resetFab');
+            const s = getResetStatus(currentCategory);
+            if (s.canReset) {
+                fab.classList.add('ready');
+            } else {
+                fab.classList.remove('ready');
+            }
+        }
+
+        function openResetPanel() {
+            const overlay = document.getElementById('resetOverlay');
+            const card = document.getElementById('resetCard');
+            const condEl = document.getElementById('resetConditions');
+            const hintEl = document.getElementById('resetHint');
+            const subEl = document.getElementById('resetSub');
+            const btn = document.getElementById('resetConfirmBtn');
+            const titleEl = document.getElementById('resetTitle');
+
+            const s = getResetStatus(currentCategory);
+            const resets = state.resets[currentCategory] || 0;
+            const totalResets = getTotalResets();
+            const catName = CATEGORIES[currentCategory].name;
+
+            titleEl.textContent = `🔄 Престиж — ${catName}`;
+            subEl.innerHTML = `Ресетов в категории: <b>${resets}</b> · Всего: <b>${totalResets}</b>`;
+
+            const cls1 = s.allCollected ? 'ok' : '';
+            const cls2 = s.enoughOpened ? 'ok' : '';
+
+            condEl.innerHTML = `
+                <div class="reset-cond ${cls1}">
+                    <div class="reset-cond-icon">${s.allCollected ? '✓' : '!'}</div>
+                    <div class="reset-cond-text">
+                        Собрать всех героев: <b>${s.collectedCount} / ${s.totalHeroes}</b>
+                    </div>
+                </div>
+                <div class="reset-cond ${cls2}">
+                    <div class="reset-cond-icon">${s.enoughOpened ? '✓' : '!'}</div>
+                    <div class="reset-cond-text">
+                        Открыть боксов: <b>${s.currentOpened} / ${s.requiredOpened}</b>
+                    </div>
+                </div>
+            `;
+
+            const nextCat = Object.entries(CATEGORIES)
+                .filter(([id, c]) => c.unlockResets > totalResets)
+                .sort((a, b) => a[1].unlockResets - b[1].unlockResets)[0];
+
+            let hint = '';
+            if (s.canReset) {
+                hint = '✅ Готово! Ресет обнулит коллекцию этой категории и даст +1 к общему счётчику престижа.';
+            } else {
+                const reasons = [];
+                if (!s.allCollected) reasons.push('собрать всех героев');
+                if (!s.enoughOpened) reasons.push(`открыть ещё ${s.requiredOpened - s.currentOpened} боксов`);
+                hint = '📋 Требуется: ' + reasons.join(' и ') + '.';
+            }
+
+            if (nextCat) {
+                const [id, c] = nextCat;
+                const left = c.unlockResets - totalResets;
+                hint += ` Следующая категория «${c.name}» откроется через ${left} ресет${left === 1 ? '' : 'ов'}.`;
+            }
+
+            hintEl.textContent = hint;
+
+            if (s.canReset) {
+                card.classList.add('ready');
+                btn.disabled = false;
+            } else {
+                card.classList.remove('ready');
+                btn.disabled = true;
+            }
+
+            overlay.classList.add('active');
+        }
+
+        function closeResetPanel() {
+            document.getElementById('resetOverlay').classList.remove('active');
+        }
+
         function doReset() {
-            const status = getResetStatus(currentCategory);
-            if (!status.canReset) return;
+            const s = getResetStatus(currentCategory);
+            if (!s.canReset) return;
 
             const catName = CATEGORIES[currentCategory].name;
-            if (!confirm(`Ресет категории «${catName}»?\n\nВся коллекция обнулится, но ты получишь +1 к общему счётчику ресетов.`)) {
+            if (!confirm(`Ресет категории «${catName}»?\n\nКоллекция обнулится, но ты получишь +1 к общему счётчику престижа.`)) {
                 return;
             }
 
@@ -710,10 +893,11 @@
             state.resets[currentCategory]++;
             saveState();
 
+            closeResetPanel();
             renderTabs();
             renderStats();
             renderCollection();
-            renderResetPanel();
+            updateResetFab();
         }
 
         // ═══════════════════════════════════════════════
@@ -723,9 +907,7 @@
             const container = document.getElementById('categoryTabs');
             const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
 
-            if (!unlocked.includes(currentCategory)) {
-                currentCategory = unlocked[0];
-            }
+            if (!unlocked.includes(currentCategory)) currentCategory = unlocked[0];
 
             container.innerHTML = unlocked.map(id => {
                 const cat = CATEGORIES[id];
@@ -744,12 +926,10 @@
             const heroes = getHeroes();
             const opened = state.opened[currentCategory] || 0;
             const collected = Object.keys(state.owned[currentCategory] || {}).length;
-            const totalResets = getTotalResets();
-
             document.getElementById('statOpened').textContent = opened;
             document.getElementById('statCollected').textContent = collected;
             document.getElementById('statTotal').textContent = heroes.length;
-            document.getElementById('statResets').textContent = totalResets;
+            document.getElementById('statResets').textContent = getTotalResets();
         }
 
         function renderCollection() {
@@ -776,8 +956,7 @@
                 }
 
                 return `
-                    <div class="hero-card ${h.rarity} ${locked ? 'locked' : 'unlocked'}"
-                         data-id="${h.id}">
+                    <div class="hero-card ${h.rarity} ${locked ? 'locked' : 'unlocked'}" data-id="${h.id}">
                         <div class="hero-badge">${RARITY_NAMES[h.rarity].slice(0, 3)}</div>
                         ${visual}
                         <div class="hero-name">${locked ? '???' : h.name}</div>
@@ -798,70 +977,6 @@
             document.getElementById('collectionCount').textContent = `${collected} / ${heroes.length}`;
         }
 
-        function renderResetPanel() {
-            const panel = document.getElementById('resetPanel');
-            const progressEl = document.getElementById('resetProgress');
-            const hintEl = document.getElementById('resetHint');
-            const btn = document.getElementById('resetBtn');
-            const titleEl = document.getElementById('resetTitle');
-
-            const s = getResetStatus(currentCategory);
-            const resets = state.resets[currentCategory] || 0;
-            const totalResets = getTotalResets();
-
-            // Заголовок
-            titleEl.textContent = `🔄 ПРЕСТИЖ (ресетов в категории: ${resets})`;
-
-            // Прогресс
-            const checkCollected = s.allCollected ? '✅' : '⬜';
-            const classCollected = s.allCollected ? 'ok' : 'no';
-            const checkOpened = s.enoughOpened ? '✅' : '⬜';
-            const classOpened = s.enoughOpened ? 'ok' : 'no';
-
-            progressEl.innerHTML = `
-                <div class="reset-progress-item">
-                    <span class="check">${checkCollected}</span>
-                    <span class="${classCollected}">Собрать всех: <b>${Object.keys(state.owned[currentCategory] || {}).length} / ${getHeroes().length}</b></span>
-                </div>
-                <div class="reset-progress-item">
-                    <span class="check">${checkOpened}</span>
-                    <span class="${classOpened}">Открыть боксов: <b>${s.currentOpened} / ${s.requiredOpened}</b></span>
-                </div>
-            `;
-
-            // Подсказка про следующую категорию
-            const nextCat = Object.entries(CATEGORIES)
-                .filter(([id, c]) => c.unlockResets > totalResets)
-                .sort((a, b) => a[1].unlockResets - b[1].unlockResets)[0];
-
-            let hint = '';
-            if (s.canReset) {
-                hint = 'Готово! Нажми RESET, чтобы обнулить эту категорию и получить +1 ресет.';
-            } else {
-                const reasons = [];
-                if (!s.allCollected) reasons.push('собери всех героев категории');
-                if (!s.enoughOpened) reasons.push(`открой ещё ${s.requiredOpened - s.currentOpened} боксов`);
-                hint = 'Требуется: ' + reasons.join(' и ') + '.';
-            }
-
-            if (nextCat) {
-                const [id, c] = nextCat;
-                const left = c.unlockResets - totalResets;
-                hint += ` Следующая категория «${c.name}» откроется через ${left} ресет${left === 1 ? '' : 'ов'}.`;
-            }
-
-            hintEl.innerHTML = hint;
-
-            // Активация кнопки
-            if (s.canReset) {
-                panel.classList.add('ready');
-                btn.disabled = false;
-            } else {
-                panel.classList.remove('ready');
-                btn.disabled = true;
-            }
-        }
-
         function renderBox() {
             document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
         }
@@ -869,19 +984,24 @@
         function switchCategory(cat) {
             if (cat === currentCategory) return;
             currentCategory = cat;
-
             renderTabs();
             renderBox();
             renderStats();
             renderCollection();
-            renderResetPanel();
+            updateResetFab();
         }
 
         // ═══════════════════════════════════════════════
         //  ОБРАБОТЧИКИ
         // ═══════════════════════════════════════════════
         document.getElementById('openBtn').addEventListener('click', openBox);
-        document.getElementById('resetBtn').addEventListener('click', doReset);
+        document.getElementById('resetFab').addEventListener('click', openResetPanel);
+        document.getElementById('resetX').addEventListener('click', closeResetPanel);
+        document.getElementById('resetConfirmBtn').addEventListener('click', doReset);
+        document.getElementById('resetOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'resetOverlay') closeResetPanel();
+        });
+
         document.getElementById('revealClose').addEventListener('click', closeReveal);
         document.getElementById('revealX').addEventListener('click', closeReveal);
         document.getElementById('revealOverlay').addEventListener('click', (e) => {
@@ -896,7 +1016,7 @@
         renderBox();
         renderStats();
         renderCollection();
-        renderResetPanel();
+        updateResetFab();
     </script>
 </body>
 </html>
