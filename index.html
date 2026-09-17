@@ -167,12 +167,13 @@
             min-height: 180px;
         }
         .reveal-stone {
-            width: 180px;
-            height: 180px;
+            width: 200px;
+            height: 200px;
             object-fit: contain;
             animation: floatStone 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));
-            mix-blend-mode: multiply;
+            filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
+            -webkit-mask-image: radial-gradient(circle at center, #000 55%, transparent 78%);
+            mask-image: radial-gradient(circle at center, #000 55%, transparent 78%);
         }
         .reveal-emoji-symbol {
             font-size: 110px;
@@ -230,11 +231,12 @@
         .hero-card.mythical  { border-color: #ef4444; }
 
         .hero-img {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             object-fit: contain;
             margin-bottom: 8px;
-            mix-blend-mode: multiply;
+            -webkit-mask-image: radial-gradient(circle at center, #000 55%, transparent 78%);
+            mask-image: radial-gradient(circle at center, #000 55%, transparent 78%);
         }
         .hero-emoji { font-size: 42px; margin-bottom: 8px; line-height: 1; }
         .hero-locked-icon {
@@ -269,12 +271,12 @@
             .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
-            .reveal-stone { width: 140px; height: 140px; }
+            .reveal-stone { width: 160px; height: 160px; }
             .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .hero-emoji, .hero-locked-icon { font-size: 34px; }
-            .hero-img { width: 50px; height: 50px; }
+            .hero-img { width: 60px; height: 60px; }
         }
     </style>
 </head>
@@ -593,5 +595,4 @@
         renderCollection();
     </script>
 </body>
-</html>
 </html>
