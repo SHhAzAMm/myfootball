@@ -172,6 +172,7 @@
             object-fit: contain;
             animation: floatStone 2s ease-in-out infinite;
             filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));
+            mix-blend-mode: multiply;
         }
         .reveal-emoji-symbol {
             font-size: 110px;
@@ -233,6 +234,7 @@
             height: 60px;
             object-fit: contain;
             margin-bottom: 8px;
+            mix-blend-mode: multiply;
         }
         .hero-emoji { font-size: 42px; margin-bottom: 8px; line-height: 1; }
         .hero-locked-icon {
@@ -534,7 +536,6 @@
                 const count = owned[h.id] || 0;
                 const locked = count === 0;
 
-                // 🎯 Главное изменение: если не найден — показываем только ❓
                 let visual;
                 if (locked) {
                     visual = `<div class="hero-locked-icon">❓</div>`;
@@ -592,4 +593,5 @@
         renderCollection();
     </script>
 </body>
+</html>
 </html>
