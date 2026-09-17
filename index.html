@@ -75,7 +75,7 @@
 
         .open-zone {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding: 40px 20px;
             background: rgba(255,255,255,0.03);
             border-radius: 20px;
@@ -114,6 +114,78 @@
         .open-btn:active:not(:disabled) { transform: translateY(0); }
         .open-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* ═══ RESET PANEL ═══ */
+        .reset-panel {
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .reset-panel.ready {
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.06);
+        }
+        .reset-title {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+        .reset-panel.ready .reset-title { color: #f87171; }
+        .reset-hint {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        .reset-hint b { color: #fff; }
+        .reset-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 10px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .reset-panel.ready .reset-btn {
+            opacity: 1;
+            cursor: pointer;
+        }
+        .reset-panel.ready .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.7);
+        }
+        .reset-progress {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+        .reset-progress-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #cbd5e1;
+        }
+        .reset-progress-item .check { font-size: 15px; }
+        .reset-progress-item .ok { color: #4ade80; }
+        .reset-progress-item .no { color: #94a3b8; }
+
         .reveal-overlay {
             position: fixed;
             inset: 0;
@@ -147,7 +219,6 @@
         .reveal-card.legendary{ border-color: #f59e0b; box-shadow: 0 0 90px rgba(245,158,11,0.9); }
         .reveal-card.mythical { border-color: #ef4444; box-shadow: 0 0 120px rgba(239,68,68,1); }
 
-        /* Кнопка-крестик */
         .reveal-x {
             position: absolute;
             top: 12px;
@@ -207,7 +278,7 @@
             50% { transform: translateY(-8px); }
         }
         .reveal-name { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
-        .reveal-desc { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+        .reveal-desc { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
         .reveal-count-badge {
             display: inline-block;
             background: rgba(255,255,255,0.08);
@@ -256,9 +327,7 @@
             transition: transform 0.15s, box-shadow 0.15s;
             position: relative;
         }
-        .hero-card.unlocked {
-            cursor: pointer;
-        }
+        .hero-card.unlocked { cursor: pointer; }
         .hero-card.unlocked:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
@@ -318,6 +387,8 @@
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .hero-emoji, .hero-locked-icon { font-size: 34px; }
             .hero-img { width: 65px; height: 65px; }
+            .reset-panel { padding: 16px; }
+            .reset-btn { padding: 12px 28px; font-size: 15px; }
         }
     </style>
 </head>
@@ -328,10 +399,7 @@
             <p>Открывай боксы — собирай коллекцию</p>
         </div>
 
-        <div class="category-tabs">
-            <button class="cat-tab active" data-cat="anime">🎌 Аниме персонажи</button>
-            <button class="cat-tab" data-cat="gems">💎 Драгоценные камни</button>
-        </div>
+        <div class="category-tabs" id="categoryTabs"></div>
 
         <div class="stats">
             <div class="stat">
@@ -346,12 +414,24 @@
                 <div class="stat-value" id="statTotal">0</div>
                 <div class="stat-label">Всего</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="statResets">0</div>
+                <div class="stat-label">Ресетов</div>
+            </div>
         </div>
 
         <div class="open-zone">
             <div class="box-visual" id="boxVisual">🎁</div>
             <br>
             <button class="open-btn" id="openBtn">ОТКРЫТЬ БОКС</button>
+        </div>
+
+        <!-- ═══ RESET PANEL ═══ -->
+        <div class="reset-panel" id="resetPanel">
+            <div class="reset-title" id="resetTitle">🔄 ПРЕСТИЖ</div>
+            <div class="reset-progress" id="resetProgress"></div>
+            <div class="reset-hint" id="resetHint"></div>
+            <button class="reset-btn" id="resetBtn" disabled>🔄 RESET</button>
         </div>
 
         <div class="collection-title">
@@ -374,7 +454,13 @@
 
     <script>
         // ═══════════════════════════════════════════════
-        //  🎌 АНИМЕ ПЕРСОНАЖИ (эмодзи)
+        //  НАСТРОЙКИ
+        // ═══════════════════════════════════════════════
+        const RESET_BASE = 30;   // базовое число боксов для ресета
+                                  // требование = RESET_BASE × (ресетов + 1)
+
+        // ═══════════════════════════════════════════════
+        //  🎌 АНИМЕ ПЕРСОНАЖИ
         // ═══════════════════════════════════════════════
         const ANIME_HEROES = [
             { id: 'gojo',     name: 'Годжо',       emoji: '🥷', rarity: 'legendary', desc: 'Сильнейший' },
@@ -400,7 +486,7 @@
         ];
 
         // ═══════════════════════════════════════════════
-        //  💎 ДРАГОЦЕННЫЕ КАМНИ (PNG из stones/)
+        //  💎 ДРАГОЦЕННЫЕ КАМНИ
         // ═══════════════════════════════════════════════
         const GEM_HEROES = [
             { id: 'diamond',     name: 'Алмаз',         img: 'stones/diamond.png',     rarity: 'mythical',  desc: 'Твёрдость 10' },
@@ -425,9 +511,39 @@
             { id: 'pyrite',      name: 'Пирит',         img: 'stones/pyrite.png',      rarity: 'common',    desc: 'Золото дураков' },
         ];
 
+        // ═══════════════════════════════════════════════
+        //  🗂️ КАТЕГОРИИ
+        //  unlockResets — сколько нужно ВСЕГО ресетов, чтобы категория открылась
+        // ═══════════════════════════════════════════════
         const CATEGORIES = {
-            anime: { name: 'Аниме персонажи', boxEmoji: '📦', heroes: ANIME_HEROES },
-            gems:  { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES },
+            anime: {
+                name: 'Аниме персонажи',
+                boxEmoji: '📦',
+                heroes: ANIME_HEROES,
+                unlockResets: 0,
+            },
+            gems: {
+                name: 'Драгоценные камни',
+                boxEmoji: '💎',
+                heroes: GEM_HEROES,
+                unlockResets: 0,
+            },
+            // ─────────────────────────────────────────
+            //  ПРИМЕР: раскомментируй и добавь героев,
+            //  когда захочешь добавить новую категорию
+            // ─────────────────────────────────────────
+            // animals: {
+            //     name: 'Животные',
+            //     boxEmoji: '🐾',
+            //     heroes: ANIMAL_HEROES,   // твой массив
+            //     unlockResets: 2,          // откроется после 2 ресетов
+            // },
+            // memes: {
+            //     name: 'Мемы',
+            //     boxEmoji: '😂',
+            //     heroes: MEME_HEROES,
+            //     unlockResets: 5,
+            // },
         };
 
         const RARITY_CHANCES = {
@@ -439,15 +555,23 @@
             legendary: 'Легендарный', mythical: 'Мифический',
         };
 
-        const STORAGE_KEY = 'boxes_progress_v2';
+        const STORAGE_KEY = 'boxes_progress_v3';
 
         let currentCategory = 'anime';
-        let state = { opened: {}, owned: {} };
+        let state = {
+            opened: {},
+            owned: {},
+            resets: {},   // ресеты по каждой категории
+        };
 
+        // ═══════════════════════════════════════════════
+        //  СОСТОЯНИЕ
+        // ═══════════════════════════════════════════════
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
                 if (state.opened[cat] === undefined) state.opened[cat] = 0;
                 if (!state.owned[cat]) state.owned[cat] = {};
+                if (state.resets[cat] === undefined) state.resets[cat] = 0;
             }
         }
 
@@ -463,8 +587,19 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         }
 
+        function getTotalResets() {
+            return Object.values(state.resets).reduce((s, v) => s + v, 0);
+        }
+
+        function isCategoryUnlocked(catId) {
+            return getTotalResets() >= CATEGORIES[catId].unlockResets;
+        }
+
         function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
+        // ═══════════════════════════════════════════════
+        //  ЛОГИКА ОТКРЫТИЯ
+        // ═══════════════════════════════════════════════
         function rollRarity() {
             const roll = Math.random() * 100;
             let acc = 0;
@@ -501,11 +636,11 @@
             showReveal(hero, false);
             renderStats();
             renderCollection();
+            renderResetPanel();
 
             btn.disabled = false;
         }
 
-        // Показ панели: isFromCollection = true, если открыт по клику в коллекции
         function showReveal(hero, isFromCollection) {
             const overlay = document.getElementById('revealOverlay');
             const card = document.getElementById('revealCard');
@@ -526,7 +661,6 @@
             document.getElementById('revealDesc').textContent = hero.desc || '';
 
             if (isFromCollection) {
-                // Показываем бейдж «В коллекции: ×N», скрываем «Забрать», оставляем только крестик
                 const count = (state.owned[currentCategory] || {})[hero.id] || 0;
                 countBadge.textContent = `В коллекции: ×${count}`;
                 countBadge.style.display = 'inline-block';
@@ -543,14 +677,79 @@
             document.getElementById('revealOverlay').classList.remove('active');
         }
 
+        // ═══════════════════════════════════════════════
+        //  RESET
+        // ═══════════════════════════════════════════════
+        function getResetStatus(catId) {
+            const heroes = CATEGORIES[catId].heroes;
+            const owned = state.owned[catId] || {};
+            const allCollected = heroes.every(h => (owned[h.id] || 0) > 0);
+            const requiredOpened = RESET_BASE * (state.resets[catId] + 1);
+            const currentOpened = state.opened[catId] || 0;
+            const enoughOpened = currentOpened >= requiredOpened;
+            return {
+                allCollected,
+                enoughOpened,
+                currentOpened,
+                requiredOpened,
+                canReset: allCollected && enoughOpened,
+            };
+        }
+
+        function doReset() {
+            const status = getResetStatus(currentCategory);
+            if (!status.canReset) return;
+
+            const catName = CATEGORIES[currentCategory].name;
+            if (!confirm(`Ресет категории «${catName}»?\n\nВся коллекция обнулится, но ты получишь +1 к общему счётчику ресетов.`)) {
+                return;
+            }
+
+            state.opened[currentCategory] = 0;
+            state.owned[currentCategory] = {};
+            state.resets[currentCategory]++;
+            saveState();
+
+            renderTabs();
+            renderStats();
+            renderCollection();
+            renderResetPanel();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  РЕНДЕР
+        // ═══════════════════════════════════════════════
+        function renderTabs() {
+            const container = document.getElementById('categoryTabs');
+            const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
+
+            if (!unlocked.includes(currentCategory)) {
+                currentCategory = unlocked[0];
+            }
+
+            container.innerHTML = unlocked.map(id => {
+                const cat = CATEGORIES[id];
+                const active = id === currentCategory ? 'active' : '';
+                const resets = state.resets[id] || 0;
+                const resetBadge = resets > 0 ? ` (${resets}♻)` : '';
+                return `<button class="cat-tab ${active}" data-cat="${id}">${cat.boxEmoji} ${cat.name}${resetBadge}</button>`;
+            }).join('');
+
+            container.querySelectorAll('.cat-tab').forEach(btn => {
+                btn.addEventListener('click', () => switchCategory(btn.dataset.cat));
+            });
+        }
+
         function renderStats() {
             const heroes = getHeroes();
             const opened = state.opened[currentCategory] || 0;
             const collected = Object.keys(state.owned[currentCategory] || {}).length;
+            const totalResets = getTotalResets();
 
             document.getElementById('statOpened').textContent = opened;
             document.getElementById('statCollected').textContent = collected;
             document.getElementById('statTotal').textContent = heroes.length;
+            document.getElementById('statResets').textContent = totalResets;
         }
 
         function renderCollection() {
@@ -587,7 +786,6 @@
                 `;
             }).join('');
 
-            // Вешаем обработчик клика на все открытые карточки
             container.querySelectorAll('.hero-card.unlocked').forEach(card => {
                 card.addEventListener('click', () => {
                     const id = card.dataset.id;
@@ -600,39 +798,105 @@
             document.getElementById('collectionCount').textContent = `${collected} / ${heroes.length}`;
         }
 
+        function renderResetPanel() {
+            const panel = document.getElementById('resetPanel');
+            const progressEl = document.getElementById('resetProgress');
+            const hintEl = document.getElementById('resetHint');
+            const btn = document.getElementById('resetBtn');
+            const titleEl = document.getElementById('resetTitle');
+
+            const s = getResetStatus(currentCategory);
+            const resets = state.resets[currentCategory] || 0;
+            const totalResets = getTotalResets();
+
+            // Заголовок
+            titleEl.textContent = `🔄 ПРЕСТИЖ (ресетов в категории: ${resets})`;
+
+            // Прогресс
+            const checkCollected = s.allCollected ? '✅' : '⬜';
+            const classCollected = s.allCollected ? 'ok' : 'no';
+            const checkOpened = s.enoughOpened ? '✅' : '⬜';
+            const classOpened = s.enoughOpened ? 'ok' : 'no';
+
+            progressEl.innerHTML = `
+                <div class="reset-progress-item">
+                    <span class="check">${checkCollected}</span>
+                    <span class="${classCollected}">Собрать всех: <b>${Object.keys(state.owned[currentCategory] || {}).length} / ${getHeroes().length}</b></span>
+                </div>
+                <div class="reset-progress-item">
+                    <span class="check">${checkOpened}</span>
+                    <span class="${classOpened}">Открыть боксов: <b>${s.currentOpened} / ${s.requiredOpened}</b></span>
+                </div>
+            `;
+
+            // Подсказка про следующую категорию
+            const nextCat = Object.entries(CATEGORIES)
+                .filter(([id, c]) => c.unlockResets > totalResets)
+                .sort((a, b) => a[1].unlockResets - b[1].unlockResets)[0];
+
+            let hint = '';
+            if (s.canReset) {
+                hint = 'Готово! Нажми RESET, чтобы обнулить эту категорию и получить +1 ресет.';
+            } else {
+                const reasons = [];
+                if (!s.allCollected) reasons.push('собери всех героев категории');
+                if (!s.enoughOpened) reasons.push(`открой ещё ${s.requiredOpened - s.currentOpened} боксов`);
+                hint = 'Требуется: ' + reasons.join(' и ') + '.';
+            }
+
+            if (nextCat) {
+                const [id, c] = nextCat;
+                const left = c.unlockResets - totalResets;
+                hint += ` Следующая категория «${c.name}» откроется через ${left} ресет${left === 1 ? '' : 'ов'}.`;
+            }
+
+            hintEl.innerHTML = hint;
+
+            // Активация кнопки
+            if (s.canReset) {
+                panel.classList.add('ready');
+                btn.disabled = false;
+            } else {
+                panel.classList.remove('ready');
+                btn.disabled = true;
+            }
+        }
+
         function renderBox() {
-            const cat = CATEGORIES[currentCategory];
-            document.getElementById('boxVisual').textContent = cat.boxEmoji;
+            document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
         }
 
         function switchCategory(cat) {
             if (cat === currentCategory) return;
             currentCategory = cat;
 
-            document.querySelectorAll('.cat-tab').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.cat === cat);
-            });
-
+            renderTabs();
             renderBox();
             renderStats();
             renderCollection();
+            renderResetPanel();
         }
 
+        // ═══════════════════════════════════════════════
+        //  ОБРАБОТЧИКИ
+        // ═══════════════════════════════════════════════
         document.getElementById('openBtn').addEventListener('click', openBox);
+        document.getElementById('resetBtn').addEventListener('click', doReset);
         document.getElementById('revealClose').addEventListener('click', closeReveal);
         document.getElementById('revealX').addEventListener('click', closeReveal);
         document.getElementById('revealOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
-        document.querySelectorAll('.cat-tab').forEach(btn => {
-            btn.addEventListener('click', () => switchCategory(btn.dataset.cat));
-        });
-
+        // ═══════════════════════════════════════════════
+        //  СТАРТ
+        // ═══════════════════════════════════════════════
         loadState();
+        renderTabs();
         renderBox();
         renderStats();
         renderCollection();
+        renderResetPanel();
     </script>
 </body>
 </html>
