@@ -127,6 +127,7 @@
         .reveal-overlay.active { display: flex; }
 
         .reveal-card {
+            position: relative;
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border-radius: 20px;
             padding: 40px;
@@ -146,12 +147,36 @@
         .reveal-card.legendary{ border-color: #f59e0b; box-shadow: 0 0 90px rgba(245,158,11,0.9); }
         .reveal-card.mythical { border-color: #ef4444; box-shadow: 0 0 120px rgba(239,68,68,1); }
 
+        /* Кнопка-крестик */
+        .reveal-x {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #cbd5e1;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.15s;
+            font-family: inherit;
+            line-height: 1;
+        }
+        .reveal-x:hover { background: rgba(255,255,255,0.18); color: #fff; transform: scale(1.08); }
+
         .reveal-rarity {
             font-size: 12px;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 3px;
             margin-bottom: 12px;
+            margin-top: 8px;
         }
         .reveal-card.common    .reveal-rarity { color: #94a3b8; }
         .reveal-card.rare      .reveal-rarity { color: #60a5fa; }
@@ -183,6 +208,17 @@
         }
         .reveal-name { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
         .reveal-desc { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+        .reveal-count-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #cbd5e1;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
         .reveal-close {
             background: rgba(255,255,255,0.1);
             color: white;
@@ -217,10 +253,16 @@
             border-radius: 12px;
             padding: 16px 10px;
             text-align: center;
-            transition: transform 0.15s;
+            transition: transform 0.15s, box-shadow 0.15s;
             position: relative;
         }
-        .hero-card:hover { transform: translateY(-3px); }
+        .hero-card.unlocked {
+            cursor: pointer;
+        }
+        .hero-card.unlocked:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
         .hero-card.locked { opacity: 0.55; }
         .hero-card.common    { border-color: #94a3b8; }
         .hero-card.rare      { border-color: #3b82f6; }
@@ -268,6 +310,8 @@
             .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
+            .reveal-card { padding: 32px 24px; }
+            .reveal-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
             .reveal-stone { width: 180px; height: 180px; }
             .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
@@ -318,10 +362,12 @@
 
     <div class="reveal-overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
+            <button class="reveal-x" id="revealX" aria-label="Закрыть">×</button>
             <div class="reveal-rarity" id="revealRarity"></div>
             <div class="reveal-emoji" id="revealEmoji"></div>
             <div class="reveal-name" id="revealName"></div>
             <div class="reveal-desc" id="revealDesc"></div>
+            <div class="reveal-count-badge" id="revealCountBadge" style="display:none;"></div>
             <button class="reveal-close" id="revealClose">Забрать</button>
         </div>
     </div>
@@ -354,7 +400,7 @@
         ];
 
         // ═══════════════════════════════════════════════
-        //  💎 ДРАГОЦЕННЫЕ КАМНИ (PNG с прозрачностью из stones/)
+        //  💎 ДРАГОЦЕННЫЕ КАМНИ (PNG из stones/)
         // ═══════════════════════════════════════════════
         const GEM_HEROES = [
             { id: 'diamond',     name: 'Алмаз',         img: 'stones/diamond.png',     rarity: 'mythical',  desc: 'Твёрдость 10' },
@@ -379,48 +425,24 @@
             { id: 'pyrite',      name: 'Пирит',         img: 'stones/pyrite.png',      rarity: 'common',    desc: 'Золото дураков' },
         ];
 
-        // ═══════════════════════════════════════════════
-        //  КАТЕГОРИИ
-        // ═══════════════════════════════════════════════
         const CATEGORIES = {
-            anime: {
-                name: 'Аниме персонажи',
-                boxEmoji: '📦',
-                heroes: ANIME_HEROES,
-            },
-            gems: {
-                name: 'Драгоценные камни',
-                boxEmoji: '💎',
-                heroes: GEM_HEROES,
-            },
+            anime: { name: 'Аниме персонажи', boxEmoji: '📦', heroes: ANIME_HEROES },
+            gems:  { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES },
         };
 
         const RARITY_CHANCES = {
-            common:    55,
-            rare:      25,
-            epic:      13,
-            legendary:  6,
-            mythical:   1,
+            common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1,
         };
 
         const RARITY_NAMES = {
-            common:    'Обычный',
-            rare:      'Редкий',
-            epic:      'Эпический',
-            legendary: 'Легендарный',
-            mythical:  'Мифический',
+            common: 'Обычный', rare: 'Редкий', epic: 'Эпический',
+            legendary: 'Легендарный', mythical: 'Мифический',
         };
 
-        // ═══════════════════════════════════════════════
-        //  ЛОГИКА
-        // ═══════════════════════════════════════════════
         const STORAGE_KEY = 'boxes_progress_v2';
 
         let currentCategory = 'anime';
-        let state = {
-            opened: {},
-            owned: {},
-        };
+        let state = { opened: {}, owned: {} };
 
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
@@ -433,7 +455,7 @@
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) state = JSON.parse(raw);
-            } catch (e) { /* ignore */ }
+            } catch (e) {}
             initState();
         }
 
@@ -441,9 +463,7 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         }
 
-        function getHeroes() {
-            return CATEGORIES[currentCategory].heroes;
-        }
+        function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
         function rollRarity() {
             const roll = Math.random() * 100;
@@ -458,9 +478,7 @@
         function pickHero(rarity) {
             const heroes = getHeroes();
             const pool = heroes.filter(h => h.rarity === rarity);
-            if (pool.length === 0) {
-                return heroes[Math.floor(Math.random() * heroes.length)];
-            }
+            if (pool.length === 0) return heroes[Math.floor(Math.random() * heroes.length)];
             return pool[Math.floor(Math.random() * pool.length)];
         }
 
@@ -480,17 +498,20 @@
             state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
             saveState();
 
-            showReveal(hero);
+            showReveal(hero, false);
             renderStats();
             renderCollection();
 
             btn.disabled = false;
         }
 
-        function showReveal(hero) {
+        // Показ панели: isFromCollection = true, если открыт по клику в коллекции
+        function showReveal(hero, isFromCollection) {
             const overlay = document.getElementById('revealOverlay');
             const card = document.getElementById('revealCard');
             const visualEl = document.getElementById('revealEmoji');
+            const countBadge = document.getElementById('revealCountBadge');
+            const closeBtn = document.getElementById('revealClose');
 
             card.className = 'reveal-card ' + hero.rarity;
             document.getElementById('revealRarity').textContent = RARITY_NAMES[hero.rarity];
@@ -503,6 +524,17 @@
 
             document.getElementById('revealName').textContent = hero.name;
             document.getElementById('revealDesc').textContent = hero.desc || '';
+
+            if (isFromCollection) {
+                // Показываем бейдж «В коллекции: ×N», скрываем «Забрать», оставляем только крестик
+                const count = (state.owned[currentCategory] || {})[hero.id] || 0;
+                countBadge.textContent = `В коллекции: ×${count}`;
+                countBadge.style.display = 'inline-block';
+                closeBtn.style.display = 'none';
+            } else {
+                countBadge.style.display = 'none';
+                closeBtn.style.display = 'inline-block';
+            }
 
             overlay.classList.add('active');
         }
@@ -545,7 +577,8 @@
                 }
 
                 return `
-                    <div class="hero-card ${h.rarity} ${locked ? 'locked' : ''}">
+                    <div class="hero-card ${h.rarity} ${locked ? 'locked' : 'unlocked'}"
+                         data-id="${h.id}">
                         <div class="hero-badge">${RARITY_NAMES[h.rarity].slice(0, 3)}</div>
                         ${visual}
                         <div class="hero-name">${locked ? '???' : h.name}</div>
@@ -553,6 +586,15 @@
                     </div>
                 `;
             }).join('');
+
+            // Вешаем обработчик клика на все открытые карточки
+            container.querySelectorAll('.hero-card.unlocked').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.id;
+                    const hero = getHeroes().find(h => h.id === id);
+                    if (hero) showReveal(hero, true);
+                });
+            });
 
             const collected = Object.keys(owned).length;
             document.getElementById('collectionCount').textContent = `${collected} / ${heroes.length}`;
@@ -578,6 +620,7 @@
 
         document.getElementById('openBtn').addEventListener('click', openBox);
         document.getElementById('revealClose').addEventListener('click', closeReveal);
+        document.getElementById('revealX').addEventListener('click', closeReveal);
         document.getElementById('revealOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'revealOverlay') closeReveal();
         });
