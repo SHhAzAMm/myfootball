@@ -504,38 +504,37 @@
         // ═══════════════════════════════════════════════
         //  🌋 ЭЛЕМЕНТЫ (картинки .png из elements/)
         // ═══════════════════════════════════════════════
-        const ELEMENT_HEROES = [
-            // ─── Обычные ───
-            { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
-            { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
+               const ELEMENT_HEROES = [
+            // ─── Обычные (4) ───
             { id: 'fire',     name: 'Огонь',     img: 'elements/fire.png',     rarity: 'common',    desc: 'Пламя жизни' },
             { id: 'water',    name: 'Вода',      img: 'elements/water.png',    rarity: 'common',    desc: 'Поток времени' },
-            { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'common',    desc: 'Скрывает тайны' },
-            { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'common',    desc: 'Пыль веков' },
-            { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'common',    desc: 'Сила роста' },
-            { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'common',    desc: 'Невидимый дух' },
+            { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
+            { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
 
-            // ─── Редкие ───
+            // ─── Редкие (4) ───
+            { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'rare',      desc: 'Скрывает тайны' },
+            { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'rare',      desc: 'Пыль веков' },
+            { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'rare',      desc: 'Сила роста' },
             { id: 'cold',     name: 'Холод',     img: 'elements/cold.png',     rarity: 'rare',      desc: 'Ледяное дыхание' },
-            { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'rare',      desc: 'Сияние истины' },
-            { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'rare',      desc: 'Живая материя' },
-            { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'rare',      desc: 'Эхо пустоты' },
-            { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'rare',      desc: 'Память огня' },
 
-            // ─── Эпические ───
-            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',         rarity: 'epic', desc: 'Гнев земли' },
-            { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png',  rarity: 'epic', desc: 'Сила грозы' },
-            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',        rarity: 'epic', desc: 'Смертельный шёпот' },
-            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',        rarity: 'epic', desc: 'Цена жизни' },
+            // ─── Эпические (5) ───
+            { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'epic',      desc: 'Сияние истины' },
+            { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'epic',      desc: 'Живая материя' },
+            { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'epic',      desc: 'Эхо пустоты' },
+            { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'epic',      desc: 'Память огня' },
+            { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'epic',      desc: 'Невидимый дух' },
 
-            // ─── Легендарные ───
-            { id: 'rainbow',  name: 'Радуга',    img: 'elements/rainbow.png',  rarity: 'legendary', desc: 'Мост богов' },
-            { id: 'darkness', name: 'Тьма',      img: 'elements/darkness.png', rarity: 'legendary', desc: 'Начало всех начал' },
+            // ─── Легендарные (5) ───
+            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',         rarity: 'legendary', desc: 'Гнев земли' },
+            { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png',  rarity: 'legendary', desc: 'Сила грозы' },
+            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',        rarity: 'legendary', desc: 'Смертельный шёпот' },
+            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',        rarity: 'legendary', desc: 'Цена жизни' },
+            { id: 'rainbow',     name: 'Радуга',        img: 'elements/rainbow.png',      rarity: 'legendary', desc: 'Мост богов' },
 
-            // ─── Мифический ───
+            // ─── Мифические (2) ───
+            { id: 'darkness', name: 'Тьма',      img: 'elements/darkness.png', rarity: 'mythical',  desc: 'Начало всех начал' },
             { id: 'time',     name: 'Время',     img: 'elements/time.png',     rarity: 'mythical',  desc: 'Властелин всего' },
         ];
-
         // ═══════════════════════════════════════════════
         //  💎 ДРАГОЦЕННЫЕ КАМНИ
         // ═══════════════════════════════════════════════
@@ -570,7 +569,7 @@
             gems:     { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES, unlockResets: 0 },
         };
 
-        const RARITY_CHANCES = { common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1 };
+        const RARITY_CHANCES = { common: 50, rare: 25, epic: 15, legendary: 8, mythical: 2 };
         const RARITY_NAMES = {
             common: 'Обычный', rare: 'Редкий', epic: 'Эпический',
             legendary: 'Легендарный', mythical: 'Мифический',
