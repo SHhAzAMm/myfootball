@@ -308,6 +308,9 @@
             width: 220px; height: 220px; object-fit: contain;
             animation: floatStone 2s ease-in-out infinite;
             filter: drop-shadow(0 0 40px rgba(255,255,255,0.35));
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-drag: none;
         }
         @keyframes floatStone {
             0%, 100% { transform: translateY(0); }
@@ -360,6 +363,9 @@
             width: 75px; height: 75px; object-fit: contain;
             margin-bottom: 8px;
             filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-drag: none;
         }
         .hero-locked-icon {
             font-size: 42px; margin-bottom: 8px; line-height: 1;
@@ -506,29 +512,24 @@
         //  🌋 ЭЛЕМЕНТЫ
         // ═══════════════════════════════════════════════
         const ELEMENT_HEROES = [
-            // Обычные (4)
             { id: 'fire',     name: 'Огонь',     img: 'elements/fire.png',     rarity: 'common',    desc: 'Пламя жизни' },
             { id: 'water',    name: 'Вода',      img: 'elements/water.png',    rarity: 'common',    desc: 'Поток времени' },
             { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
             { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
-            // Редкие (4)
             { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'rare',      desc: 'Скрывает тайны' },
             { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'rare',      desc: 'Пыль веков' },
             { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'rare',      desc: 'Сила роста' },
             { id: 'cold',     name: 'Холод',     img: 'elements/cold.png',     rarity: 'rare',      desc: 'Ледяное дыхание' },
-            // Эпические (5)
             { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'epic',      desc: 'Сияние истины' },
             { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'epic',      desc: 'Живая материя' },
             { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'epic',      desc: 'Эхо пустоты' },
             { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'epic',      desc: 'Память огня' },
             { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'epic',      desc: 'Невидимый дух' },
-            // Легендарные (5)
             { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',        rarity: 'legendary', desc: 'Гнев земли' },
             { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png', rarity: 'legendary', desc: 'Сила грозы' },
             { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',       rarity: 'legendary', desc: 'Смертельный шёпот' },
             { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',       rarity: 'legendary', desc: 'Цена жизни' },
             { id: 'rainbow',     name: 'Радуга',        img: 'elements/rainbow.png',     rarity: 'legendary', desc: 'Мост богов' },
-            // Мифические (2)
             { id: 'darkness', name: 'Тьма',   img: 'elements/darkness.png', rarity: 'mythical', desc: 'Начало всех начал' },
             { id: 'time',     name: 'Время',  img: 'elements/time.png',     rarity: 'mythical', desc: 'Властелин всего' },
         ];
@@ -656,7 +657,7 @@
             document.getElementById('revealRarity').textContent = RARITY_NAMES[hero.rarity];
 
             if (hero.img) {
-                visualEl.innerHTML = `<img src="${hero.img}" alt="${hero.name}" class="reveal-stone">`;
+                visualEl.innerHTML = `<img src="${hero.img}" alt="${hero.name}" class="reveal-stone" draggable="false">`;
             } else {
                 visualEl.innerHTML = `<div class="reveal-emoji-symbol">${hero.emoji}</div>`;
             }
@@ -949,7 +950,7 @@
                 const locked = count === 0;
                 let visual;
                 if (locked) visual = `<div class="hero-locked-icon">❓</div>`;
-                else if (h.img) visual = `<img src="${h.img}" alt="" class="hero-img">`;
+                else if (h.img) visual = `<img src="${h.img}" alt="" class="hero-img" draggable="false">`;
                 else visual = `<div class="hero-emoji">${h.emoji}</div>`;
 
                 return `
@@ -1007,7 +1008,12 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
+        // Запрет контекстного меню
         document.addEventListener('contextmenu', (e) => e.preventDefault());
+        // Запрет перетаскивания картинок (для браузеров, которые не уважают CSS)
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
 
         loadState();
         renderTabs();
