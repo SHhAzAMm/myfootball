@@ -1,0 +1,8 @@
+name = "boxes-backend"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "boxes-db"
+database_id = "ea7e946d-dab8-4619-831e-16041e9a0c28"

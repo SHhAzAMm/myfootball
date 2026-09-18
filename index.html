@@ -49,6 +49,12 @@
         }
         .reset-fab { top: 18px; }
         .craft-fab { top: 78px; }
+        .logout-fab { top: 138px; }
+        .logout-fab:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
         .fab.ready {
             background: linear-gradient(135deg, #ffd700, #ff9500);
             color: #1a1a2e;
@@ -71,6 +77,61 @@
             50% { transform: rotate(0deg) scale(1); }
         }
         .fab .icon { font-size: 18px; }
+
+        /* ═══ Экран авторизации ═══ */
+        .auth-screen {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: none; align-items: center; justify-content: center;
+            z-index: 200; padding: 20px;
+        }
+        .auth-screen.active { display: flex; }
+        .auth-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px; padding: 44px 36px; text-align: center;
+            max-width: 420px; width: 100%;
+            border: 3px solid #475569;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .auth-logo {
+            font-size: 42px; font-weight: 900; letter-spacing: 1px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 8px;
+        }
+        .auth-sub { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+        .auth-field {
+            width: 100%; padding: 14px 16px; border-radius: 10px;
+            border: 1px solid #475569; background: #0f172a; color: #fff;
+            font-size: 15px; font-family: inherit; margin-bottom: 12px;
+            transition: border-color 0.15s;
+        }
+        .auth-field:focus { outline: none; border-color: #a855f7; }
+        .auth-field::placeholder { color: #64748b; }
+        .auth-submit {
+            width: 100%; padding: 15px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff; font-size: 16px; font-weight: 900;
+            letter-spacing: 0.5px; cursor: pointer; font-family: inherit;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+            margin-top: 8px;
+        }
+        .auth-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(168, 85, 247, 0.6); }
+        .auth-submit:disabled { opacity: 0.6; cursor: wait; }
+        .auth-switch {
+            margin-top: 20px; font-size: 14px; color: #94a3b8;
+        }
+        .auth-switch a {
+            color: #c084fc; text-decoration: none; font-weight: 700;
+            cursor: pointer; margin-left: 4px;
+        }
+        .auth-switch a:hover { text-decoration: underline; }
+        .auth-error {
+            margin-top: 16px; font-size: 13px; color: #f87171;
+            min-height: 18px; line-height: 1.4;
+        }
+        .auth-error.success { color: #4ade80; }
 
         .header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
         .header h1 {
@@ -392,12 +453,14 @@
             .fab .icon { font-size: 18px; }
             .reset-fab { top: 12px; }
             .craft-fab { top: 64px; }
+            .logout-fab { top: 116px; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
             .box-visual { font-size: 100px; }
             .open-btn { padding: 14px 32px; font-size: 16px; }
             .modal-card { padding: 32px 22px; }
+            .auth-card { padding: 32px 22px; }
             .modal-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
             .reveal-stone { width: 180px; height: 180px; }
             .reveal-name { font-size: 22px; }
@@ -413,6 +476,23 @@
     </style>
 </head>
 <body>
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <div class="auth-logo">🎁 BOXES</div>
+            <div class="auth-sub" id="authSubtitle">Войдите, чтобы сохранить прогресс</div>
+            <input type="email" class="auth-field" id="authEmail" placeholder="Email" autocomplete="email">
+            <input type="password" class="auth-field" id="authPassword" placeholder="Пароль (минимум 6 символов)" autocomplete="current-password">
+            <button class="auth-submit" id="authSubmitBtn">ВОЙТИ</button>
+            <div class="auth-switch">
+                <span id="authSwitchText">Нет аккаунта?</span>
+                <a id="authSwitchLink">Зарегистрироваться</a>
+            </div>
+            <div class="auth-error" id="authError"></div>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
     <button class="fab reset-fab" id="resetFab">
         <span class="icon">🔄</span>
         <span class="btn-text">RESET</span>
@@ -421,6 +501,11 @@
     <button class="fab craft-fab" id="craftFab">
         <span class="icon">⚗️</span>
         <span class="btn-text">КРАФТ</span>
+    </button>
+
+    <button class="fab logout-fab" id="logoutFab">
+        <span class="icon">🚪</span>
+        <span class="btn-text">ВЫЙТИ</span>
     </button>
 
     <div class="container">
@@ -497,72 +582,65 @@
 
     <script>
         // ═══════════════════════════════════════════════
-        //  НАСТРОЙКИ
+        //  🌐 URL ВАШЕГО BACKEND-ВОРКЕРА
+        // ═══════════════════════════════════════════════
+        const WORKER_URL = 'https://boxes-backend.myfootball.workers.dev';
+
+        // ═══════════════════════════════════════════════
+        //  НАСТРОЙКИ ИГРЫ
         // ═══════════════════════════════════════════════
         const RESET_BASE = 30;
         const CRAFT_AMOUNT = 10;
         const CRAFT_UPGRADE = {
-            common: 'rare',
-            rare: 'epic',
-            epic: 'legendary',
-            legendary: 'mythical',
+            common: 'rare', rare: 'epic', epic: 'legendary', legendary: 'mythical',
         };
 
-        // ═══════════════════════════════════════════════
-        //  🌋 ЭЛЕМЕНТЫ
-        // ═══════════════════════════════════════════════
         const ELEMENT_HEROES = [
-            { id: 'fire',     name: 'Огонь',     img: 'elements/fire.png',     rarity: 'common',    desc: 'Пламя жизни' },
-            { id: 'water',    name: 'Вода',      img: 'elements/water.png',    rarity: 'common',    desc: 'Поток времени' },
-            { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
-            { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
-            { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'rare',      desc: 'Скрывает тайны' },
-            { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'rare',      desc: 'Пыль веков' },
-            { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'rare',      desc: 'Сила роста' },
-            { id: 'cold',     name: 'Холод',     img: 'elements/cold.png',     rarity: 'rare',      desc: 'Ледяное дыхание' },
-            { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'epic',      desc: 'Сияние истины' },
-            { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'epic',      desc: 'Живая материя' },
-            { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'epic',      desc: 'Эхо пустоты' },
-            { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'epic',      desc: 'Память огня' },
-            { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'epic',      desc: 'Невидимый дух' },
-            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',        rarity: 'legendary', desc: 'Гнев земли' },
+            { id: 'fire',  name: 'Огонь',  img: 'elements/fire.png',  rarity: 'common', desc: 'Пламя жизни' },
+            { id: 'water', name: 'Вода',   img: 'elements/water.png', rarity: 'common', desc: 'Поток времени' },
+            { id: 'earth', name: 'Земля',  img: 'elements/earth.png', rarity: 'common', desc: 'Основа всего' },
+            { id: 'air',   name: 'Воздух', img: 'elements/air.png',   rarity: 'common', desc: 'Дыхание мира' },
+            { id: 'fog',   name: 'Туман',  img: 'elements/fog.png',   rarity: 'rare', desc: 'Скрывает тайны' },
+            { id: 'sand',  name: 'Песок',  img: 'elements/sand.png',  rarity: 'rare', desc: 'Пыль веков' },
+            { id: 'plant', name: 'Растение', img: 'elements/plant.png', rarity: 'rare', desc: 'Сила роста' },
+            { id: 'cold',  name: 'Холод',  img: 'elements/cold.png',  rarity: 'rare', desc: 'Ледяное дыхание' },
+            { id: 'light', name: 'Свет',   img: 'elements/light.png', rarity: 'epic', desc: 'Сияние истины' },
+            { id: 'slime', name: 'Слизь',  img: 'elements/slime.png', rarity: 'epic', desc: 'Живая материя' },
+            { id: 'sound', name: 'Звук',   img: 'elements/sound.png', rarity: 'epic', desc: 'Эхо пустоты' },
+            { id: 'ash',   name: 'Пепел',  img: 'elements/ash.png',   rarity: 'epic', desc: 'Память огня' },
+            { id: 'gas',   name: 'Газ',    img: 'elements/gas.png',   rarity: 'epic', desc: 'Невидимый дух' },
+            { id: 'lava',  name: 'Лава',   img: 'elements/lava.png',  rarity: 'legendary', desc: 'Гнев земли' },
             { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png', rarity: 'legendary', desc: 'Сила грозы' },
-            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',       rarity: 'legendary', desc: 'Смертельный шёпот' },
-            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',       rarity: 'legendary', desc: 'Цена жизни' },
-            { id: 'rainbow',     name: 'Радуга',        img: 'elements/rainbow.png',     rarity: 'legendary', desc: 'Мост богов' },
-            { id: 'darkness', name: 'Тьма',   img: 'elements/darkness.png', rarity: 'mythical', desc: 'Начало всех начал' },
-            { id: 'time',     name: 'Время',  img: 'elements/time.png',     rarity: 'mythical', desc: 'Властелин всего' },
+            { id: 'venom', name: 'Яд',     img: 'elements/venom.png', rarity: 'legendary', desc: 'Смертельный шёпот' },
+            { id: 'blood', name: 'Кровь',  img: 'elements/blood.png', rarity: 'legendary', desc: 'Цена жизни' },
+            { id: 'rainbow', name: 'Радуга', img: 'elements/rainbow.png', rarity: 'legendary', desc: 'Мост богов' },
+            { id: 'darkness', name: 'Тьма', img: 'elements/darkness.png', rarity: 'mythical', desc: 'Начало всех начал' },
+            { id: 'time',  name: 'Время',  img: 'elements/time.png',  rarity: 'mythical', desc: 'Властелин всего' },
         ];
 
-        // ═══════════════════════════════════════════════
-        //  💎 ДРАГОЦЕННЫЕ КАМНИ
-        // ═══════════════════════════════════════════════
         const GEM_HEROES = [
-            { id: 'diamond',     name: 'Алмаз',         img: 'stones/diamond.png',     rarity: 'mythical',  desc: 'Твёрдость 10' },
-            { id: 'alexandrite', name: 'Александрит',   img: 'stones/alexandrite.png', rarity: 'legendary', desc: 'Меняет цвет' },
-            { id: 'ruby',        name: 'Рубин',         img: 'stones/ruby.png',        rarity: 'legendary', desc: 'Камень страсти' },
-            { id: 'emerald',     name: 'Изумруд',       img: 'stones/emerald.png',     rarity: 'legendary', desc: 'Камень царей' },
-            { id: 'sapphire',    name: 'Сапфир',        img: 'stones/sapphire.png',    rarity: 'legendary', desc: 'Небесный камень' },
-            { id: 'amethyst',    name: 'Аметист',       img: 'stones/amethyst.png',    rarity: 'epic',      desc: 'Защита от сглаза' },
-            { id: 'topaz',       name: 'Топаз',         img: 'stones/topaz.png',       rarity: 'epic',      desc: 'Солнечный камень' },
-            { id: 'opal',        name: 'Опал',          img: 'stones/opal.png',        rarity: 'epic',      desc: 'Все цвета радуги' },
-            { id: 'moonstone',   name: 'Лунный камень', img: 'stones/moonstone.png',   rarity: 'epic',      desc: 'Свет луны' },
-            { id: 'aquamarine',  name: 'Аквамарин',     img: 'stones/aquamarine.png',  rarity: 'rare',      desc: 'Морская волна' },
-            { id: 'garnet',      name: 'Гранат',        img: 'stones/garnet.png',      rarity: 'rare',      desc: 'Огонь и страсть' },
-            { id: 'tourmaline',  name: 'Турмалин',      img: 'stones/tourmaline.png',  rarity: 'rare',      desc: 'Радужный камень' },
-            { id: 'malachite',   name: 'Малахит',       img: 'stones/malachite.png',   rarity: 'rare',      desc: 'Зелёный узор' },
-            { id: 'obsidian',    name: 'Обсидиан',      img: 'stones/obsidian.png',    rarity: 'rare',      desc: 'Вулканическое стекло' },
-            { id: 'pearl',       name: 'Жемчуг',        img: 'stones/pearl.png',       rarity: 'rare',      desc: 'Слёзы моря' },
-            { id: 'agate',       name: 'Агат',          img: 'stones/agate.png',       rarity: 'common',    desc: 'Полосатый камень' },
-            { id: 'quartz',      name: 'Кварц',         img: 'stones/quartz.png',      rarity: 'common',    desc: 'Прозрачный кристалл' },
-            { id: 'amber',       name: 'Янтарь',        img: 'stones/amber.png',       rarity: 'common',    desc: 'Солнечная смола' },
-            { id: 'onyx',        name: 'Оникс',         img: 'stones/onyx.png',        rarity: 'common',    desc: 'Чёрный камень' },
-            { id: 'pyrite',      name: 'Пирит',         img: 'stones/pyrite.png',      rarity: 'common',    desc: 'Золото дураков' },
+            { id: 'diamond', name: 'Алмаз', img: 'stones/diamond.png', rarity: 'mythical', desc: 'Твёрдость 10' },
+            { id: 'alexandrite', name: 'Александрит', img: 'stones/alexandrite.png', rarity: 'legendary', desc: 'Меняет цвет' },
+            { id: 'ruby', name: 'Рубин', img: 'stones/ruby.png', rarity: 'legendary', desc: 'Камень страсти' },
+            { id: 'emerald', name: 'Изумруд', img: 'stones/emerald.png', rarity: 'legendary', desc: 'Камень царей' },
+            { id: 'sapphire', name: 'Сапфир', img: 'stones/sapphire.png', rarity: 'legendary', desc: 'Небесный камень' },
+            { id: 'amethyst', name: 'Аметист', img: 'stones/amethyst.png', rarity: 'epic', desc: 'Защита от сглаза' },
+            { id: 'topaz', name: 'Топаз', img: 'stones/topaz.png', rarity: 'epic', desc: 'Солнечный камень' },
+            { id: 'opal', name: 'Опал', img: 'stones/opal.png', rarity: 'epic', desc: 'Все цвета радуги' },
+            { id: 'moonstone', name: 'Лунный камень', img: 'stones/moonstone.png', rarity: 'epic', desc: 'Свет луны' },
+            { id: 'aquamarine', name: 'Аквамарин', img: 'stones/aquamarine.png', rarity: 'rare', desc: 'Морская волна' },
+            { id: 'garnet', name: 'Гранат', img: 'stones/garnet.png', rarity: 'rare', desc: 'Огонь и страсть' },
+            { id: 'tourmaline', name: 'Турмалин', img: 'stones/tourmaline.png', rarity: 'rare', desc: 'Радужный камень' },
+            { id: 'malachite', name: 'Малахит', img: 'stones/malachite.png', rarity: 'rare', desc: 'Зелёный узор' },
+            { id: 'obsidian', name: 'Обсидиан', img: 'stones/obsidian.png', rarity: 'rare', desc: 'Вулканическое стекло' },
+            { id: 'pearl', name: 'Жемчуг', img: 'stones/pearl.png', rarity: 'rare', desc: 'Слёзы моря' },
+            { id: 'agate', name: 'Агат', img: 'stones/agate.png', rarity: 'common', desc: 'Полосатый камень' },
+            { id: 'quartz', name: 'Кварц', img: 'stones/quartz.png', rarity: 'common', desc: 'Прозрачный кристалл' },
+            { id: 'amber', name: 'Янтарь', img: 'stones/amber.png', rarity: 'common', desc: 'Солнечная смола' },
+            { id: 'onyx', name: 'Оникс', img: 'stones/onyx.png', rarity: 'common', desc: 'Чёрный камень' },
+            { id: 'pyrite', name: 'Пирит', img: 'stones/pyrite.png', rarity: 'common', desc: 'Золото дураков' },
         ];
 
-        // ═══════════════════════════════════════════════
-        //  🗂️ КАТЕГОРИИ
-        // ═══════════════════════════════════════════════
         const CATEGORIES = {
             elements: { name: 'Элементы', boxEmoji: '🌋', heroes: ELEMENT_HEROES, unlockResets: 0 },
             gems:     { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES, unlockResets: 0 },
@@ -583,7 +661,11 @@
 
         let currentCategory = 'elements';
         let state = { opened: {}, owned: {}, resets: {} };
+        let currentUserId = null;
 
+        // ═══════════════════════════════════════════════
+        //  СОСТОЯНИЕ
+        // ═══════════════════════════════════════════════
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
                 if (state.opened[cat] === undefined) state.opened[cat] = 0;
@@ -600,11 +682,173 @@
             initState();
         }
 
-        function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        // Сохранение — локально + на сервер
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            if (currentUserId) {
+                saveProgressToServer();
+            }
+        }
+
+        // Асинхронное сохранение на сервер (не блокирует игру)
+        async function saveProgressToServer() {
+            if (!currentUserId) return;
+            try {
+                await fetch(`${WORKER_URL}/api/progress`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId, progressData: state }),
+                });
+            } catch (e) {
+                console.warn('Не удалось сохранить прогресс на сервере', e);
+            }
+        }
+
         function getTotalResets() { return Object.values(state.resets).reduce((s, v) => s + v, 0); }
         function isCategoryUnlocked(catId) { return getTotalResets() >= CATEGORIES[catId].unlockResets; }
         function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
+        // ═══════════════════════════════════════════════
+        //  АВТОРИЗАЦИЯ
+        // ═══════════════════════════════════════════════
+        const authScreen = document.getElementById('authScreen');
+        const authEmail = document.getElementById('authEmail');
+        const authPassword = document.getElementById('authPassword');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authSwitchText = document.getElementById('authSwitchText');
+        const authSwitchLink = document.getElementById('authSwitchLink');
+        const authError = document.getElementById('authError');
+        const authSubtitle = document.getElementById('authSubtitle');
+
+        let isLoginMode = true;
+
+        function showAuthScreen() {
+            authScreen.classList.add('active');
+            authError.textContent = '';
+            authError.classList.remove('success');
+        }
+
+        function hideAuthScreen() {
+            authScreen.classList.remove('active');
+        }
+
+        authSwitchLink.addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            authSubtitle.textContent = isLoginMode ? 'Войдите, чтобы продолжить' : 'Создайте новый аккаунт';
+            authSubmitBtn.textContent = isLoginMode ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ';
+            authSwitchText.textContent = isLoginMode ? 'Нет аккаунта?' : 'Уже есть аккаунт?';
+            authSwitchLink.textContent = isLoginMode ? 'Зарегистрироваться' : 'Войти';
+            authError.textContent = '';
+            authError.classList.remove('success');
+        });
+
+        authSubmitBtn.addEventListener('click', async () => {
+            const email = authEmail.value.trim();
+            const password = authPassword.value;
+
+            authError.textContent = '';
+            authError.classList.remove('success');
+
+            if (!email || !password) {
+                authError.textContent = 'Заполните все поля';
+                return;
+            }
+            if (!isLoginMode && password.length < 6) {
+                authError.textContent = 'Пароль должен быть минимум 6 символов';
+                return;
+            }
+
+            authSubmitBtn.disabled = true;
+            authSubmitBtn.textContent = 'Подождите...';
+
+            try {
+                const endpoint = isLoginMode ? '/api/login' : '/api/register';
+                const res = await fetch(WORKER_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Ошибка сервера');
+
+                if (isLoginMode) {
+                    currentUserId = data.userId;
+                    localStorage.setItem('boxes_user_id', currentUserId);
+                    localStorage.setItem('boxes_auth_token', data.token);
+                    authError.classList.add('success');
+                    authError.textContent = 'Вход выполнен';
+                    setTimeout(async () => {
+                        hideAuthScreen();
+                        await loadProgressFromServer();
+                        renderAll();
+                    }, 400);
+                } else {
+                    authError.classList.add('success');
+                    authError.textContent = 'Регистрация успешна! Теперь войдите.';
+                    isLoginMode = true;
+                    authSubtitle.textContent = 'Войдите, чтобы продолжить';
+                    authSubmitBtn.textContent = 'ВОЙТИ';
+                    authSwitchText.textContent = 'Нет аккаунта?';
+                    authSwitchLink.textContent = 'Зарегистрироваться';
+                    authPassword.value = '';
+                }
+            } catch (err) {
+                authError.textContent = err.message;
+            } finally {
+                authSubmitBtn.disabled = false;
+                if (!isLoginMode) {
+                    authSubmitBtn.textContent = 'ЗАРЕГИСТРИРОВАТЬСЯ';
+                } else {
+                    authSubmitBtn.textContent = 'ВОЙТИ';
+                }
+            }
+        });
+
+        // Enter для отправки формы
+        [authEmail, authPassword].forEach(el => {
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') authSubmitBtn.click();
+            });
+        });
+
+        async function loadProgressFromServer() {
+            if (!currentUserId) return;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/progress?userId=${currentUserId}`);
+                if (res.ok) {
+                    const serverState = await res.json();
+                    // Сервер вернул валидные данные
+                    if (serverState && typeof serverState === 'object' && serverState.owned) {
+                        state = serverState;
+                        initState();
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    } else {
+                        // У пользователя нет сохранённого прогресса — создаём пустой
+                        state = { opened: {}, owned: {}, resets: {} };
+                        initState();
+                        saveState();
+                    }
+                }
+            } catch (e) {
+                console.warn('Не удалось загрузить прогресс', e);
+            }
+        }
+
+        function logout() {
+            if (!confirm('Выйти из аккаунта? Прогресс сохранён на сервере.')) return;
+            currentUserId = null;
+            localStorage.removeItem('boxes_user_id');
+            localStorage.removeItem('boxes_auth_token');
+            localStorage.removeItem(STORAGE_KEY);
+            state = { opened: {}, owned: {}, resets: {} };
+            initState();
+            location.reload();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  ИГРА
+        // ═══════════════════════════════════════════════
         function rollRarity() {
             const roll = Math.random() * 100;
             let acc = 0;
@@ -717,7 +961,6 @@
                 const have = counts[fromRarity];
                 const ready = have >= CRAFT_AMOUNT;
                 const cls = ready ? 'ready' : '';
-
                 return `
                     <div class="craft-row ${cls}" data-from="${fromRarity}">
                         <div class="craft-dot ${fromRarity}">
@@ -851,10 +1094,6 @@
                 </div>
             `;
 
-            const nextCat = Object.entries(CATEGORIES)
-                .filter(([id, c]) => c.unlockResets > totalResets)
-                .sort((a, b) => a[1].unlockResets - b[1].unlockResets)[0];
-
             let hint = '';
             if (s.canReset) {
                 hint = '✅ Готово! Ресет обнулит коллекцию этой категории и даст +1 к общему счётчику престижа.';
@@ -863,12 +1102,6 @@
                 if (!s.allCollected) reasons.push('собрать все элементы');
                 if (!s.enoughOpened) reasons.push(`открыть ещё ${s.requiredOpened - s.currentOpened} боксов`);
                 hint = '📋 Требуется: ' + reasons.join(' и ') + '.';
-            }
-
-            if (nextCat) {
-                const [id, c] = nextCat;
-                const left = c.unlockResets - totalResets;
-                hint += ` Следующая категория «${c.name}» откроется через ${left} ресет${left === 1 ? '' : 'ов'}.`;
             }
 
             hintEl.textContent = hint;
@@ -978,9 +1211,7 @@
             document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
         }
 
-        function switchCategory(cat) {
-            if (cat === currentCategory) return;
-            currentCategory = cat;
+        function renderAll() {
             renderTabs();
             renderBox();
             renderStats();
@@ -988,6 +1219,13 @@
             updateFabs();
         }
 
+        function switchCategory(cat) {
+            if (cat === currentCategory) return;
+            currentCategory = cat;
+            renderAll();
+        }
+
+        // ═══ ОБРАБОТЧИКИ ═══
         document.getElementById('openBtn').addEventListener('click', openBox);
         document.getElementById('resetFab').addEventListener('click', openResetPanel);
         document.getElementById('resetX').addEventListener('click', closeResetPanel);
@@ -1008,19 +1246,24 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
-        // Запрет контекстного меню
+        document.getElementById('logoutFab').addEventListener('click', logout);
+
         document.addEventListener('contextmenu', (e) => e.preventDefault());
-        // Запрет перетаскивания картинок (для браузеров, которые не уважают CSS)
         document.addEventListener('dragstart', (e) => {
             if (e.target.tagName === 'IMG') e.preventDefault();
         });
 
+        // ═══ СТАРТ ═══
         loadState();
-        renderTabs();
-        renderBox();
-        renderStats();
-        renderCollection();
-        updateFabs();
+
+        const savedUserId = localStorage.getItem('boxes_user_id');
+        if (savedUserId) {
+            currentUserId = savedUserId;
+            renderAll();
+            loadProgressFromServer().then(renderAll);
+        } else {
+            showAuthScreen();
+        }
     </script>
 </body>
 </html>
