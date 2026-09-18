@@ -10,6 +10,7 @@
             -webkit-user-select: none; -moz-user-select: none;
             -ms-user-select: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -502,39 +503,36 @@
         };
 
         // ═══════════════════════════════════════════════
-        //  🌋 ЭЛЕМЕНТЫ (картинки .png из elements/)
+        //  🌋 ЭЛЕМЕНТЫ
         // ═══════════════════════════════════════════════
-               const ELEMENT_HEROES = [
-            // ─── Обычные (4) ───
+        const ELEMENT_HEROES = [
+            // Обычные (4)
             { id: 'fire',     name: 'Огонь',     img: 'elements/fire.png',     rarity: 'common',    desc: 'Пламя жизни' },
             { id: 'water',    name: 'Вода',      img: 'elements/water.png',    rarity: 'common',    desc: 'Поток времени' },
             { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
             { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
-
-            // ─── Редкие (4) ───
+            // Редкие (4)
             { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'rare',      desc: 'Скрывает тайны' },
             { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'rare',      desc: 'Пыль веков' },
             { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'rare',      desc: 'Сила роста' },
             { id: 'cold',     name: 'Холод',     img: 'elements/cold.png',     rarity: 'rare',      desc: 'Ледяное дыхание' },
-
-            // ─── Эпические (5) ───
+            // Эпические (5)
             { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'epic',      desc: 'Сияние истины' },
             { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'epic',      desc: 'Живая материя' },
             { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'epic',      desc: 'Эхо пустоты' },
             { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'epic',      desc: 'Память огня' },
             { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'epic',      desc: 'Невидимый дух' },
-
-            // ─── Легендарные (5) ───
-            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',         rarity: 'legendary', desc: 'Гнев земли' },
-            { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png',  rarity: 'legendary', desc: 'Сила грозы' },
-            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',        rarity: 'legendary', desc: 'Смертельный шёпот' },
-            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',        rarity: 'legendary', desc: 'Цена жизни' },
-            { id: 'rainbow',     name: 'Радуга',        img: 'elements/rainbow.png',      rarity: 'legendary', desc: 'Мост богов' },
-
-            // ─── Мифические (2) ───
-            { id: 'darkness', name: 'Тьма',      img: 'elements/darkness.png', rarity: 'mythical',  desc: 'Начало всех начал' },
-            { id: 'time',     name: 'Время',     img: 'elements/time.png',     rarity: 'mythical',  desc: 'Властелин всего' },
+            // Легендарные (5)
+            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',        rarity: 'legendary', desc: 'Гнев земли' },
+            { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png', rarity: 'legendary', desc: 'Сила грозы' },
+            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',       rarity: 'legendary', desc: 'Смертельный шёпот' },
+            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',       rarity: 'legendary', desc: 'Цена жизни' },
+            { id: 'rainbow',     name: 'Радуга',        img: 'elements/rainbow.png',     rarity: 'legendary', desc: 'Мост богов' },
+            // Мифические (2)
+            { id: 'darkness', name: 'Тьма',   img: 'elements/darkness.png', rarity: 'mythical', desc: 'Начало всех начал' },
+            { id: 'time',     name: 'Время',  img: 'elements/time.png',     rarity: 'mythical', desc: 'Властелин всего' },
         ];
+
         // ═══════════════════════════════════════════════
         //  💎 ДРАГОЦЕННЫЕ КАМНИ
         // ═══════════════════════════════════════════════
@@ -683,7 +681,6 @@
             document.getElementById('revealOverlay').classList.remove('active');
         }
 
-        // ═══ КРАФТ ═══
         function countByRarity(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -795,7 +792,6 @@
             showReveal(newHero, false);
         }
 
-        // ═══ RESET ═══
         function getResetStatus(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -910,7 +906,6 @@
             updateFabs();
         }
 
-        // ═══ РЕНДЕР ═══
         function renderTabs() {
             const container = document.getElementById('categoryTabs');
             const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
@@ -992,7 +987,6 @@
             updateFabs();
         }
 
-        // ═══ ОБРАБОТЧИКИ ═══
         document.getElementById('openBtn').addEventListener('click', openBox);
         document.getElementById('resetFab').addEventListener('click', openResetPanel);
         document.getElementById('resetX').addEventListener('click', closeResetPanel);
@@ -1013,15 +1007,14 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
-        // ═══ СТАРТ ═══
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
         loadState();
         renderTabs();
         renderBox();
         renderStats();
         renderCollection();
         updateFabs();
- // Запретить контекстное меню при правом клике и долгом тапе
-document.addEventListener('contextmenu', (e) => e.preventDefault());
     </script>
 </body>
 </html>
