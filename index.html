@@ -21,7 +21,6 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* ═══ FAB-кнопки в углу ═══ */
         .fab {
             position: fixed;
             right: 18px;
@@ -139,7 +138,6 @@
         .open-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255, 215, 0, 0.5); }
         .open-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ═══ МОДАЛКИ ═══ */
         .overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center;
@@ -226,7 +224,6 @@
             box-shadow: 0 12px 32px rgba(239, 68, 68, 0.7);
         }
 
-        /* ═══ КРАФТ ═══ */
         .craft-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
         .craft-row {
             display: grid;
@@ -243,10 +240,6 @@
         .craft-row.ready {
             border-color: rgba(168, 85, 247, 0.6);
             background: rgba(168, 85, 247, 0.08);
-        }
-        .craft-row-max {
-            border-color: rgba(255,255,255,0.05);
-            opacity: 0.5;
         }
         .craft-dot {
             width: 36px; height: 36px; border-radius: 50%;
@@ -283,7 +276,6 @@
             box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
         }
 
-        /* ═══ ПАНЕЛЬ ПРЕДМЕТА ═══ */
         .reveal-card {
             position: relative;
             background: linear-gradient(135deg, #1e293b, #0f172a);
@@ -315,10 +307,6 @@
             width: 220px; height: 220px; object-fit: contain;
             animation: floatStone 2s ease-in-out infinite;
             filter: drop-shadow(0 0 40px rgba(255,255,255,0.35));
-        }
-        .reveal-emoji-symbol {
-            font-size: 110px;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
         }
         @keyframes floatStone {
             0%, 100% { transform: translateY(0); }
@@ -372,7 +360,6 @@
             margin-bottom: 8px;
             filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
         }
-        .hero-emoji { font-size: 42px; margin-bottom: 8px; line-height: 1; }
         .hero-locked-icon {
             font-size: 42px; margin-bottom: 8px; line-height: 1;
             color: #64748b; text-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -406,10 +393,9 @@
             .modal-card { padding: 32px 22px; }
             .modal-x { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
             .reveal-stone { width: 180px; height: 180px; }
-            .reveal-emoji-symbol { font-size: 80px; }
             .reveal-name { font-size: 22px; }
             .collection { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-            .hero-emoji, .hero-locked-icon { font-size: 34px; }
+            .hero-locked-icon { font-size: 34px; }
             .hero-img { width: 65px; height: 65px; }
             .craft-row { grid-template-columns: 36px 1fr auto; padding: 10px; gap: 8px; }
             .craft-dot { width: 30px; height: 30px; font-size: 15px; }
@@ -469,7 +455,6 @@
         <div class="collection" id="collection"></div>
     </div>
 
-    <!-- Модалка RESET -->
     <div class="overlay" id="resetOverlay">
         <div class="modal-card" id="resetCard">
             <button class="modal-x" id="resetX">×</button>
@@ -481,7 +466,6 @@
         </div>
     </div>
 
-    <!-- Модалка КРАФТ -->
     <div class="overlay" id="craftOverlay">
         <div class="modal-card" id="craftCard">
             <button class="modal-x" id="craftX">×</button>
@@ -492,7 +476,6 @@
         </div>
     </div>
 
-    <!-- Модалка предмета -->
     <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="modal-x" id="revealX">×</button>
@@ -516,33 +499,41 @@
             rare: 'epic',
             epic: 'legendary',
             legendary: 'mythical',
-            // mythical — нельзя апгрейдить, это максимум
         };
 
         // ═══════════════════════════════════════════════
-        //  🎌 АНИМЕ ПЕРСОНАЖИ
+        //  🌋 ЭЛЕМЕНТЫ (картинки .png из elements/)
         // ═══════════════════════════════════════════════
-        const ANIME_HEROES = [
-            { id: 'gojo',     name: 'Годжо',       emoji: '🥷', rarity: 'legendary', desc: 'Сильнейший' },
-            { id: 'naruto',   name: 'Наруто',      emoji: '🍥', rarity: 'epic',      desc: 'Хокаге' },
-            { id: 'goku',     name: 'Гоку',        emoji: '🔥', rarity: 'mythical',  desc: 'Супер Саян' },
-            { id: 'luffy',    name: 'Луффи',       emoji: '🏴‍☠️', rarity: 'legendary', desc: 'Король пиратов' },
-            { id: 'zoro',     name: 'Зоро',        emoji: '⚔️', rarity: 'epic',      desc: 'Трёхмечевой' },
-            { id: 'saitama',  name: 'Сайтама',     emoji: '👊', rarity: 'mythical',  desc: 'One Punch' },
-            { id: 'levi',     name: 'Леви',        emoji: '🗡️', rarity: 'epic',      desc: 'Сильнейший солдат' },
-            { id: 'sasuke',   name: 'Саске',       emoji: '🌩️', rarity: 'rare',      desc: 'Мститель' },
-            { id: 'ichigo',   name: 'Ичиго',       emoji: '💀', rarity: 'rare',      desc: 'Синигами' },
-            { id: 'killua',   name: 'Киллуа',      emoji: '⚡', rarity: 'epic',      desc: 'Охотник' },
-            { id: 'tanjiro',  name: 'Танджиро',    emoji: '🌊', rarity: 'rare',      desc: 'Истребитель' },
-            { id: 'deku',     name: 'Деку',        emoji: '💪', rarity: 'rare',      desc: 'One For All' },
-            { id: 'bakugo',   name: 'Бакуго',      emoji: '💥', rarity: 'epic',      desc: 'Взрыв' },
-            { id: 'eren',     name: 'Эрен',        emoji: '👁️', rarity: 'legendary', desc: 'Титан' },
-            { id: 'mikasa',   name: 'Микаса',      emoji: '🧣', rarity: 'rare',      desc: 'Аккерман' },
-            { id: 'vegeta',   name: 'Вегета',      emoji: '👑', rarity: 'epic',      desc: 'Принц Саянов' },
-            { id: 'sanji',    name: 'Санджи',      emoji: '🚬', rarity: 'rare',      desc: 'Кок' },
-            { id: 'hinata',   name: 'Хината',      emoji: '🏐', rarity: 'common',    desc: 'Волейбол' },
-            { id: 'rimuru',   name: 'Римуру',      emoji: '🟦', rarity: 'legendary', desc: 'Слизь' },
-            { id: 'ainz',     name: 'Айнз',        emoji: '💀', rarity: 'legendary', desc: 'Скелет' },
+        const ELEMENT_HEROES = [
+            // ─── Обычные ───
+            { id: 'air',      name: 'Воздух',    img: 'elements/air.png',      rarity: 'common',    desc: 'Дыхание мира' },
+            { id: 'earth',    name: 'Земля',     img: 'elements/earth.png',    rarity: 'common',    desc: 'Основа всего' },
+            { id: 'fire',     name: 'Огонь',     img: 'elements/fire.png',     rarity: 'common',    desc: 'Пламя жизни' },
+            { id: 'water',    name: 'Вода',      img: 'elements/water.png',    rarity: 'common',    desc: 'Поток времени' },
+            { id: 'fog',      name: 'Туман',     img: 'elements/fog.png',      rarity: 'common',    desc: 'Скрывает тайны' },
+            { id: 'sand',     name: 'Песок',     img: 'elements/sand.png',     rarity: 'common',    desc: 'Пыль веков' },
+            { id: 'plant',    name: 'Растение',  img: 'elements/plant.png',    rarity: 'common',    desc: 'Сила роста' },
+            { id: 'gas',      name: 'Газ',       img: 'elements/gas.png',      rarity: 'common',    desc: 'Невидимый дух' },
+
+            // ─── Редкие ───
+            { id: 'cold',     name: 'Холод',     img: 'elements/cold.png',     rarity: 'rare',      desc: 'Ледяное дыхание' },
+            { id: 'light',    name: 'Свет',      img: 'elements/light.png',    rarity: 'rare',      desc: 'Сияние истины' },
+            { id: 'slime',    name: 'Слизь',     img: 'elements/slime.png',    rarity: 'rare',      desc: 'Живая материя' },
+            { id: 'sound',    name: 'Звук',      img: 'elements/sound.png',    rarity: 'rare',      desc: 'Эхо пустоты' },
+            { id: 'ash',      name: 'Пепел',     img: 'elements/ash.png',      rarity: 'rare',      desc: 'Память огня' },
+
+            // ─── Эпические ───
+            { id: 'lava',        name: 'Лава',          img: 'elements/lava.png',         rarity: 'epic', desc: 'Гнев земли' },
+            { id: 'electricity', name: 'Электричество', img: 'elements/electricity.png',  rarity: 'epic', desc: 'Сила грозы' },
+            { id: 'venom',       name: 'Яд',            img: 'elements/venom.png',        rarity: 'epic', desc: 'Смертельный шёпот' },
+            { id: 'blood',       name: 'Кровь',         img: 'elements/blood.png',        rarity: 'epic', desc: 'Цена жизни' },
+
+            // ─── Легендарные ───
+            { id: 'rainbow',  name: 'Радуга',    img: 'elements/rainbow.png',  rarity: 'legendary', desc: 'Мост богов' },
+            { id: 'darkness', name: 'Тьма',      img: 'elements/darkness.png', rarity: 'legendary', desc: 'Начало всех начал' },
+
+            // ─── Мифический ───
+            { id: 'time',     name: 'Время',     img: 'elements/time.png',     rarity: 'mythical',  desc: 'Властелин всего' },
         ];
 
         // ═══════════════════════════════════════════════
@@ -571,9 +562,12 @@
             { id: 'pyrite',      name: 'Пирит',         img: 'stones/pyrite.png',      rarity: 'common',    desc: 'Золото дураков' },
         ];
 
+        // ═══════════════════════════════════════════════
+        //  🗂️ КАТЕГОРИИ
+        // ═══════════════════════════════════════════════
         const CATEGORIES = {
-            anime: { name: 'Аниме персонажи', boxEmoji: '📦', heroes: ANIME_HEROES, unlockResets: 0 },
-            gems:  { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES,  unlockResets: 0 },
+            elements: { name: 'Элементы', boxEmoji: '🌋', heroes: ELEMENT_HEROES, unlockResets: 0 },
+            gems:     { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES, unlockResets: 0 },
         };
 
         const RARITY_CHANCES = { common: 55, rare: 25, epic: 13, legendary: 6, mythical: 1 };
@@ -587,14 +581,11 @@
             legendary: '#fbbf24', mythical: '#f87171',
         };
 
-        const STORAGE_KEY = 'boxes_progress_v4';
+        const STORAGE_KEY = 'boxes_progress_v5';
 
-        let currentCategory = 'anime';
+        let currentCategory = 'elements';
         let state = { opened: {}, owned: {}, resets: {} };
 
-        // ═══════════════════════════════════════════════
-        //  СОСТОЯНИЕ
-        // ═══════════════════════════════════════════════
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
                 if (state.opened[cat] === undefined) state.opened[cat] = 0;
@@ -616,9 +607,6 @@
         function isCategoryUnlocked(catId) { return getTotalResets() >= CATEGORIES[catId].unlockResets; }
         function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
-        // ═══════════════════════════════════════════════
-        //  ОТКРЫТИЕ БОКСА
-        // ═══════════════════════════════════════════════
         function rollRarity() {
             const roll = Math.random() * 100;
             let acc = 0;
@@ -660,9 +648,6 @@
             btn.disabled = false;
         }
 
-        // ═══════════════════════════════════════════════
-        //  ПАНЕЛЬ ПРЕДМЕТА
-        // ═══════════════════════════════════════════════
         function showReveal(hero, isFromCollection) {
             const overlay = document.getElementById('revealOverlay');
             const card = document.getElementById('revealCard');
@@ -699,9 +684,7 @@
             document.getElementById('revealOverlay').classList.remove('active');
         }
 
-        // ═══════════════════════════════════════════════
-        //  КРАФТ
-        // ═══════════════════════════════════════════════
+        // ═══ КРАФТ ═══
         function countByRarity(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -758,15 +741,10 @@
 
             container.innerHTML = rows;
 
-            // Обработчики
             container.querySelectorAll('.craft-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const from = btn.dataset.from;
-                    craftUpgrade(from);
-                });
+                btn.addEventListener('click', () => craftUpgrade(btn.dataset.from));
             });
 
-            // Подсказка
             const anyReady = Object.keys(CRAFT_UPGRADE).some(r => counts[r] >= CRAFT_AMOUNT);
             if (anyReady) {
                 hintEl.textContent = '⚗️ Готово! Нажми «ПЛАВИТЬ», чтобы обменять 10 предметов на 1 случайный следующей редкости.';
@@ -786,7 +764,6 @@
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
 
-            // Собираем все предметы этой редкости
             const pool = [];
             heroes.forEach(h => {
                 if (h.rarity === fromRarity) {
@@ -797,7 +774,6 @@
 
             if (pool.length < CRAFT_AMOUNT) return;
 
-            // Удаляем CRAFT_AMOUNT случайных предметов
             for (let i = 0; i < CRAFT_AMOUNT; i++) {
                 const idx = Math.floor(Math.random() * pool.length);
                 const id = pool.splice(idx, 1)[0];
@@ -805,28 +781,22 @@
                 if (owned[id] <= 0) delete owned[id];
             }
 
-            // Добавляем 1 случайный следующей редкости
             const nextPool = heroes.filter(h => h.rarity === nextRarity);
             if (nextPool.length === 0) return;
             const newHero = nextPool[Math.floor(Math.random() * nextPool.length)];
             owned[newHero.id] = (owned[newHero.id] || 0) + 1;
 
             saveState();
-
-            // Обновляем UI
             renderCraftPanel();
             renderStats();
             renderCollection();
             updateFabs();
 
-            // Показываем выпавший предмет
             closeCraftPanel();
             showReveal(newHero, false);
         }
 
-        // ═══════════════════════════════════════════════
-        //  RESET
-        // ═══════════════════════════════════════════════
+        // ═══ RESET ═══
         function getResetStatus(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -877,7 +847,7 @@
             condEl.innerHTML = `
                 <div class="cond ${cls1}">
                     <div class="cond-icon">${s.allCollected ? '✓' : '!'}</div>
-                    <div class="cond-text">Собрать всех героев: <b>${s.collectedCount} / ${s.totalHeroes}</b></div>
+                    <div class="cond-text">Собрать все элементы: <b>${s.collectedCount} / ${s.totalHeroes}</b></div>
                 </div>
                 <div class="cond ${cls2}">
                     <div class="cond-icon">${s.enoughOpened ? '✓' : '!'}</div>
@@ -894,7 +864,7 @@
                 hint = '✅ Готово! Ресет обнулит коллекцию этой категории и даст +1 к общему счётчику престижа.';
             } else {
                 const reasons = [];
-                if (!s.allCollected) reasons.push('собрать всех героев');
+                if (!s.allCollected) reasons.push('собрать все элементы');
                 if (!s.enoughOpened) reasons.push(`открыть ещё ${s.requiredOpened - s.currentOpened} боксов`);
                 hint = '📋 Требуется: ' + reasons.join(' и ') + '.';
             }
@@ -941,9 +911,7 @@
             updateFabs();
         }
 
-        // ═══════════════════════════════════════════════
-        //  РЕНДЕР
-        // ═══════════════════════════════════════════════
+        // ═══ РЕНДЕР ═══
         function renderTabs() {
             const container = document.getElementById('categoryTabs');
             const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
@@ -1025,9 +993,7 @@
             updateFabs();
         }
 
-        // ═══════════════════════════════════════════════
-        //  ОБРАБОТЧИКИ
-        // ═══════════════════════════════════════════════
+        // ═══ ОБРАБОТЧИКИ ═══
         document.getElementById('openBtn').addEventListener('click', openBox);
         document.getElementById('resetFab').addEventListener('click', openResetPanel);
         document.getElementById('resetX').addEventListener('click', closeResetPanel);
@@ -1048,9 +1014,7 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
-        // ═══════════════════════════════════════════════
-        //  СТАРТ
-        // ═══════════════════════════════════════════════
+        // ═══ СТАРТ ═══
         loadState();
         renderTabs();
         renderBox();
