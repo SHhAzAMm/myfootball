@@ -78,7 +78,6 @@
         }
         .fab .icon { font-size: 18px; }
 
-        /* ═══ Экран авторизации ═══ */
         .auth-screen {
             position: fixed; inset: 0;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -141,6 +140,22 @@
             background-clip: text; margin-bottom: 8px;
         }
         .header p { color: #94a3b8; font-size: 15px; }
+
+        /* ═══ Валюты ═══ */
+        .wallet {
+            display: flex; justify-content: center; gap: 14px;
+            margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .wallet-item {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 18px; border-radius: 10px;
+            font-size: 15px; font-weight: 900;
+        }
+        .wallet-icon { font-size: 20px; }
+        .wallet-coins { color: #ffd700; }
+        .wallet-shards { color: #a855f7; }
 
         .category-tabs {
             display: flex; justify-content: center; gap: 10px;
@@ -338,6 +353,58 @@
             box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
         }
 
+        /* ═══ ПРОДАЖА ДУБЛИКАТОВ ═══ */
+        .sell-box {
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .sell-title {
+            font-size: 13px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            font-weight: 900; margin-bottom: 10px;
+        }
+        .sell-values {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px 12px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .sell-values .rv { color: #cbd5e1; }
+        .sell-values .rp { color: #ffd700; font-weight: 900; text-align: right; }
+        .sell-total {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 15px; font-weight: 900;
+            margin-bottom: 14px;
+        }
+        .sell-total .label { color: #cbd5e1; }
+        .sell-total .value { color: #ffd700; font-size: 20px; }
+        .sell-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 900; letter-spacing: 0.5px;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.15s;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+        }
+        .sell-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(245, 158, 11, 0.6);
+        }
+        .sell-btn:disabled {
+            opacity: 0.35; cursor: not-allowed;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8;
+            box-shadow: none;
+        }
+
         .reveal-card {
             position: relative;
             background: linear-gradient(135deg, #1e293b, #0f172a);
@@ -476,7 +543,6 @@
     </style>
 </head>
 <body>
-    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div class="auth-screen" id="authScreen">
         <div class="auth-card">
             <div class="auth-logo">🎁 BOXES</div>
@@ -492,7 +558,6 @@
         </div>
     </div>
 
-    <!-- Кнопки -->
     <button class="fab reset-fab" id="resetFab">
         <span class="icon">🔄</span>
         <span class="btn-text">RESET</span>
@@ -512,6 +577,18 @@
         <div class="header">
             <h1>🎁 BOXES</h1>
             <p>Открывай боксы — собирай коллекцию</p>
+        </div>
+
+        <!-- Валюты -->
+        <div class="wallet">
+            <div class="wallet-item">
+                <span class="wallet-icon">🪙</span>
+                <span class="wallet-coins" id="walletCoins">0</span>
+            </div>
+            <div class="wallet-item">
+                <span class="wallet-icon">💎</span>
+                <span class="wallet-shards" id="walletShards">0</span>
+            </div>
         </div>
 
         <div class="category-tabs" id="categoryTabs"></div>
@@ -568,6 +645,35 @@
         </div>
     </div>
 
+    <!-- МАГАЗИН / ПРОДАЖА -->
+    <div class="overlay" id="shopOverlay">
+        <div class="modal-card" id="shopCard">
+            <button class="modal-x" id="shopX">×</button>
+            <div class="modal-title">🛒 Обмен</div>
+            <div class="modal-sub">Продай дубликаты за монеты</div>
+
+            <div class="sell-box">
+                <div class="sell-title">💰 Курс продажи</div>
+                <div class="sell-values">
+                    <span class="rv">⚪ Обычный</span><span class="rp">1 🪙</span>
+                    <span class="rv">🔵 Редкий</span><span class="rp">5 🪙</span>
+                    <span class="rv">🟣 Эпический</span><span class="rp">20 🪙</span>
+                    <span class="rv">🟠 Легендарный</span><span class="rp">100 🪙</span>
+                    <span class="rv">🔴 Мифический</span><span class="rp">500 🪙</span>
+                </div>
+                <div class="sell-total">
+                    <span class="label">Твой дубликаты:</span>
+                    <span class="value" id="sellTotalValue">0 🪙</span>
+                </div>
+                <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
+            </div>
+
+            <div class="hint-box">
+                💡 Дубликат — это <b>всё сверх 1 штуки</b> каждого предмета. Продажа не затронет твою коллекцию.
+            </div>
+        </div>
+    </div>
+
     <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="modal-x" id="revealX">×</button>
@@ -581,18 +687,17 @@
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════
-        //  🌐 URL ВАШЕГО BACKEND-ВОРКЕРА
-        // ═══════════════════════════════════════════════
         const WORKER_URL = 'https://boxes-backend.myfootball.workers.dev';
 
-        // ═══════════════════════════════════════════════
-        //  НАСТРОЙКИ ИГРЫ
-        // ═══════════════════════════════════════════════
         const RESET_BASE = 30;
         const CRAFT_AMOUNT = 10;
         const CRAFT_UPGRADE = {
             common: 'rare', rare: 'epic', epic: 'legendary', legendary: 'mythical',
+        };
+
+        // Курс продажи
+        const SELL_VALUES = {
+            common: 1, rare: 5, epic: 20, legendary: 100, mythical: 500,
         };
 
         const ELEMENT_HEROES = [
@@ -657,21 +762,26 @@
             legendary: '#fbbf24', mythical: '#f87171',
         };
 
-        const STORAGE_KEY = 'boxes_progress_v5';
+        const STORAGE_KEY = 'boxes_progress_v6';
 
         let currentCategory = 'elements';
-        let state = { opened: {}, owned: {}, resets: {} };
+        let state = {
+            opened: {},
+            owned: {},
+            resets: {},
+            coins: 0,
+            shards: 0,
+        };
         let currentUserId = null;
 
-        // ═══════════════════════════════════════════════
-        //  СОСТОЯНИЕ
-        // ═══════════════════════════════════════════════
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
                 if (state.opened[cat] === undefined) state.opened[cat] = 0;
                 if (!state.owned[cat]) state.owned[cat] = {};
                 if (state.resets[cat] === undefined) state.resets[cat] = 0;
             }
+            if (state.coins === undefined) state.coins = 0;
+            if (state.shards === undefined) state.shards = 0;
         }
 
         function loadState() {
@@ -682,15 +792,11 @@
             initState();
         }
 
-        // Сохранение — локально + на сервер
         function saveState() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            if (currentUserId) {
-                saveProgressToServer();
-            }
+            if (currentUserId) saveProgressToServer();
         }
 
-        // Асинхронное сохранение на сервер (не блокирует игру)
         async function saveProgressToServer() {
             if (!currentUserId) return;
             try {
@@ -700,7 +806,7 @@
                     body: JSON.stringify({ userId: currentUserId, progressData: state }),
                 });
             } catch (e) {
-                console.warn('Не удалось сохранить прогресс на сервере', e);
+                console.warn('Не удалось сохранить прогресс', e);
             }
         }
 
@@ -708,9 +814,7 @@
         function isCategoryUnlocked(catId) { return getTotalResets() >= CATEGORIES[catId].unlockResets; }
         function getHeroes() { return CATEGORIES[currentCategory].heroes; }
 
-        // ═══════════════════════════════════════════════
-        //  АВТОРИЗАЦИЯ
-        // ═══════════════════════════════════════════════
+        // ═══ АВТОРИЗАЦИЯ ═══
         const authScreen = document.getElementById('authScreen');
         const authEmail = document.getElementById('authEmail');
         const authPassword = document.getElementById('authPassword');
@@ -749,14 +853,8 @@
             authError.textContent = '';
             authError.classList.remove('success');
 
-            if (!email || !password) {
-                authError.textContent = 'Заполните все поля';
-                return;
-            }
-            if (!isLoginMode && password.length < 6) {
-                authError.textContent = 'Пароль должен быть минимум 6 символов';
-                return;
-            }
+            if (!email || !password) { authError.textContent = 'Заполните все поля'; return; }
+            if (!isLoginMode && password.length < 6) { authError.textContent = 'Пароль должен быть минимум 6 символов'; return; }
 
             authSubmitBtn.disabled = true;
             authSubmitBtn.textContent = 'Подождите...';
@@ -769,7 +867,6 @@
                     body: JSON.stringify({ email, password }),
                 });
                 const data = await res.json();
-
                 if (!res.ok) throw new Error(data.error || 'Ошибка сервера');
 
                 if (isLoginMode) {
@@ -797,19 +894,12 @@
                 authError.textContent = err.message;
             } finally {
                 authSubmitBtn.disabled = false;
-                if (!isLoginMode) {
-                    authSubmitBtn.textContent = 'ЗАРЕГИСТРИРОВАТЬСЯ';
-                } else {
-                    authSubmitBtn.textContent = 'ВОЙТИ';
-                }
+                authSubmitBtn.textContent = isLoginMode ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ';
             }
         });
 
-        // Enter для отправки формы
         [authEmail, authPassword].forEach(el => {
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') authSubmitBtn.click();
-            });
+            el.addEventListener('keydown', (e) => { if (e.key === 'Enter') authSubmitBtn.click(); });
         });
 
         async function loadProgressFromServer() {
@@ -818,21 +908,17 @@
                 const res = await fetch(`${WORKER_URL}/api/progress?userId=${currentUserId}`);
                 if (res.ok) {
                     const serverState = await res.json();
-                    // Сервер вернул валидные данные
                     if (serverState && typeof serverState === 'object' && serverState.owned) {
                         state = serverState;
                         initState();
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     } else {
-                        // У пользователя нет сохранённого прогресса — создаём пустой
-                        state = { opened: {}, owned: {}, resets: {} };
+                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0 };
                         initState();
                         saveState();
                     }
                 }
-            } catch (e) {
-                console.warn('Не удалось загрузить прогресс', e);
-            }
+            } catch (e) { console.warn('Не удалось загрузить прогресс', e); }
         }
 
         function logout() {
@@ -841,14 +927,12 @@
             localStorage.removeItem('boxes_user_id');
             localStorage.removeItem('boxes_auth_token');
             localStorage.removeItem(STORAGE_KEY);
-            state = { opened: {}, owned: {}, resets: {} };
+            state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0 };
             initState();
             location.reload();
         }
 
-        // ═══════════════════════════════════════════════
-        //  ИГРА
-        // ═══════════════════════════════════════════════
+        // ═══ ИГРА ═══
         function rollRarity() {
             const roll = Math.random() * 100;
             let acc = 0;
@@ -871,13 +955,11 @@
             const box = document.getElementById('boxVisual');
             btn.disabled = true;
             box.classList.add('shaking');
-
             await new Promise(r => setTimeout(r, 900));
             box.classList.remove('shaking');
 
             const rarity = rollRarity();
             const hero = pickHero(rarity);
-
             state.opened[currentCategory]++;
             state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
             saveState();
@@ -886,7 +968,6 @@
             renderStats();
             renderCollection();
             updateFabs();
-
             btn.disabled = false;
         }
 
@@ -922,10 +1003,63 @@
             overlay.classList.add('active');
         }
 
-        function closeReveal() {
-            document.getElementById('revealOverlay').classList.remove('active');
+        function closeReveal() { document.getElementById('revealOverlay').classList.remove('active'); }
+
+        // ═══ ПРОДАЖА ДУБЛИКАТОВ ═══
+        function calcDuplicatesValue() {
+            let total = 0;
+            for (const catId of Object.keys(CATEGORIES)) {
+                const heroes = CATEGORIES[catId].heroes;
+                const owned = state.owned[catId] || {};
+                heroes.forEach(h => {
+                    const count = owned[h.id] || 0;
+                    const dup = Math.max(0, count - 1); // оставляем 1 для коллекции
+                    if (dup > 0) total += dup * SELL_VALUES[h.rarity];
+                });
+            }
+            return total;
         }
 
+        function sellAllDuplicates() {
+            const total = calcDuplicatesValue();
+            if (total === 0) return;
+
+            const catName = CATEGORIES[currentCategory].name;
+            if (!confirm(`Продать все дубликаты за ${total} 🪙?\n\nЭто не затронет твою коллекцию.`)) return;
+
+            for (const catId of Object.keys(CATEGORIES)) {
+                const heroes = CATEGORIES[catId].heroes;
+                const owned = state.owned[catId] || {};
+                heroes.forEach(h => {
+                    const count = owned[h.id] || 0;
+                    if (count > 1) owned[h.id] = 1; // оставляем 1
+                });
+            }
+
+            state.coins += total;
+            saveState();
+
+            document.getElementById('sellTotalValue').textContent = '0 🪙';
+            document.getElementById('sellAllBtn').disabled = true;
+            updateWallet();
+            updateFabs();
+        }
+
+        function updateWallet() {
+            document.getElementById('walletCoins').textContent = state.coins;
+            document.getElementById('walletShards').textContent = state.shards;
+        }
+
+        function openShopPanel() {
+            const total = calcDuplicatesValue();
+            document.getElementById('sellTotalValue').textContent = total + ' 🪙';
+            document.getElementById('sellAllBtn').disabled = total === 0;
+            document.getElementById('shopOverlay').classList.add('active');
+        }
+
+        function closeShopPanel() { document.getElementById('shopOverlay').classList.remove('active'); }
+
+        // ═══ КРАФТ ═══
         function countByRarity(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -942,27 +1076,21 @@
             return Object.keys(CRAFT_UPGRADE).some(r => counts[r] >= CRAFT_AMOUNT);
         }
 
-        function openCraftPanel() {
-            renderCraftPanel();
-            document.getElementById('craftOverlay').classList.add('active');
-        }
-
-        function closeCraftPanel() {
-            document.getElementById('craftOverlay').classList.remove('active');
-        }
+        function openCraftPanel() { renderCraftPanel(); document.getElementById('craftOverlay').classList.add('active'); }
+        function closeCraftPanel() { document.getElementById('craftOverlay').classList.remove('active'); }
 
         function renderCraftPanel() {
             const container = document.getElementById('craftOptions');
             const hintEl = document.getElementById('craftHint');
             const counts = countByRarity(currentCategory);
 
-            const rows = Object.keys(CRAFT_UPGRADE).map(fromRarity => {
+            container.innerHTML = Object.keys(CRAFT_UPGRADE).map(fromRarity => {
                 const nextRarity = CRAFT_UPGRADE[fromRarity];
                 const have = counts[fromRarity];
                 const ready = have >= CRAFT_AMOUNT;
                 const cls = ready ? 'ready' : '';
                 return `
-                    <div class="craft-row ${cls}" data-from="${fromRarity}">
+                    <div class="craft-row ${cls}">
                         <div class="craft-dot ${fromRarity}">
                             <span style="color: ${RARITY_COLORS[fromRarity]}">●</span>
                         </div>
@@ -972,28 +1100,18 @@
                             </div>
                             <div class="craft-info-progress">${have} / ${CRAFT_AMOUNT}</div>
                         </div>
-                        <button class="craft-btn" data-from="${fromRarity}" ${ready ? '' : 'disabled'}>
-                            ПЛАВИТЬ
-                        </button>
+                        <button class="craft-btn" data-from="${fromRarity}" ${ready ? '' : 'disabled'}>ПЛАВИТЬ</button>
                     </div>
                 `;
             }).join('');
-
-            container.innerHTML = rows;
 
             container.querySelectorAll('.craft-btn').forEach(btn => {
                 btn.addEventListener('click', () => craftUpgrade(btn.dataset.from));
             });
 
             const anyReady = Object.keys(CRAFT_UPGRADE).some(r => counts[r] >= CRAFT_AMOUNT);
-            if (anyReady) {
-                hintEl.textContent = '⚗️ Готово! Нажми «ПЛАВИТЬ», чтобы обменять 10 предметов на 1 случайный следующей редкости.';
-            } else {
-                const needed = Object.keys(CRAFT_UPGRADE)
-                    .map(r => `${RARITY_SHORT[r].toLowerCase()}: ${counts[r]}/${CRAFT_AMOUNT}`)
-                    .join(' · ');
-                hintEl.textContent = '📋 Накопи по 10 предметов одной редкости. Прогресс: ' + needed;
-            }
+            if (anyReady) hintEl.textContent = '⚗️ Готово! Нажми «ПЛАВИТЬ», чтобы обменять 10 предметов.';
+            else hintEl.textContent = '📋 Накопи по 10 предметов одной редкости.';
         }
 
         function craftUpgrade(fromRarity) {
@@ -1011,7 +1129,6 @@
                     for (let i = 0; i < c; i++) pool.push(h.id);
                 }
             });
-
             if (pool.length < CRAFT_AMOUNT) return;
 
             for (let i = 0; i < CRAFT_AMOUNT; i++) {
@@ -1031,11 +1148,11 @@
             renderStats();
             renderCollection();
             updateFabs();
-
             closeCraftPanel();
             showReveal(newHero, false);
         }
 
+        // ═══ RESET ═══
         function getResetStatus(catId) {
             const heroes = CATEGORIES[catId].heroes;
             const owned = state.owned[catId] || {};
@@ -1044,46 +1161,33 @@
             const currentOpened = state.opened[catId] || 0;
             const enoughOpened = currentOpened >= requiredOpened;
             const collectedCount = Object.keys(owned).filter(id => owned[id] > 0).length;
-            return {
-                allCollected, enoughOpened,
-                currentOpened, requiredOpened, collectedCount,
-                totalHeroes: heroes.length,
-                canReset: allCollected && enoughOpened,
-            };
+            return { allCollected, enoughOpened, currentOpened, requiredOpened, collectedCount, totalHeroes: heroes.length, canReset: allCollected && enoughOpened };
         }
 
         function updateFabs() {
-            const resetFab = document.getElementById('resetFab');
-            const craftFab = document.getElementById('craftFab');
             const rs = getResetStatus(currentCategory);
+            const resetFab = document.getElementById('resetFab');
             if (rs.canReset) resetFab.classList.add('ready');
             else resetFab.classList.remove('ready');
 
+            const craftFab = document.getElementById('craftFab');
             if (canCraftAny()) craftFab.classList.add('ready');
             else craftFab.classList.remove('ready');
         }
 
         function openResetPanel() {
-            const overlay = document.getElementById('resetOverlay');
-            const card = document.getElementById('resetCard');
-            const condEl = document.getElementById('resetConditions');
-            const hintEl = document.getElementById('resetHint');
-            const subEl = document.getElementById('resetSub');
-            const btn = document.getElementById('resetConfirmBtn');
-            const titleEl = document.getElementById('resetTitle');
-
             const s = getResetStatus(currentCategory);
             const resets = state.resets[currentCategory] || 0;
             const totalResets = getTotalResets();
             const catName = CATEGORIES[currentCategory].name;
 
-            titleEl.textContent = `🔄 Престиж — ${catName}`;
-            subEl.innerHTML = `Ресетов в категории: <b>${resets}</b> · Всего: <b>${totalResets}</b>`;
+            document.getElementById('resetTitle').textContent = `🔄 Престиж — ${catName}`;
+            document.getElementById('resetSub').innerHTML = `Ресетов в категории: <b>${resets}</b> · Всего: <b>${totalResets}</b>`;
 
             const cls1 = s.allCollected ? 'ok' : '';
             const cls2 = s.enoughOpened ? 'ok' : '';
 
-            condEl.innerHTML = `
+            document.getElementById('resetConditions').innerHTML = `
                 <div class="cond ${cls1}">
                     <div class="cond-icon">${s.allCollected ? '✓' : '!'}</div>
                     <div class="cond-text">Собрать все элементы: <b>${s.collectedCount} / ${s.totalHeroes}</b></div>
@@ -1095,51 +1199,40 @@
             `;
 
             let hint = '';
-            if (s.canReset) {
-                hint = '✅ Готово! Ресет обнулит коллекцию этой категории и даст +1 к общему счётчику престижа.';
-            } else {
+            if (s.canReset) hint = '✅ Готово! Ресет обнулит коллекцию и даст +1 к престижу.';
+            else {
                 const reasons = [];
                 if (!s.allCollected) reasons.push('собрать все элементы');
                 if (!s.enoughOpened) reasons.push(`открыть ещё ${s.requiredOpened - s.currentOpened} боксов`);
                 hint = '📋 Требуется: ' + reasons.join(' и ') + '.';
             }
+            document.getElementById('resetHint').textContent = hint;
 
-            hintEl.textContent = hint;
+            const card = document.getElementById('resetCard');
+            const btn = document.getElementById('resetConfirmBtn');
+            if (s.canReset) { card.classList.add('ready'); btn.disabled = false; }
+            else { card.classList.remove('ready'); btn.disabled = true; }
 
-            if (s.canReset) {
-                card.classList.add('ready');
-                btn.disabled = false;
-            } else {
-                card.classList.remove('ready');
-                btn.disabled = true;
-            }
-
-            overlay.classList.add('active');
+            document.getElementById('resetOverlay').classList.add('active');
         }
 
-        function closeResetPanel() {
-            document.getElementById('resetOverlay').classList.remove('active');
-        }
+        function closeResetPanel() { document.getElementById('resetOverlay').classList.remove('active'); }
 
         function doReset() {
             const s = getResetStatus(currentCategory);
             if (!s.canReset) return;
-
             const catName = CATEGORIES[currentCategory].name;
-            if (!confirm(`Ресет категории «${catName}»?\n\nКоллекция обнулится, но ты получишь +1 к общему счётчику престижа.`)) return;
+            if (!confirm(`Ресет категории «${catName}»?`)) return;
 
             state.opened[currentCategory] = 0;
             state.owned[currentCategory] = {};
             state.resets[currentCategory]++;
             saveState();
-
             closeResetPanel();
-            renderTabs();
-            renderStats();
-            renderCollection();
-            updateFabs();
+            renderAll();
         }
 
+        // ═══ РЕНДЕР ═══
         function renderTabs() {
             const container = document.getElementById('categoryTabs');
             const unlocked = Object.keys(CATEGORIES).filter(isCategoryUnlocked);
@@ -1217,6 +1310,7 @@
             renderStats();
             renderCollection();
             updateFabs();
+            updateWallet();
         }
 
         function switchCategory(cat) {
@@ -1240,6 +1334,12 @@
             if (e.target.id === 'craftOverlay') closeCraftPanel();
         });
 
+        document.getElementById('shopX').addEventListener('click', closeShopPanel);
+        document.getElementById('shopOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'shopOverlay') closeShopPanel();
+        });
+        document.getElementById('sellAllBtn').addEventListener('click', sellAllDuplicates);
+
         document.getElementById('revealClose').addEventListener('click', closeReveal);
         document.getElementById('revealX').addEventListener('click', closeReveal);
         document.getElementById('revealOverlay').addEventListener('click', (e) => {
@@ -1255,7 +1355,6 @@
 
         // ═══ СТАРТ ═══
         loadState();
-
         const savedUserId = localStorage.getItem('boxes_user_id');
         if (savedUserId) {
             currentUserId = savedUserId;
@@ -1264,6 +1363,9 @@
         } else {
             showAuthScreen();
         }
+
+        // Открытие магазина — добавляем кнопку на лету (пока отдельная)
+        // Позже добавим FAB
     </script>
 </body>
 </html>
