@@ -1020,6 +1020,8 @@
         renderStats();
         renderCollection();
         updateFabs();
+ // Запретить контекстное меню при правом клике и долгом тапе
+document.addEventListener('contextmenu', (e) => e.preventDefault());
     </script>
 </body>
 </html>
