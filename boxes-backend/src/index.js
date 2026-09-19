@@ -152,6 +152,41 @@ export default {
         }
         return json({}, 200, corsHeaders);
       }
+      // ═══ УСТАНОВКА УНИКАЛЬНОГО НИКА ═══
+      if (path === '/api/set-nickname' && method === 'POST') {
+        const { userId, nickname } = await request.json();
+        if (!userId || !nickname) {
+          return json({ error: 'Неверные данные' }, 400, corsHeaders);
+        }
+
+        const trimmed = String(nickname).trim();
+
+        if (trimmed.length < 3) {
+          return json({ error: 'Минимум 3 символа' }, 400, corsHeaders);
+        }
+        if (trimmed.length > 20) {
+          return json({ error: 'Максимум 20 символов' }, 400, corsHeaders);
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+          return json({ error: 'Только латиница, цифры и _' }, 400, corsHeaders);
+        }
+
+        // Проверяем, не занят ли ник другим игроком (без учёта регистра)
+        const taken = await env.DB.prepare(
+          'SELECT id FROM users WHERE LOWER(nickname) = LOWER(?) AND id != ?'
+        ).bind(trimmed, userId).first();
+
+        if (taken) {
+          return json({ error: 'Этот ник уже занят' }, 409, corsHeaders);
+        }
+
+        // Сохраняем ник за пользователем
+        await env.DB.prepare(
+          'UPDATE users SET nickname = ? WHERE id = ?'
+        ).bind(trimmed, userId).run();
+
+        return json({ message: 'Ник сохранён', nickname: trimmed }, 200, corsHeaders);
+      }
 
       // ═══ ПРОВЕРКА СЕРВЕРА ═══
       if (path === '/api/ping') {
