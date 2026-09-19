@@ -808,7 +808,159 @@
         .hero-card.epic      .hero-badge { color: #c084fc; }
         .hero-card.legendary .hero-badge { color: #fbbf24; }
         .hero-card.mythical  .hero-badge { color: #f87171; }
+                /* ═══ ОСКОЛКИ В МАГАЗИНЕ ═══ */
+        .shard-shop {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .shard-row {
+            display: grid;
+            grid-template-columns: 40px 1fr auto auto;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: left;
+            transition: all 0.15s;
+        }
+        .shard-row-card {
+            border-color: rgba(168, 85, 247, 0.4);
+            background: rgba(168, 85, 247, 0.06);
+        }
+        .shard-row-icon {
+            font-size: 24px;
+            text-align: center;
+        }
+        .shard-row-info { line-height: 1.2; min-width: 0; }
+        .shard-row-name { font-size: 13px; font-weight: 900; margin-bottom: 2px; }
+        .shard-row-desc { font-size: 11px; color: #94a3b8; }
+        .shard-row-price {
+            display: flex; align-items: center; gap: 3px;
+            font-size: 15px; font-weight: 900;
+            color: #a855f7;
+        }
+        .shard-row-price.no-money { color: #ef4444; }
+        .shard-icon { font-size: 13px; }
 
+        .shard-buy-btn {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: not-allowed;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .shard-row .shard-buy-btn.can-buy {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff;
+            border-color: transparent;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+        }
+        .shard-row .shard-buy-btn.can-buy:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.15);
+        }
+
+        /* ═══ ВЫБОР КАРТЫ ═══ */
+        .card-picker-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .card-picker-tab {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .card-picker-tab:hover { background: rgba(255,255,255,0.1); }
+        .card-picker-tab.active.common    { border-color: #94a3b8; background: rgba(148,163,184,0.15); color: #cbd5e1; }
+        .card-picker-tab.active.rare      { border-color: #3b82f6; background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .card-picker-tab.active.epic      { border-color: #a855f7; background: rgba(168,85,247,0.15); color: #c084fc; }
+        .card-picker-tab.active.legendary { border-color: #f59e0b; background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .card-picker-tab.active.mythical  { border-color: #ef4444; background: rgba(239,68,68,0.15); color: #f87171; }
+
+        .card-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 14px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 2px;
+        }
+        .card-picker-item {
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .card-picker-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        .card-picker-item.owned {
+            border-color: rgba(74, 222, 128, 0.5);
+        }
+        .card-picker-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 4px;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+        .card-picker-item-name {
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        .card-picker-item-owned {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            font-size: 9px;
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 900;
+        }
+
+        /* Мобильный */
+        @media (max-width: 600px) {
+            .shard-row { grid-template-columns: 32px 1fr auto auto; padding: 8px 10px; gap: 6px; }
+            .shard-row-icon { font-size: 20px; }
+            .shard-row-name { font-size: 11px; }
+            .shard-row-desc { font-size: 10px; }
+            .shard-row-price { font-size: 13px; }
+            .shard-buy-btn { padding: 6px 8px; font-size: 10px; }
+            .card-picker-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+            .card-picker-item img { width: 40px; height: 40px; }
+            .card-picker-item-name { font-size: 9px; }
+        }
         @media (max-width: 600px) {
             body { padding: 14px; }
             .wallet { top: 12px; left: 12px; gap: 6px; }
@@ -1022,7 +1174,81 @@
                         <span class="label">Всего за дубликаты:</span>
                         <span class="value" id="sellTotalValue">0 🪙</span>
                     </div>
-                    <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
+                                        <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
+                </div>
+            </div>
+
+            <div class="shop-divider">или</div>
+
+            <div class="shop-section">
+                <div class="shop-section-title">💎 Купить за осколки</div>
+                <div class="shard-shop">
+                    <div class="shard-row" data-shard-buy="common">
+                        <div class="shard-row-icon">📦</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Обычный ящик</div>
+                            <div class="shard-row-desc">Обычный предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>1</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-shard-buy="common">КУПИТЬ</button>
+                    </div>
+                    <div class="shard-row" data-shard-buy="rare">
+                        <div class="shard-row-icon">📦</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Редкий ящик</div>
+                            <div class="shard-row-desc">Редкий предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>1</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-shard-buy="rare">КУПИТЬ</button>
+                    </div>
+                    <div class="shard-row" data-shard-buy="epic">
+                        <div class="shard-row-icon">📦</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Эпический ящик</div>
+                            <div class="shard-row-desc">Эпический предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>1</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-shard-buy="epic">КУПИТЬ</button>
+                    </div>
+                    <div class="shard-row" data-shard-buy="legendary">
+                        <div class="shard-row-icon">📦</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Легендарный ящик</div>
+                            <div class="shard-row-desc">Легендарный предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>2</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-shard-buy="legendary">КУПИТЬ</button>
+                    </div>
+                    <div class="shard-row" data-shard-buy="mythical">
+                        <div class="shard-row-icon">📦</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Мифический ящик</div>
+                            <div class="shard-row-desc">Мифический предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>3</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-shard-buy="mythical">КУПИТЬ</button>
+                    </div>
+                    <div class="shard-row shard-row-card" data-card-picker>
+                        <div class="shard-row-icon">🎴</div>
+                        <div class="shard-row-info">
+                            <div class="shard-row-name">Любая карта</div>
+                            <div class="shard-row-desc">Выбрать конкретный предмет</div>
+                        </div>
+                        <div class="shard-row-price">
+                            <span>5</span><span class="shard-icon">💎</span>
+                        </div>
+                        <button class="shard-buy-btn" data-card-picker>ВЫБРАТЬ</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1076,7 +1302,17 @@
             </div>
         </div>
     </div>
-
+        <!-- МОДАЛКА ВЫБОРА КАРТЫ -->
+    <div class="overlay" id="cardPickerOverlay">
+        <div class="modal-card" id="cardPickerCard">
+            <button class="modal-x" id="cardPickerX">×</button>
+            <div class="modal-title">🎴 Выбор карты</div>
+            <div class="modal-sub">Стоимость: <b>5 💎</b>. У тебя: <b><span id="cardPickerShards">0</span> 💎</b></div>
+            <div class="card-picker-tabs" id="cardPickerTabs"></div>
+            <div class="card-picker-grid" id="cardPickerGrid"></div>
+            <div class="hint-box" id="cardPickerHint"></div>
+        </div>
+    </div>
     <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="modal-x" id="revealX">×</button>
@@ -1105,7 +1341,10 @@
         const BOX_PRICES = {
             rare: 500, epic: 2000, legendary: 10000, mythical: 50000,
         };
-
+         const SHARD_BOX_PRICES = {
+            common: 1, rare: 1, epic: 1, legendary: 2, mythical: 3,
+        };
+        const SHARD_CARD_PRICE = 5;
         const AVATARS = ['🐱', '🐶', '🦊', '🐼', '🐸', '🦁'];
 
         const FRAMES = [
@@ -1486,11 +1725,12 @@
             updateWallet();
         }
 
-        function renderShopPanel() {
+                function renderShopPanel() {
             const total = calcDuplicatesValue();
             document.getElementById('sellTotalValue').textContent = total + ' 🪙';
             document.getElementById('sellAllBtn').disabled = total === 0;
 
+            // Кнопки покупки ящиков за монеты
             document.querySelectorAll('.shop-buy-btn').forEach(btn => {
                 const rarity = btn.dataset.buy;
                 const price = BOX_PRICES[rarity];
@@ -1507,6 +1747,145 @@
                     priceEl.classList.add('no-money');
                 }
             });
+
+            // Кнопки покупки за осколки
+            document.querySelectorAll('.shard-buy-btn').forEach(btn => {
+                const rarity = btn.dataset.shardBuy;
+                if (!rarity) return;
+                const price = SHARD_BOX_PRICES[rarity];
+                const canBuy = state.shards >= price;
+                const priceEl = btn.closest('.shard-row').querySelector('.shard-row-price');
+
+                if (canBuy) {
+                    btn.classList.add('can-buy');
+                    btn.disabled = false;
+                    priceEl.classList.remove('no-money');
+                } else {
+                    btn.classList.remove('can-buy');
+                    btn.disabled = true;
+                    priceEl.classList.add('no-money');
+                }
+            });
+
+            // Карточная кнопка
+            const cardBtn = document.querySelector('.shard-buy-btn[data-card-picker]');
+            if (cardBtn) {
+                const canBuy = state.shards >= SHARD_CARD_PRICE;
+                const priceEl = cardBtn.closest('.shard-row').querySelector('.shard-row-price');
+                if (canBuy) {
+                    cardBtn.classList.add('can-buy');
+                    cardBtn.disabled = false;
+                    priceEl.classList.remove('no-money');
+                } else {
+                    cardBtn.classList.remove('can-buy');
+                    cardBtn.disabled = true;
+                    priceEl.classList.add('no-money');
+                }
+            }
+        }
+
+        function buyBoxWithShards(rarity) {
+            const price = SHARD_BOX_PRICES[rarity];
+            if (state.shards < price) return;
+
+            const catName = CATEGORIES[currentCategory].name;
+            if (!confirm(`Купить ${RARITY_NAMES[rarity].toLowerCase()} ящик за ${price} 💎?\n\nПредмет будет из категории «${catName}».`)) return;
+
+            state.shards -= price;
+            const hero = pickHero(rarity);
+
+            state.opened[currentCategory]++;
+            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
+            saveState();
+
+            closeShopPanel();
+            showReveal(hero, false);
+            renderStats();
+            renderCollection();
+            updateFabs();
+            updateWallet();
+        }
+
+        // ═══ ВЫБОР КАРТЫ ═══
+        let cardPickerRarity = 'common';
+
+        function openCardPicker() {
+            if (state.shards < SHARD_CARD_PRICE) return;
+            cardPickerRarity = 'common';
+            renderCardPicker();
+            document.getElementById('cardPickerOverlay').classList.add('active');
+        }
+        function closeCardPicker() {
+            document.getElementById('cardPickerOverlay').classList.remove('active');
+        }
+
+        function renderCardPicker() {
+            document.getElementById('cardPickerShards').textContent = state.shards;
+
+            const tabsEl = document.getElementById('cardPickerTabs');
+            const rarities = ['common', 'rare', 'epic', 'legendary', 'mythical'];
+            tabsEl.innerHTML = rarities.map(r => `
+                <button class="card-picker-tab ${r} ${r === cardPickerRarity ? 'active' : ''}"
+                        data-rarity="${r}">${RARITY_NAMES[r]}</button>
+            `).join('');
+            tabsEl.querySelectorAll('.card-picker-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    cardPickerRarity = btn.dataset.rarity;
+                    renderCardPicker();
+                });
+            });
+
+            const heroes = getHeroes();
+            const pool = heroes.filter(h => h.rarity === cardPickerRarity);
+            const owned = state.owned[currentCategory] || {};
+
+            const gridEl = document.getElementById('cardPickerGrid');
+            if (pool.length === 0) {
+                gridEl.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#94a3b8; padding:20px;">Нет карт этой редкости</div>`;
+            } else {
+                gridEl.innerHTML = pool.map(h => {
+                    const cnt = owned[h.id] || 0;
+                    return `
+                        <div class="card-picker-item ${cnt > 0 ? 'owned' : ''}" data-id="${h.id}">
+                            ${cnt > 0 ? `<div class="card-picker-item-owned">×${cnt}</div>` : ''}
+                            ${h.img ? `<img src="${h.img}" alt="" draggable="false">` : ''}
+                            <div class="card-picker-item-name">${h.name}</div>
+                        </div>
+                    `;
+                }).join('');
+                gridEl.querySelectorAll('.card-picker-item').forEach(item => {
+                    item.addEventListener('click', () => buySpecificCard(item.dataset.id));
+                });
+            }
+
+            const hintEl = document.getElementById('cardPickerHint');
+            if (state.shards < SHARD_CARD_PRICE) {
+                hintEl.textContent = `📋 Нужно 5 💎, у тебя ${state.shards} 💎. Играй в ежедневку, чтобы копить осколки.`;
+            } else {
+                hintEl.textContent = `✅ Нажми на карту, чтобы купить её за 5 💎.`;
+            }
+        }
+
+        function buySpecificCard(heroId) {
+            if (state.shards < SHARD_CARD_PRICE) return;
+
+            const hero = getHeroes().find(h => h.id === heroId);
+            if (!hero) return;
+
+            if (!confirm(`Купить карту «${hero.name}» за ${SHARD_CARD_PRICE} 💎?`)) return;
+
+            state.shards -= SHARD_CARD_PRICE;
+            state.opened[currentCategory]++;
+            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
+            saveState();
+
+            closeCardPicker();
+            closeShopPanel();
+            showReveal(hero, false);
+            renderStats();
+            renderCollection();
+            updateFabs();
+            updateWallet();
         }
 
         function openShopPanel() {
