@@ -22,7 +22,7 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* ═══ Кошелёк (слева) ═══ */
+        /* ═══ Кошелёк ═══ */
         .wallet {
             position: fixed;
             top: 18px; left: 18px;
@@ -43,7 +43,7 @@
         .wallet-coins { color: #ffd700; }
         .wallet-shards { color: #a855f7; }
 
-        /* ═══ FAB-кнопки (справа) ═══ */
+        /* ═══ FAB-кнопки ═══ */
         .fab {
             position: fixed;
             right: 18px;
@@ -69,10 +69,16 @@
             color: #cbd5e1;
             transform: translateY(-2px);
         }
-        .reset-fab { top: 18px; }
-        .craft-fab { top: 78px; }
-        .shop-fab { top: 138px; }
-        .logout-fab { top: 198px; }
+        .profile-fab { top: 18px; }
+        .reset-fab { top: 78px; }
+        .craft-fab { top: 138px; }
+        .shop-fab { top: 198px; }
+        .logout-fab { top: 258px; }
+        .profile-fab:hover {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.4);
+        }
         .shop-fab:hover {
             background: rgba(74, 222, 128, 0.15);
             color: #4ade80;
@@ -358,10 +364,7 @@
         }
 
         /* ═══ МАГАЗИН ═══ */
-        .shop-section {
-            margin-bottom: 24px;
-            text-align: left;
-        }
+        .shop-section { margin-bottom: 24px; text-align: left; }
         .shop-section-title {
             font-size: 12px; color: #94a3b8;
             text-transform: uppercase; letter-spacing: 2px;
@@ -381,7 +384,6 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* Продажа */
         .sell-box {
             background: rgba(255,255,255,0.04);
             border: 2px solid rgba(255,255,255,0.08);
@@ -431,7 +433,6 @@
             box-shadow: none;
         }
 
-        /* Покупка ящиков */
         .shop-boxes {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -502,6 +503,154 @@
         }
         .shop-buy-btn.can-buy:hover {
             transform: translateY(-1px);
+            filter: brightness(1.15);
+        }
+
+        /* ═══ ПРОФИЛЬ ═══ */
+        .profile-avatar-wrap {
+            display: flex; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .profile-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 64px;
+            border: 4px solid;
+            transition: all 0.3s;
+        }
+        .profile-avatar.frame-default  { border-color: #64748b; }
+        .profile-avatar.frame-silver   { border-color: #cbd5e1; box-shadow: 0 0 24px rgba(203, 213, 225, 0.6); }
+        .profile-avatar.frame-gold     { border-color: #f59e0b; box-shadow: 0 0 32px rgba(245, 158, 11, 0.7); }
+        .profile-avatar.frame-rainbow  {
+            border-image: linear-gradient(135deg, #ff0000, #ff9500, #ffd700, #4ade80, #3b82f6, #a855f7) 1;
+            border-color: transparent;
+            box-shadow: 0 0 32px rgba(168, 85, 247, 0.7);
+        }
+
+        .profile-email {
+            font-size: 15px; font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        .profile-frame-name {
+            font-size: 12px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 1px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .profile-stat {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 6px;
+            text-align: center;
+        }
+        .profile-stat-value { font-size: 22px; font-weight: 900; color: #ffd700; }
+        .profile-stat-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .profile-section {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .profile-section-title {
+            font-size: 12px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 2px;
+            font-weight: 900; margin-bottom: 12px;
+            text-align: center;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+        .avatar-option {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            font-size: 26px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .avatar-option:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+        .avatar-option.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.15);
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.5);
+        }
+
+        .frame-list {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .frame-row {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            transition: all 0.15s;
+        }
+        .frame-row.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+        .frame-row.locked {
+            opacity: 0.5;
+        }
+        .frame-preview {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 3px solid;
+            flex-shrink: 0;
+        }
+        .frame-preview.frame-default { border-color: #64748b; }
+        .frame-preview.frame-silver  { border-color: #cbd5e1; }
+        .frame-preview.frame-gold    { border-color: #f59e0b; }
+        .frame-preview.frame-rainbow {
+            border-image: linear-gradient(135deg, #ff0000, #ffd700, #4ade80, #3b82f6, #a855f7) 1;
+            border-color: transparent;
+        }
+        .frame-info { flex: 1; text-align: left; }
+        .frame-info-title { font-size: 13px; font-weight: 900; margin-bottom: 2px; }
+        .frame-info-desc { font-size: 11px; color: #94a3b8; }
+        .frame-select-btn {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 11px; font-weight: 900;
+            cursor: not-allowed;
+            font-family: inherit;
+        }
+        .frame-row.active .frame-select-btn {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            color: #c084fc;
+            cursor: default;
+        }
+        .frame-row:not(.locked):not(.active) .frame-select-btn {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff;
+            border-color: transparent;
+            cursor: pointer;
+        }
+        .frame-row:not(.locked):not(.active) .frame-select-btn:hover {
             filter: brightness(1.15);
         }
 
@@ -621,10 +770,11 @@
             .fab { right: 12px; padding: 10px 14px; font-size: 12px; }
             .fab .btn-text { display: none; }
             .fab .icon { font-size: 18px; }
-            .reset-fab { top: 12px; }
-            .craft-fab { top: 64px; }
-            .shop-fab { top: 116px; }
-            .logout-fab { top: 168px; }
+            .profile-fab { top: 12px; }
+            .reset-fab { top: 64px; }
+            .craft-fab { top: 116px; }
+            .shop-fab { top: 168px; }
+            .logout-fab { top: 220px; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
@@ -650,6 +800,11 @@
             .shop-box-desc { font-size: 10px; }
             .shop-box-price { font-size: 12px; }
             .shop-buy-btn { font-size: 11px; padding: 6px; }
+            .profile-avatar { width: 90px; height: 90px; font-size: 48px; }
+            .avatar-grid { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+            .avatar-option { font-size: 20px; border-radius: 10px; }
+            .profile-stat-value { font-size: 18px; }
+            .profile-stat-label { font-size: 9px; }
         }
     </style>
 </head>
@@ -682,6 +837,10 @@
     </div>
 
     <!-- Кнопки -->
+    <button class="fab profile-fab" id="profileFab">
+        <span class="icon">👤</span>
+        <span class="btn-text">ПРОФИЛЬ</span>
+    </button>
     <button class="fab reset-fab" id="resetFab">
         <span class="icon">🔄</span>
         <span class="btn-text">RESET</span>
@@ -766,44 +925,35 @@
             <div class="modal-title">🛒 Магазин</div>
             <div class="modal-sub">Покупай ящики или продавай дубликаты</div>
 
-            <!-- Покупка ящиков -->
             <div class="shop-section">
-                <div class="shop-section-title">📦 Купить ящики</div>
+                <div class="shop-section-title">📦 Купить ящики за 🪙</div>
                 <div class="shop-boxes">
                     <div class="shop-box rare">
                         <div class="shop-box-icon">📦</div>
                         <div class="shop-box-name">Редкий</div>
                         <div class="shop-box-desc">Гарантированный редкий</div>
-                        <div class="shop-box-price" id="priceRare">
-                            <span>🪙</span><span>500</span>
-                        </div>
+                        <div class="shop-box-price" id="priceRare"><span>🪙</span><span>500</span></div>
                         <button class="shop-buy-btn" data-buy="rare">КУПИТЬ</button>
                     </div>
                     <div class="shop-box epic">
                         <div class="shop-box-icon">📦</div>
                         <div class="shop-box-name">Эпический</div>
                         <div class="shop-box-desc">Гарантированный эпик</div>
-                        <div class="shop-box-price" id="priceEpic">
-                            <span>🪙</span><span>2000</span>
-                        </div>
+                        <div class="shop-box-price" id="priceEpic"><span>🪙</span><span>2000</span></div>
                         <button class="shop-buy-btn" data-buy="epic">КУПИТЬ</button>
                     </div>
                     <div class="shop-box legendary">
                         <div class="shop-box-icon">📦</div>
                         <div class="shop-box-name">Легендарный</div>
                         <div class="shop-box-desc">Гарантированная легендарка</div>
-                        <div class="shop-box-price" id="priceLegendary">
-                            <span>🪙</span><span>10000</span>
-                        </div>
+                        <div class="shop-box-price" id="priceLegendary"><span>🪙</span><span>10000</span></div>
                         <button class="shop-buy-btn" data-buy="legendary">КУПИТЬ</button>
                     </div>
                     <div class="shop-box mythical">
                         <div class="shop-box-icon">📦</div>
                         <div class="shop-box-name">Мифический</div>
                         <div class="shop-box-desc">Гарантированный мифик</div>
-                        <div class="shop-box-price" id="priceMythical">
-                            <span>🪙</span><span>50000</span>
-                        </div>
+                        <div class="shop-box-price" id="priceMythical"><span>🪙</span><span>50000</span></div>
                         <button class="shop-buy-btn" data-buy="mythical">КУПИТЬ</button>
                     </div>
                 </div>
@@ -811,7 +961,6 @@
 
             <div class="shop-divider">или</div>
 
-            <!-- Продажа -->
             <div class="shop-section">
                 <div class="shop-section-title">💰 Продать дубликаты</div>
                 <div class="sell-box">
@@ -828,6 +977,46 @@
                     </div>
                     <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРОФИЛЬ -->
+    <div class="overlay" id="profileOverlay">
+        <div class="modal-card" id="profileCard">
+            <button class="modal-x" id="profileX">×</button>
+            <div class="modal-title">👤 Профиль</div>
+            <div class="modal-sub">Твоя визитная карточка</div>
+
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar" id="profileAvatarBig">🐱</div>
+            </div>
+            <div class="profile-email" id="profileEmail">—</div>
+            <div class="profile-frame-name" id="profileFrameName">Обводка: серая</div>
+
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileStatOpened">0</div>
+                    <div class="profile-stat-label">Открыто</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileStatCollected">0</div>
+                    <div class="profile-stat-label">Собрано</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileStatResets">0</div>
+                    <div class="profile-stat-label">Ресетов</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-section-title">🎭 Аватарка</div>
+                <div class="avatar-grid" id="avatarGrid"></div>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-section-title">✨ Обводка</div>
+                <div class="frame-list" id="frameList"></div>
             </div>
         </div>
     </div>
@@ -857,13 +1046,19 @@
             common: 1, rare: 5, epic: 20, legendary: 100, mythical: 500,
         };
 
-        // Цены ящиков (в монетах)
         const BOX_PRICES = {
-            rare: 500,
-            epic: 2000,
-            legendary: 10000,
-            mythical: 50000,
+            rare: 500, epic: 2000, legendary: 10000, mythical: 50000,
         };
+
+        // ═══ АВАТАРКИ И ОБВОДКИ ═══
+        const AVATARS = ['🐱', '🐶', '🦊', '🐼', '🐸', '🦁'];
+
+        const FRAMES = [
+            { id: 'default', name: 'Серая',   desc: 'Базовая обводка',              unlocked: true },
+            { id: 'silver',  name: 'Серебряная', desc: 'За 7 дней подряд',           unlocked: false },
+            { id: 'gold',    name: 'Золотая',    desc: 'За 30 дней подряд',          unlocked: false },
+            { id: 'rainbow', name: 'Радужная',   desc: 'За 5 ресетов',               unlocked: false },
+        ];
 
         const ELEMENT_HEROES = [
             { id: 'fire',  name: 'Огонь',  img: 'elements/fire.png',  rarity: 'common', desc: 'Пламя жизни' },
@@ -936,8 +1131,10 @@
             resets: {},
             coins: 0,
             shards: 0,
+            profile: { avatar: '🐱', frame: 'default' },
         };
         let currentUserId = null;
+        let currentUserEmail = '';
 
         function initState() {
             for (const cat of Object.keys(CATEGORIES)) {
@@ -947,6 +1144,9 @@
             }
             if (state.coins === undefined) state.coins = 0;
             if (state.shards === undefined) state.shards = 0;
+            if (!state.profile) state.profile = { avatar: '🐱', frame: 'default' };
+            if (!state.profile.avatar) state.profile.avatar = '🐱';
+            if (!state.profile.frame) state.profile.frame = 'default';
         }
 
         function loadState() {
@@ -1031,7 +1231,9 @@
 
                 if (isLoginMode) {
                     currentUserId = data.userId;
+                    currentUserEmail = email;
                     localStorage.setItem('boxes_user_id', currentUserId);
+                    localStorage.setItem('boxes_user_email', email);
                     localStorage.setItem('boxes_auth_token', data.token);
                     authError.classList.add('success');
                     authError.textContent = 'Вход выполнен';
@@ -1073,7 +1275,7 @@
                         initState();
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     } else {
-                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0 };
+                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default' } };
                         initState();
                         saveState();
                     }
@@ -1084,10 +1286,12 @@
         function logout() {
             if (!confirm('Выйти из аккаунта? Прогресс сохранён на сервере.')) return;
             currentUserId = null;
+            currentUserEmail = '';
             localStorage.removeItem('boxes_user_id');
+            localStorage.removeItem('boxes_user_email');
             localStorage.removeItem('boxes_auth_token');
             localStorage.removeItem(STORAGE_KEY);
-            state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0 };
+            state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default' } };
             initState();
             location.reload();
         }
@@ -1181,29 +1385,28 @@
         }
 
         function sellAllDuplicates() {
-    const total = calcDuplicatesValue();
-    if (total === 0) return;
-    if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
+            const total = calcDuplicatesValue();
+            if (total === 0) return;
+            if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
 
-    for (const catId of Object.keys(CATEGORIES)) {
-        const heroes = CATEGORIES[catId].heroes;
-        const owned = state.owned[catId] || {};
-        heroes.forEach(h => {
-            const count = owned[h.id] || 0;
-            if (count > 1) owned[h.id] = 1;
-        });
-    }
+            for (const catId of Object.keys(CATEGORIES)) {
+                const heroes = CATEGORIES[catId].heroes;
+                const owned = state.owned[catId] || {};
+                heroes.forEach(h => {
+                    const count = owned[h.id] || 0;
+                    if (count > 1) owned[h.id] = 1;
+                });
+            }
 
-    state.coins += total;
-    saveState();
+            state.coins += total;
+            saveState();
 
-    // Обновляем ВСЁ, а не только магазин
-    renderShopPanel();
-    updateWallet();
-    renderStats();
-    renderCollection();
-    updateFabs();
-}
+            renderShopPanel();
+            updateWallet();
+            renderStats();
+            renderCollection();
+            updateFabs();
+        }
 
         function buyBoxOfRarity(rarity) {
             const price = BOX_PRICES[rarity];
@@ -1228,12 +1431,10 @@
         }
 
         function renderShopPanel() {
-            // Продажа
             const total = calcDuplicatesValue();
             document.getElementById('sellTotalValue').textContent = total + ' 🪙';
             document.getElementById('sellAllBtn').disabled = total === 0;
 
-            // Покупка ящиков — обновляем доступность кнопок
             document.querySelectorAll('.shop-buy-btn').forEach(btn => {
                 const rarity = btn.dataset.buy;
                 const price = BOX_PRICES[rarity];
@@ -1257,6 +1458,80 @@
             document.getElementById('shopOverlay').classList.add('active');
         }
         function closeShopPanel() { document.getElementById('shopOverlay').classList.remove('active'); }
+
+        // ═══ ПРОФИЛЬ ═══
+        function openProfilePanel() {
+            renderProfilePanel();
+            document.getElementById('profileOverlay').classList.add('active');
+        }
+        function closeProfilePanel() { document.getElementById('profileOverlay').classList.remove('active'); }
+
+        function renderProfilePanel() {
+            const avatarEl = document.getElementById('profileAvatarBig');
+            avatarEl.textContent = state.profile.avatar;
+            avatarEl.className = 'profile-avatar frame-' + state.profile.frame;
+
+            document.getElementById('profileEmail').textContent = currentUserEmail || '—';
+
+            const frame = FRAMES.find(f => f.id === state.profile.frame);
+            document.getElementById('profileFrameName').textContent = 'Обводка: ' + (frame ? frame.name.toLowerCase() : 'серая');
+
+            document.getElementById('profileStatOpened').textContent = Object.values(state.opened).reduce((s, v) => s + v, 0);
+            document.getElementById('profileStatCollected').textContent = Object.values(state.owned).reduce((s, obj) => s + Object.keys(obj).length, 0);
+            document.getElementById('profileStatResets').textContent = getTotalResets();
+
+            // Аватарки
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = AVATARS.map(a => `
+                <button class="avatar-option ${a === state.profile.avatar ? 'active' : ''}"
+                        data-avatar="${a}">${a}</button>
+            `).join('');
+            grid.querySelectorAll('.avatar-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.profile.avatar = btn.dataset.avatar;
+                    saveState();
+                    renderProfilePanel();
+                });
+            });
+
+            // Обводки
+            const frameList = document.getElementById('frameList');
+            frameList.innerHTML = FRAMES.map(f => {
+                const unlocked = isFrameUnlocked(f.id);
+                const active = state.profile.frame === f.id;
+                const cls = active ? 'active' : (unlocked ? '' : 'locked');
+                return `
+                    <div class="frame-row ${cls}">
+                        <div class="frame-preview frame-${f.id}"></div>
+                        <div class="frame-info">
+                            <div class="frame-info-title">${f.name}</div>
+                            <div class="frame-info-desc">${unlocked ? f.desc : '🔒 ' + f.desc}</div>
+                        </div>
+                        <button class="frame-select-btn" data-frame="${f.id}" ${active ? 'disabled' : (unlocked ? '' : 'disabled')}>
+                            ${active ? 'АКТИВНА' : (unlocked ? 'ВЫБРАТЬ' : '🔒')}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            frameList.querySelectorAll('.frame-select-btn').forEach(btn => {
+                if (!btn.disabled) {
+                    btn.addEventListener('click', () => {
+                        state.profile.frame = btn.dataset.frame;
+                        saveState();
+                        renderProfilePanel();
+                    });
+                }
+            });
+        }
+
+        function isFrameUnlocked(frameId) {
+            if (frameId === 'default') return true;
+            if (frameId === 'silver') return (state.dailyStreak || 0) >= 7;
+            if (frameId === 'gold') return (state.dailyStreak || 0) >= 30;
+            if (frameId === 'rainbow') return getTotalResets() >= 5;
+            return false;
+        }
 
         // ═══ КРАФТ ═══
         function countByRarity(catId) {
@@ -1544,9 +1819,14 @@
         });
         document.getElementById('sellAllBtn').addEventListener('click', sellAllDuplicates);
 
-        // Кнопки покупки ящиков
         document.querySelectorAll('.shop-buy-btn').forEach(btn => {
             btn.addEventListener('click', () => buyBoxOfRarity(btn.dataset.buy));
+        });
+
+        document.getElementById('profileFab').addEventListener('click', openProfilePanel);
+        document.getElementById('profileX').addEventListener('click', closeProfilePanel);
+        document.getElementById('profileOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'profileOverlay') closeProfilePanel();
         });
 
         document.getElementById('revealClose').addEventListener('click', closeReveal);
@@ -1565,8 +1845,10 @@
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
+        const savedEmail = localStorage.getItem('boxes_user_email');
         if (savedUserId) {
             currentUserId = savedUserId;
+            currentUserEmail = savedEmail || '';
             renderAll();
             loadProgressFromServer().then(renderAll);
         } else {
