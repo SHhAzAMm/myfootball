@@ -515,9 +515,12 @@
         .profile-avatar.frame-default  { border-color: #64748b; }
         .profile-avatar.frame-silver   { border-color: #cbd5e1; box-shadow: 0 0 24px rgba(203, 213, 225, 0.6); }
         .profile-avatar.frame-gold     { border-color: #f59e0b; box-shadow: 0 0 32px rgba(245, 158, 11, 0.7); }
-        .profile-avatar.frame-rainbow  {
-            border-image: linear-gradient(135deg, #ff0000, #ff9500, #ffd700, #4ade80, #3b82f6, #a855f7) 1;
+        .profile-avatar.frame-rainbow {
             border-color: transparent;
+            background:
+                linear-gradient(#1e293b, #0f172a) padding-box,
+                linear-gradient(135deg, #ff0000, #ff9500, #ffd700, #4ade80, #3b82f6, #a855f7) border-box;
+            border: 4px solid transparent;
             box-shadow: 0 0 32px rgba(168, 85, 247, 0.7);
         }
 
@@ -669,8 +672,10 @@
         .frame-preview.frame-silver  { border-color: #cbd5e1; }
         .frame-preview.frame-gold    { border-color: #f59e0b; }
         .frame-preview.frame-rainbow {
-            border-image: linear-gradient(135deg, #ff0000, #ffd700, #4ade80, #3b82f6, #a855f7) 1;
-            border-color: transparent;
+            background:
+                linear-gradient(#0f172a, #0f172a) padding-box,
+                linear-gradient(135deg, #ff0000, #ffd700, #4ade80, #3b82f6, #a855f7) border-box;
+            border: 3px solid transparent;
         }
         .frame-info { flex: 1; text-align: left; }
         .frame-info-title { font-size: 13px; font-weight: 900; margin-bottom: 2px; }
@@ -808,7 +813,8 @@
         .hero-card.epic      .hero-badge { color: #c084fc; }
         .hero-card.legendary .hero-badge { color: #fbbf24; }
         .hero-card.mythical  .hero-badge { color: #f87171; }
-                /* ═══ ОСКОЛКИ В МАГАЗИНЕ ═══ */
+
+        /* ═══ ОСКОЛКИ В МАГАЗИНЕ ═══ */
         .shard-shop {
             display: flex;
             flex-direction: column;
@@ -948,7 +954,8 @@
             border-radius: 4px;
             font-weight: 900;
         }
-                /* ═══ БУСТ ═══ */
+
+        /* ═══ БУСТ ═══ */
         .boost-banner {
             display: none;
             align-items: center;
@@ -998,7 +1005,8 @@
             border-radius: 8px;
             flex-shrink: 0;
         }
-                /* ═══ ЕЖЕДНЕВКА ═══ */
+
+        /* ═══ ЕЖЕДНЕВКА ═══ */
         .daily-fab.ready {
             background: linear-gradient(135deg, #4ade80, #22c55e);
             color: #1a1a2e;
@@ -1145,7 +1153,7 @@
             .daily-streak-bar .fire { font-size: 20px; }
             .daily-streak-bar .streak-num { font-size: 18px; }
         }
-        /* Мобильный */
+
         @media (max-width: 600px) {
             .shard-row { grid-template-columns: 32px 1fr auto auto; padding: 8px 10px; gap: 6px; }
             .shard-row-icon { font-size: 20px; }
@@ -1169,7 +1177,8 @@
             .reset-fab { top: 64px; }
             .craft-fab { top: 116px; }
             .shop-fab { top: 168px; }
-            .logout-fab { top: 220px; }
+            .daily-fab { top: 220px !important; }
+            .logout-fab { top: 272px; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
@@ -1290,7 +1299,7 @@
             </div>
         </div>
 
-                <div class="boost-banner" id="boostBanner">
+        <div class="boost-banner" id="boostBanner">
             <div class="boost-icon" id="boostIcon">⚡</div>
             <div class="boost-info">
                 <div class="boost-title" id="boostTitle">Буст активен</div>
@@ -1388,7 +1397,7 @@
                         <span class="label">Всего за дубликаты:</span>
                         <span class="value" id="sellTotalValue">0 🪙</span>
                     </div>
-                                        <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
+                    <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
                 </div>
             </div>
 
@@ -1516,7 +1525,7 @@
             </div>
         </div>
     </div>
-        <!-- МОДАЛКА ВЫБОРА КАРТЫ -->
+
     <div class="overlay" id="cardPickerOverlay">
         <div class="modal-card" id="cardPickerCard">
             <button class="modal-x" id="cardPickerX">×</button>
@@ -1527,7 +1536,7 @@
             <div class="hint-box" id="cardPickerHint"></div>
         </div>
     </div>
-        <!-- МОДАЛКА ЕЖЕДНЕВКИ -->
+
     <div class="overlay" id="dailyOverlay">
         <div class="modal-card" id="dailyCard">
             <button class="modal-x" id="dailyX">×</button>
@@ -1555,6 +1564,7 @@
             </div>
         </div>
     </div>
+
     <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="modal-x" id="revealX">×</button>
@@ -1583,7 +1593,7 @@
         const BOX_PRICES = {
             rare: 500, epic: 2000, legendary: 10000, mythical: 50000,
         };
-         const SHARD_BOX_PRICES = {
+        const SHARD_BOX_PRICES = {
             common: 1, rare: 1, epic: 1, legendary: 2, mythical: 3,
         };
         const SHARD_CARD_PRICE = 5;
@@ -1595,7 +1605,8 @@
             { id: 'gold',    name: 'Золотая',    desc: 'За 30 дней подряд',          unlocked: false },
             { id: 'rainbow', name: 'Радужная',   desc: 'За 5 ресетов',               unlocked: false },
         ];
-                // ═══ ЕЖЕДНЕВНАЯ НАГРАДА ═══
+
+        // ═══ ЕЖЕДНЕВНАЯ НАГРАДА ═══
         const DAILY_REWARDS = [
             { type: 'coins',        icon: '🪙', title: '100 монет',         amount: 100 },
             { type: 'coins',        icon: '🪙', title: '250 монет',         amount: 250 },
@@ -1613,9 +1624,10 @@
             { type: 'coins',        icon: '🪙', title: '1000 монет',        amount: 1000 },
         ];
 
-        const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;   // 24 часа
-        const DAILY_STREAK_RESET = 48 * 60 * 60 * 1000; // 48 часов — сброс streak
-        const DAILY_CYCLE_LENGTH = DAILY_REWARDS.length; // 14
+        const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;
+        const DAILY_STREAK_RESET = 48 * 60 * 60 * 1000;
+        const DAILY_CYCLE_LENGTH = DAILY_REWARDS.length;
+
         const ELEMENT_HEROES = [
             { id: 'fire',  name: 'Огонь',  img: 'elements/fire.png',  rarity: 'common', desc: 'Пламя жизни' },
             { id: 'water', name: 'Вода',   img: 'elements/water.png', rarity: 'common', desc: 'Поток времени' },
@@ -1668,7 +1680,7 @@
         };
 
         const RARITY_CHANCES = { common: 50, rare: 25, epic: 15, legendary: 8, mythical: 2 };
-                const BOOST_CHANCES = {
+        const BOOST_CHANCES = {
             rare: { common: 35, rare: 40, epic: 15, legendary: 8, mythical: 2 },
             epic: { common: 40, rare: 23, epic: 22, legendary: 12, mythical: 3 },
         };
@@ -1708,6 +1720,7 @@
             profile: { avatar: '🐱', frame: 'default', nickname: '' },
             boost: null,
             daily: null,
+            unlockedFrames: [],
         };
 
         let currentUserId = null;
@@ -1727,6 +1740,7 @@
             if (state.profile.nickname === undefined) state.profile.nickname = '';
             if (state.boost === undefined) state.boost = null;
             if (state.daily === undefined) state.daily = null;
+            if (state.unlockedFrames === undefined) state.unlockedFrames = [];
         }
 
         function loadState() {
@@ -1855,7 +1869,7 @@
                         initState();
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     } else {
-                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' } };
+                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' }, unlockedFrames: [] };
                         initState();
                         saveState();
                     }
@@ -1871,13 +1885,13 @@
             localStorage.removeItem('boxes_user_email');
             localStorage.removeItem('boxes_auth_token');
             localStorage.removeItem(STORAGE_KEY);
-            state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' } };
+            state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' }, unlockedFrames: [] };
             initState();
             location.reload();
         }
 
         // ═══ ИГРА ═══
-               function getCurrentChances() {
+        function getCurrentChances() {
             if (state.boost && state.boost.expiresAt > Date.now()) {
                 return BOOST_CHANCES[state.boost.type] || RARITY_CHANCES;
             }
@@ -1948,7 +1962,6 @@
             timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
         }
 
-        // Обновление таймера каждую секунду
         setInterval(() => {
             if (state.boost && state.boost.expiresAt > Date.now()) {
                 updateBoostTimer();
@@ -1958,7 +1971,8 @@
                 renderBoostBanner();
             }
         }, 1000);
-                // ═══ ЕЖЕДНЕВНАЯ НАГРАДА — ЛОГИКА ═══
+
+        // ═══ ЕЖЕДНЕВНАЯ НАГРАДА — ЛОГИКА ═══
         function shuffleArray(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -1973,7 +1987,7 @@
                 state.daily = {
                     lastClaim: null,
                     streak: 0,
-                    bag: shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]), // индексы наград
+                    bag: shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]),
                     position: 0,
                 };
             }
@@ -1983,18 +1997,6 @@
             initDailyIfNeeded();
             if (!state.daily.lastClaim) return true;
             return Date.now() - state.daily.lastClaim >= DAILY_COOLDOWN;
-        }
-
-        function checkDailyStreak() {
-            initDailyIfNeeded();
-            const d = state.daily;
-            if (!d.lastClaim) return d.streak;
-            const timeSince = Date.now() - d.lastClaim;
-            // Если прошло больше 48 часов — сбрасываем streak
-            if (timeSince > DAILY_STREAK_RESET) {
-                return 0; // можно показать 0 или 1 после получения
-            }
-            return d.streak;
         }
 
         function getNextDailyReward() {
@@ -2017,18 +2019,15 @@
                     state.shards += reward.shards;
                     break;
                 case 'box':
-                    // Даём ящик сразу
                     const hero = pickHero(reward.boxRarity);
                     state.opened[currentCategory]++;
                     state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
-                    // Показать выпавший предмет после закрытия ежедневки
                     setTimeout(() => showReveal(hero, false), 400);
                     break;
                 case 'boost':
                     activateBoost(reward.boostType);
                     break;
                 case 'frame':
-                    // Разблокируем обводку
                     if (!state.unlockedFrames) state.unlockedFrames = [];
                     if (!state.unlockedFrames.includes(reward.frameId)) {
                         state.unlockedFrames.push(reward.frameId);
@@ -2042,29 +2041,23 @@
             initDailyIfNeeded();
             const d = state.daily;
 
-            // Проверка streak
             let newStreak = 1;
             if (d.lastClaim && (Date.now() - d.lastClaim) <= DAILY_STREAK_RESET) {
                 newStreak = d.streak + 1;
             }
 
             const reward = getNextDailyReward();
-
-            // Применяем награду
             applyDailyReward(reward);
 
-            // Обновляем streak и позицию
             d.streak = newStreak;
             d.lastClaim = Date.now();
             d.position++;
 
-            // Если мешок опустошён — перемешиваем заново
             if (d.position >= DAILY_CYCLE_LENGTH) {
                 d.bag = shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]);
                 d.position = 0;
             }
 
-            // Проверка milestones
             checkDailyMilestones(newStreak);
 
             saveState();
@@ -2074,20 +2067,17 @@
         }
 
         function checkDailyMilestones(streak) {
-            // 7 дней подряд → серебряная обводка
             if (streak >= 7 && !isFrameUnlocked('silver')) {
                 if (!state.unlockedFrames) state.unlockedFrames = [];
                 if (!state.unlockedFrames.includes('silver')) {
                     state.unlockedFrames.push('silver');
                 }
             }
-            // 30 дней подряд → золотая обводка + мифический ящик
             if (streak >= 30 && streak % 30 === 0) {
                 if (!state.unlockedFrames) state.unlockedFrames = [];
                 if (!state.unlockedFrames.includes('gold')) {
                     state.unlockedFrames.push('gold');
                 }
-                // Бонус: мифический ящик
                 const hero = pickHero('mythical');
                 state.opened[currentCategory]++;
                 state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
@@ -2095,7 +2085,6 @@
             }
         }
 
-        // ═══ РЕНДЕР ПАНЕЛИ ЕЖЕДНЕВКИ ═══
         function openDailyPanel() {
             renderDailyPanel();
             document.getElementById('dailyOverlay').classList.add('active');
@@ -2107,24 +2096,20 @@
         function renderDailyPanel() {
             initDailyIfNeeded();
             const d = state.daily;
-            const streak = d.lastClaim ? (canClaimDaily() ? d.streak : d.streak) : d.streak;
             document.getElementById('dailyStreakNum').textContent = d.streak;
 
-            // Сетка 7 дней: показываем текущую позицию в цикле
             const gridEl = document.getElementById('dailyGrid');
             const startPos = d.position;
             let html = '';
 
-            // Заголовки дней — реальные дни недели, начиная с сегодня
             const allDays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-            const todayIdx = new Date().getDay(); // 0 = воскресенье, 1 = понедельник...
+            const todayIdx = new Date().getDay();
             for (let i = 0; i < 7; i++) {
                 const dayName = allDays[(todayIdx + i) % 7];
                 const isToday = i === 0;
                 html += `<div class="daily-cell day-label">${isToday ? 'Сегодня' : dayName}</div>`;
             }
 
-            // 7 наград (текущая + 6 будущих)
             for (let i = 0; i < 7; i++) {
                 const bagIdx = (startPos + i) % DAILY_CYCLE_LENGTH;
                 const rewardIdx = d.bag[bagIdx];
@@ -2145,7 +2130,6 @@
             }
             gridEl.innerHTML = html;
 
-            // Кнопка
             const btn = document.getElementById('dailyClaimBtn');
             if (canClaimDaily()) {
                 btn.textContent = 'ЗАБРАТЬ НАГРАДУ';
@@ -2158,7 +2142,6 @@
                 btn.disabled = true;
             }
 
-            // Milestones
             const m7 = document.getElementById('milestone7');
             const m30 = document.getElementById('milestone30');
             if (d.streak >= 7) m7.classList.add('unlocked'); else m7.classList.remove('unlocked');
@@ -2174,6 +2157,7 @@
                 fab.classList.remove('ready');
             }
         }
+
         function pickHero(rarity) {
             const heroes = getHeroes();
             const pool = heroes.filter(h => h.rarity === rarity);
@@ -2297,12 +2281,11 @@
             updateWallet();
         }
 
-                function renderShopPanel() {
+        function renderShopPanel() {
             const total = calcDuplicatesValue();
             document.getElementById('sellTotalValue').textContent = total + ' 🪙';
             document.getElementById('sellAllBtn').disabled = total === 0;
 
-            // Кнопки покупки ящиков за монеты
             document.querySelectorAll('.shop-buy-btn').forEach(btn => {
                 const rarity = btn.dataset.buy;
                 const price = BOX_PRICES[rarity];
@@ -2320,7 +2303,6 @@
                 }
             });
 
-            // Кнопки покупки за осколки
             document.querySelectorAll('.shard-buy-btn').forEach(btn => {
                 const rarity = btn.dataset.shardBuy;
                 if (!rarity) return;
@@ -2339,7 +2321,6 @@
                 }
             });
 
-            // Карточная кнопка
             const cardBtn = document.querySelector('.shard-buy-btn[data-card-picker]');
             if (cardBtn) {
                 const canBuy = state.shards >= SHARD_CARD_PRICE;
@@ -2489,7 +2470,6 @@
             document.getElementById('profileStatCollected').textContent = Object.values(state.owned).reduce((s, obj) => s + Object.keys(obj).length, 0);
             document.getElementById('profileStatResets').textContent = getTotalResets();
 
-            // Аватарки
             const grid = document.getElementById('avatarGrid');
             grid.innerHTML = AVATARS.map(a => `
                 <button class="avatar-option ${a === state.profile.avatar ? 'active' : ''}"
@@ -2503,7 +2483,6 @@
                 });
             });
 
-            // Обводки
             const frameList = document.getElementById('frameList');
             frameList.innerHTML = FRAMES.map(f => {
                 const unlocked = isFrameUnlocked(f.id);
@@ -2834,12 +2813,13 @@
         document.getElementById('shopOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'shopOverlay') closeShopPanel();
         });
-        document.getElementById('sellAllBtn').addEventListener('click', sellAllDuplicates);
 
+        document.getElementById('sellAllBtn').addEventListener('click', sellAllDuplicates);
         document.querySelectorAll('.shop-buy-btn').forEach(btn => {
             btn.addEventListener('click', () => buyBoxOfRarity(btn.dataset.buy));
         });
-                // Кнопки покупки за осколки (ящики)
+
+        // Кнопки покупки за осколки (ящики)
         document.querySelectorAll('.shard-buy-btn[data-shard-buy]').forEach(btn => {
             btn.addEventListener('click', () => buyBoxWithShards(btn.dataset.shardBuy));
         });
@@ -2911,7 +2891,7 @@
         });
 
         // ═══ СТАРТ ═══
-               loadState();
+        loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
         const savedEmail = localStorage.getItem('boxes_user_email');
         if (savedUserId) {
