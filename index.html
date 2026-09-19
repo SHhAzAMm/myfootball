@@ -1609,7 +1609,7 @@
             { type: 'box',          icon: '📦', title: 'Легендарный ящик',  boxRarity: 'legendary' },
             { type: 'boost',        icon: '🔵', title: 'Буст редких',       boostType: 'rare' },
             { type: 'boost',        icon: '🟣', title: 'Буст эпик+',        boostType: 'epic' },
-            { type: 'frame',        icon: '🎨', title: 'Рамка «Золото»',    frameId: 'gold' },
+            { type: 'coins_shards', icon: '💎', title: '150🪙 + 2💎',       coins: 150, shards: 2 },
             { type: 'coins',        icon: '🪙', title: '1000 монет',        amount: 1000 },
         ];
 
@@ -2115,10 +2115,13 @@
             const startPos = d.position;
             let html = '';
 
-            // Заголовки дней
-            const dayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            // Заголовки дней — реальные дни недели, начиная с сегодня
+            const allDays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            const todayIdx = new Date().getDay(); // 0 = воскресенье, 1 = понедельник...
             for (let i = 0; i < 7; i++) {
-                html += `<div class="daily-cell day-label">${dayLabels[i]}</div>`;
+                const dayName = allDays[(todayIdx + i) % 7];
+                const isToday = i === 0;
+                html += `<div class="daily-cell day-label">${isToday ? 'Сегодня' : dayName}</div>`;
             }
 
             // 7 наград (текущая + 6 будущих)
