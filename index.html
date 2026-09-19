@@ -2259,7 +2259,22 @@
         document.querySelectorAll('.shop-buy-btn').forEach(btn => {
             btn.addEventListener('click', () => buyBoxOfRarity(btn.dataset.buy));
         });
+                // Кнопки покупки за осколки (ящики)
+        document.querySelectorAll('.shard-buy-btn[data-shard-buy]').forEach(btn => {
+            btn.addEventListener('click', () => buyBoxWithShards(btn.dataset.shardBuy));
+        });
 
+        // Кнопка выбора карты
+        const cardPickerBtn = document.querySelector('.shard-buy-btn[data-card-picker]');
+        if (cardPickerBtn) {
+            cardPickerBtn.addEventListener('click', openCardPicker);
+        }
+
+        document.getElementById('cardPickerX').addEventListener('click', closeCardPicker);
+        document.getElementById('cardPickerOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'cardPickerOverlay') closeCardPicker();
+        });
+        
         document.getElementById('profileFab').addEventListener('click', openProfilePanel);
         document.getElementById('profileX').addEventListener('click', closeProfilePanel);
         document.getElementById('profileOverlay').addEventListener('click', (e) => {
