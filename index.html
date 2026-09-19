@@ -1181,25 +1181,29 @@
         }
 
         function sellAllDuplicates() {
-            const total = calcDuplicatesValue();
-            if (total === 0) return;
-            if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
+    const total = calcDuplicatesValue();
+    if (total === 0) return;
+    if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
 
-            for (const catId of Object.keys(CATEGORIES)) {
-                const heroes = CATEGORIES[catId].heroes;
-                const owned = state.owned[catId] || {};
-                heroes.forEach(h => {
-                    const count = owned[h.id] || 0;
-                    if (count > 1) owned[h.id] = 1;
-                });
-            }
+    for (const catId of Object.keys(CATEGORIES)) {
+        const heroes = CATEGORIES[catId].heroes;
+        const owned = state.owned[catId] || {};
+        heroes.forEach(h => {
+            const count = owned[h.id] || 0;
+            if (count > 1) owned[h.id] = 1;
+        });
+    }
 
-            state.coins += total;
-            saveState();
+    state.coins += total;
+    saveState();
 
-            renderShopPanel();
-            updateWallet();
-        }
+    // Обновляем ВСЁ, а не только магазин
+    renderShopPanel();
+    updateWallet();
+    renderStats();
+    renderCollection();
+    updateFabs();
+}
 
         function buyBoxOfRarity(rarity) {
             const price = BOX_PRICES[rarity];
