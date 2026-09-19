@@ -22,6 +22,28 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
 
+        /* ═══ Кошелёк (слева) ═══ */
+        .wallet {
+            position: fixed;
+            top: 18px; left: 18px;
+            z-index: 90;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .wallet-item {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 14px; border-radius: 10px;
+            font-size: 14px; font-weight: 900;
+            backdrop-filter: blur(10px);
+            min-width: 90px;
+            justify-content: flex-start;
+        }
+        .wallet-icon { font-size: 18px; }
+        .wallet-coins { color: #ffd700; }
+        .wallet-shards { color: #a855f7; }
+
+        /* ═══ FAB-кнопки (справа) ═══ */
         .fab {
             position: fixed;
             right: 18px;
@@ -49,7 +71,13 @@
         }
         .reset-fab { top: 18px; }
         .craft-fab { top: 78px; }
-        .logout-fab { top: 138px; }
+        .shop-fab { top: 138px; }
+        .logout-fab { top: 198px; }
+        .shop-fab:hover {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.4);
+        }
         .logout-fab:hover {
             background: rgba(239, 68, 68, 0.15);
             color: #f87171;
@@ -118,18 +146,10 @@
         }
         .auth-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(168, 85, 247, 0.6); }
         .auth-submit:disabled { opacity: 0.6; cursor: wait; }
-        .auth-switch {
-            margin-top: 20px; font-size: 14px; color: #94a3b8;
-        }
-        .auth-switch a {
-            color: #c084fc; text-decoration: none; font-weight: 700;
-            cursor: pointer; margin-left: 4px;
-        }
+        .auth-switch { margin-top: 20px; font-size: 14px; color: #94a3b8; }
+        .auth-switch a { color: #c084fc; text-decoration: none; font-weight: 700; cursor: pointer; margin-left: 4px; }
         .auth-switch a:hover { text-decoration: underline; }
-        .auth-error {
-            margin-top: 16px; font-size: 13px; color: #f87171;
-            min-height: 18px; line-height: 1.4;
-        }
+        .auth-error { margin-top: 16px; font-size: 13px; color: #f87171; min-height: 18px; line-height: 1.4; }
         .auth-error.success { color: #4ade80; }
 
         .header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
@@ -140,32 +160,6 @@
             background-clip: text; margin-bottom: 8px;
         }
         .header p { color: #94a3b8; font-size: 15px; }
-
-        /* ═══ Валюты ═══ */
-        .wallet {
-    position: fixed;
-    top: 18px;
-    left: 18px;
-    z-index: 90;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-        
-        .wallet-item {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 8px 14px; border-radius: 10px;
-    font-size: 14px; font-weight: 900;
-    backdrop-filter: blur(10px);
-    min-width: 90px;
-    justify-content: flex-start;
-}
-        
-        .wallet-icon { font-size: 20px; }
-        .wallet-coins { color: #ffd700; }
-        .wallet-shards { color: #a855f7; }
 
         .category-tabs {
             display: flex; justify-content: center; gap: 10px;
@@ -363,17 +357,39 @@
             box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
         }
 
-        /* ═══ ПРОДАЖА ДУБЛИКАТОВ ═══ */
+        /* ═══ МАГАЗИН ═══ */
+        .shop-section {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .shop-section-title {
+            font-size: 12px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 2px;
+            font-weight: 900; margin-bottom: 12px;
+            text-align: center;
+        }
+        .shop-divider {
+            display: flex; align-items: center;
+            gap: 12px; margin: 24px 0;
+            color: #64748b; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 2px;
+            font-weight: 900;
+        }
+        .shop-divider::before,
+        .shop-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Продажа */
         .sell-box {
             background: rgba(255,255,255,0.04);
             border: 2px solid rgba(255,255,255,0.08);
             border-radius: 12px;
             padding: 16px;
-            margin-bottom: 16px;
-            text-align: left;
         }
         .sell-title {
-            font-size: 13px; color: #94a3b8;
+            font-size: 12px; color: #94a3b8;
             text-transform: uppercase; letter-spacing: 1.5px;
             font-weight: 900; margin-bottom: 10px;
         }
@@ -413,6 +429,80 @@
             background: rgba(255,255,255,0.08);
             color: #94a3b8;
             box-shadow: none;
+        }
+
+        /* Покупка ящиков */
+        .shop-boxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .shop-box {
+            background: rgba(255,255,255,0.04);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .shop-box.rare      { border-color: #3b82f6; }
+        .shop-box.epic      { border-color: #a855f7; }
+        .shop-box.legendary { border-color: #f59e0b; }
+        .shop-box.mythical  { border-color: #ef4444; }
+        .shop-box-icon { font-size: 36px; margin-bottom: 6px; }
+        .shop-box-name {
+            font-size: 13px; font-weight: 900;
+            margin-bottom: 4px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .shop-box.rare .shop-box-name { color: #60a5fa; }
+        .shop-box.epic .shop-box-name { color: #c084fc; }
+        .shop-box.legendary .shop-box-name { color: #fbbf24; }
+        .shop-box.mythical .shop-box-name { color: #f87171; }
+        .shop-box-desc {
+            font-size: 11px; color: #94a3b8;
+            margin-bottom: 10px; line-height: 1.3;
+        }
+        .shop-box-price {
+            display: flex; align-items: center; justify-content: center;
+            gap: 4px;
+            font-size: 14px; font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .shop-box-price.no-money { color: #ef4444; }
+        .shop-buy-btn {
+            width: 100%; padding: 8px;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 12px; font-weight: 900; letter-spacing: 0.5px;
+            cursor: not-allowed; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .shop-box.rare .shop-buy-btn.can-buy {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff; border-color: transparent; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .shop-box.epic .shop-buy-btn.can-buy {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #fff; border-color: transparent; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+        }
+        .shop-box.legendary .shop-buy-btn.can-buy {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff; border-color: transparent; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        .shop-box.mythical .shop-buy-btn.can-buy {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff; border-color: transparent; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        .shop-buy-btn.can-buy:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.15);
         }
 
         .reveal-card {
@@ -525,15 +615,16 @@
 
         @media (max-width: 600px) {
             body { padding: 14px; }
-            .fab { right: 12px; padding: 10px 14px; font-size: 12px; }
-            .fab .btn-text { display: none; }
-            .fab .icon { font-size: 18px; }
             .wallet { top: 12px; left: 12px; gap: 6px; }
             .wallet-item { padding: 6px 10px; font-size: 12px; min-width: 75px; }
             .wallet-icon { font-size: 16px; }
+            .fab { right: 12px; padding: 10px 14px; font-size: 12px; }
+            .fab .btn-text { display: none; }
+            .fab .icon { font-size: 18px; }
             .reset-fab { top: 12px; }
             .craft-fab { top: 64px; }
-            .logout-fab { top: 116px; }
+            .shop-fab { top: 116px; }
+            .logout-fab { top: 168px; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
@@ -552,6 +643,13 @@
             .craft-info-title { font-size: 13px; }
             .craft-info-progress { font-size: 11px; }
             .craft-btn { padding: 6px 10px; font-size: 11px; }
+            .shop-boxes { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .shop-box { padding: 10px 8px; }
+            .shop-box-icon { font-size: 28px; }
+            .shop-box-name { font-size: 11px; }
+            .shop-box-desc { font-size: 10px; }
+            .shop-box-price { font-size: 12px; }
+            .shop-buy-btn { font-size: 11px; padding: 6px; }
         }
     </style>
 </head>
@@ -571,16 +669,31 @@
         </div>
     </div>
 
+    <!-- Кошелёк -->
+    <div class="wallet">
+        <div class="wallet-item">
+            <span class="wallet-icon">🪙</span>
+            <span class="wallet-coins" id="walletCoins">0</span>
+        </div>
+        <div class="wallet-item">
+            <span class="wallet-icon">💎</span>
+            <span class="wallet-shards" id="walletShards">0</span>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
     <button class="fab reset-fab" id="resetFab">
         <span class="icon">🔄</span>
         <span class="btn-text">RESET</span>
     </button>
-
     <button class="fab craft-fab" id="craftFab">
         <span class="icon">⚗️</span>
         <span class="btn-text">КРАФТ</span>
     </button>
-
+    <button class="fab shop-fab" id="shopFab">
+        <span class="icon">🛒</span>
+        <span class="btn-text">МАГАЗИН</span>
+    </button>
     <button class="fab logout-fab" id="logoutFab">
         <span class="icon">🚪</span>
         <span class="btn-text">ВЫЙТИ</span>
@@ -590,18 +703,6 @@
         <div class="header">
             <h1>🎁 BOXES</h1>
             <p>Открывай боксы — собирай коллекцию</p>
-        </div>
-
-        <!-- Валюты -->
-        <div class="wallet">
-            <div class="wallet-item">
-                <span class="wallet-icon">🪙</span>
-                <span class="wallet-coins" id="walletCoins">0</span>
-            </div>
-            <div class="wallet-item">
-                <span class="wallet-icon">💎</span>
-                <span class="wallet-shards" id="walletShards">0</span>
-            </div>
         </div>
 
         <div class="category-tabs" id="categoryTabs"></div>
@@ -658,31 +759,75 @@
         </div>
     </div>
 
-    <!-- МАГАЗИН / ПРОДАЖА -->
+    <!-- МАГАЗИН -->
     <div class="overlay" id="shopOverlay">
         <div class="modal-card" id="shopCard">
             <button class="modal-x" id="shopX">×</button>
-            <div class="modal-title">🛒 Обмен</div>
-            <div class="modal-sub">Продай дубликаты за монеты</div>
+            <div class="modal-title">🛒 Магазин</div>
+            <div class="modal-sub">Покупай ящики или продавай дубликаты</div>
 
-            <div class="sell-box">
-                <div class="sell-title">💰 Курс продажи</div>
-                <div class="sell-values">
-                    <span class="rv">⚪ Обычный</span><span class="rp">1 🪙</span>
-                    <span class="rv">🔵 Редкий</span><span class="rp">5 🪙</span>
-                    <span class="rv">🟣 Эпический</span><span class="rp">20 🪙</span>
-                    <span class="rv">🟠 Легендарный</span><span class="rp">100 🪙</span>
-                    <span class="rv">🔴 Мифический</span><span class="rp">500 🪙</span>
+            <!-- Покупка ящиков -->
+            <div class="shop-section">
+                <div class="shop-section-title">📦 Купить ящики</div>
+                <div class="shop-boxes">
+                    <div class="shop-box rare">
+                        <div class="shop-box-icon">📦</div>
+                        <div class="shop-box-name">Редкий</div>
+                        <div class="shop-box-desc">Гарантированный редкий</div>
+                        <div class="shop-box-price" id="priceRare">
+                            <span>🪙</span><span>500</span>
+                        </div>
+                        <button class="shop-buy-btn" data-buy="rare">КУПИТЬ</button>
+                    </div>
+                    <div class="shop-box epic">
+                        <div class="shop-box-icon">📦</div>
+                        <div class="shop-box-name">Эпический</div>
+                        <div class="shop-box-desc">Гарантированный эпик</div>
+                        <div class="shop-box-price" id="priceEpic">
+                            <span>🪙</span><span>2000</span>
+                        </div>
+                        <button class="shop-buy-btn" data-buy="epic">КУПИТЬ</button>
+                    </div>
+                    <div class="shop-box legendary">
+                        <div class="shop-box-icon">📦</div>
+                        <div class="shop-box-name">Легендарный</div>
+                        <div class="shop-box-desc">Гарантированная легендарка</div>
+                        <div class="shop-box-price" id="priceLegendary">
+                            <span>🪙</span><span>10000</span>
+                        </div>
+                        <button class="shop-buy-btn" data-buy="legendary">КУПИТЬ</button>
+                    </div>
+                    <div class="shop-box mythical">
+                        <div class="shop-box-icon">📦</div>
+                        <div class="shop-box-name">Мифический</div>
+                        <div class="shop-box-desc">Гарантированный мифик</div>
+                        <div class="shop-box-price" id="priceMythical">
+                            <span>🪙</span><span>50000</span>
+                        </div>
+                        <button class="shop-buy-btn" data-buy="mythical">КУПИТЬ</button>
+                    </div>
                 </div>
-                <div class="sell-total">
-                    <span class="label">Твой дубликаты:</span>
-                    <span class="value" id="sellTotalValue">0 🪙</span>
-                </div>
-                <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
             </div>
 
-            <div class="hint-box">
-                💡 Дубликат — это <b>всё сверх 1 штуки</b> каждого предмета. Продажа не затронет твою коллекцию.
+            <div class="shop-divider">или</div>
+
+            <!-- Продажа -->
+            <div class="shop-section">
+                <div class="shop-section-title">💰 Продать дубликаты</div>
+                <div class="sell-box">
+                    <div class="sell-values">
+                        <span class="rv">⚪ Обычный</span><span class="rp">1 🪙</span>
+                        <span class="rv">🔵 Редкий</span><span class="rp">5 🪙</span>
+                        <span class="rv">🟣 Эпический</span><span class="rp">20 🪙</span>
+                        <span class="rv">🟠 Легендарный</span><span class="rp">100 🪙</span>
+                        <span class="rv">🔴 Мифический</span><span class="rp">500 🪙</span>
+                    </div>
+                    <div class="sell-total">
+                        <span class="label">Всего за дубликаты:</span>
+                        <span class="value" id="sellTotalValue">0 🪙</span>
+                    </div>
+                    <button class="sell-btn" id="sellAllBtn" disabled>ПРОДАТЬ ВСЕ ДУБЛИКАТЫ</button>
+                </div>
             </div>
         </div>
     </div>
@@ -708,9 +853,16 @@
             common: 'rare', rare: 'epic', epic: 'legendary', legendary: 'mythical',
         };
 
-        // Курс продажи
         const SELL_VALUES = {
             common: 1, rare: 5, epic: 20, legendary: 100, mythical: 500,
+        };
+
+        // Цены ящиков (в монетах)
+        const BOX_PRICES = {
+            rare: 500,
+            epic: 2000,
+            legendary: 10000,
+            mythical: 50000,
         };
 
         const ELEMENT_HEROES = [
@@ -818,9 +970,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId, progressData: state }),
                 });
-            } catch (e) {
-                console.warn('Не удалось сохранить прогресс', e);
-            }
+            } catch (e) { console.warn('Не удалось сохранить прогресс', e); }
         }
 
         function getTotalResets() { return Object.values(state.resets).reduce((s, v) => s + v, 0); }
@@ -844,10 +994,7 @@
             authError.textContent = '';
             authError.classList.remove('success');
         }
-
-        function hideAuthScreen() {
-            authScreen.classList.remove('active');
-        }
+        function hideAuthScreen() { authScreen.classList.remove('active'); }
 
         authSwitchLink.addEventListener('click', () => {
             isLoginMode = !isLoginMode;
@@ -1018,7 +1165,7 @@
 
         function closeReveal() { document.getElementById('revealOverlay').classList.remove('active'); }
 
-        // ═══ ПРОДАЖА ДУБЛИКАТОВ ═══
+        // ═══ МАГАЗИН ═══
         function calcDuplicatesValue() {
             let total = 0;
             for (const catId of Object.keys(CATEGORIES)) {
@@ -1026,7 +1173,7 @@
                 const owned = state.owned[catId] || {};
                 heroes.forEach(h => {
                     const count = owned[h.id] || 0;
-                    const dup = Math.max(0, count - 1); // оставляем 1 для коллекции
+                    const dup = Math.max(0, count - 1);
                     if (dup > 0) total += dup * SELL_VALUES[h.rarity];
                 });
             }
@@ -1036,40 +1183,75 @@
         function sellAllDuplicates() {
             const total = calcDuplicatesValue();
             if (total === 0) return;
-
-            const catName = CATEGORIES[currentCategory].name;
-            if (!confirm(`Продать все дубликаты за ${total} 🪙?\n\nЭто не затронет твою коллекцию.`)) return;
+            if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
 
             for (const catId of Object.keys(CATEGORIES)) {
                 const heroes = CATEGORIES[catId].heroes;
                 const owned = state.owned[catId] || {};
                 heroes.forEach(h => {
                     const count = owned[h.id] || 0;
-                    if (count > 1) owned[h.id] = 1; // оставляем 1
+                    if (count > 1) owned[h.id] = 1;
                 });
             }
 
             state.coins += total;
             saveState();
 
-            document.getElementById('sellTotalValue').textContent = '0 🪙';
-            document.getElementById('sellAllBtn').disabled = true;
+            renderShopPanel();
             updateWallet();
+        }
+
+        function buyBoxOfRarity(rarity) {
+            const price = BOX_PRICES[rarity];
+            if (state.coins < price) return;
+
+            const catName = CATEGORIES[currentCategory].name;
+            if (!confirm(`Купить ${RARITY_NAMES[rarity].toLowerCase()} ящик за ${price} 🪙?\n\nПредмет будет из категории «${catName}».`)) return;
+
+            state.coins -= price;
+            const hero = pickHero(rarity);
+
+            state.opened[currentCategory]++;
+            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
+            saveState();
+
+            closeShopPanel();
+            showReveal(hero, false);
+            renderStats();
+            renderCollection();
             updateFabs();
+            updateWallet();
         }
 
-        function updateWallet() {
-            document.getElementById('walletCoins').textContent = state.coins;
-            document.getElementById('walletShards').textContent = state.shards;
-        }
-
-        function openShopPanel() {
+        function renderShopPanel() {
+            // Продажа
             const total = calcDuplicatesValue();
             document.getElementById('sellTotalValue').textContent = total + ' 🪙';
             document.getElementById('sellAllBtn').disabled = total === 0;
-            document.getElementById('shopOverlay').classList.add('active');
+
+            // Покупка ящиков — обновляем доступность кнопок
+            document.querySelectorAll('.shop-buy-btn').forEach(btn => {
+                const rarity = btn.dataset.buy;
+                const price = BOX_PRICES[rarity];
+                const canBuy = state.coins >= price;
+                const priceEl = btn.closest('.shop-box').querySelector('.shop-box-price');
+
+                if (canBuy) {
+                    btn.classList.add('can-buy');
+                    btn.disabled = false;
+                    priceEl.classList.remove('no-money');
+                } else {
+                    btn.classList.remove('can-buy');
+                    btn.disabled = true;
+                    priceEl.classList.add('no-money');
+                }
+            });
         }
 
+        function openShopPanel() {
+            renderShopPanel();
+            document.getElementById('shopOverlay').classList.add('active');
+        }
         function closeShopPanel() { document.getElementById('shopOverlay').classList.remove('active'); }
 
         // ═══ КРАФТ ═══
@@ -1234,8 +1416,7 @@
         function doReset() {
             const s = getResetStatus(currentCategory);
             if (!s.canReset) return;
-            const catName = CATEGORIES[currentCategory].name;
-            if (!confirm(`Ресет категории «${catName}»?`)) return;
+            if (!confirm(`Ресет категории «${CATEGORIES[currentCategory].name}»?`)) return;
 
             state.opened[currentCategory] = 0;
             state.owned[currentCategory] = {};
@@ -1326,6 +1507,11 @@
             updateWallet();
         }
 
+        function updateWallet() {
+            document.getElementById('walletCoins').textContent = state.coins;
+            document.getElementById('walletShards').textContent = state.shards;
+        }
+
         function switchCategory(cat) {
             if (cat === currentCategory) return;
             currentCategory = cat;
@@ -1347,11 +1533,17 @@
             if (e.target.id === 'craftOverlay') closeCraftPanel();
         });
 
+        document.getElementById('shopFab').addEventListener('click', openShopPanel);
         document.getElementById('shopX').addEventListener('click', closeShopPanel);
         document.getElementById('shopOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'shopOverlay') closeShopPanel();
         });
         document.getElementById('sellAllBtn').addEventListener('click', sellAllDuplicates);
+
+        // Кнопки покупки ящиков
+        document.querySelectorAll('.shop-buy-btn').forEach(btn => {
+            btn.addEventListener('click', () => buyBoxOfRarity(btn.dataset.buy));
+        });
 
         document.getElementById('revealClose').addEventListener('click', closeReveal);
         document.getElementById('revealX').addEventListener('click', closeReveal);
@@ -1376,9 +1568,6 @@
         } else {
             showAuthScreen();
         }
-
-        // Открытие магазина — добавляем кнопку на лету (пока отдельная)
-        // Позже добавим FAB
     </script>
 </body>
 </html>
