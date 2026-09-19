@@ -998,6 +998,153 @@
             border-radius: 8px;
             flex-shrink: 0;
         }
+                /* ═══ ЕЖЕДНЕВКА ═══ */
+        .daily-fab.ready {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #1a1a2e;
+            border-color: transparent;
+            box-shadow: 0 8px 24px rgba(74, 222, 128, 0.5);
+            animation: shakeReady 1.2s infinite;
+        }
+        .daily-fab.ready:hover { transform: translateY(-2px) scale(1.05); animation-play-state: paused; }
+
+        .daily-streak-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 900;
+        }
+        .daily-streak-bar .fire { font-size: 24px; }
+        .daily-streak-bar .streak-num {
+            font-size: 22px;
+            color: #4ade80;
+        }
+
+        .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .daily-cell {
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 4px;
+            text-align: center;
+            position: relative;
+            transition: all 0.15s;
+        }
+        .daily-cell.day-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 900;
+            padding: 6px 2px;
+        }
+        .daily-cell.claimed {
+            background: rgba(74, 222, 128, 0.08);
+            border-color: rgba(74, 222, 128, 0.3);
+            opacity: 0.6;
+        }
+        .daily-cell.claimed::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            color: #4ade80;
+            font-weight: 900;
+            font-size: 12px;
+        }
+        .daily-cell.today {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(34, 197, 94, 0.1));
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+            animation: todayPulse 2s ease-in-out infinite;
+        }
+        @keyframes todayPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(74, 222, 128, 0.8); }
+        }
+        .daily-cell.locked {
+            opacity: 0.4;
+        }
+        .daily-cell-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        .daily-cell-value {
+            font-size: 10px;
+            font-weight: 900;
+            color: #cbd5e1;
+            line-height: 1.1;
+        }
+        .daily-cell.today .daily-cell-value { color: #4ade80; }
+
+        .daily-claim-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 8px 24px rgba(74, 222, 128, 0.4);
+            transition: all 0.15s;
+            margin-bottom: 14px;
+        }
+        .daily-claim-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(74, 222, 128, 0.6);
+        }
+        .daily-claim-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .daily-milestone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-align: left;
+        }
+        .daily-milestone.unlocked {
+            border-color: rgba(74, 222, 128, 0.4);
+            background: rgba(74, 222, 128, 0.06);
+        }
+        .daily-milestone-icon { font-size: 20px; }
+        .daily-milestone-text { flex: 1; color: #cbd5e1; }
+        .daily-milestone-text b { color: #fff; }
+        .daily-milestone.unlocked .daily-milestone-text b { color: #4ade80; }
+
+        @media (max-width: 600px) {
+            .daily-cell { padding: 8px 2px; }
+            .daily-cell-icon { font-size: 16px; }
+            .daily-cell-value { font-size: 9px; }
+            .daily-cell.day-label { font-size: 9px; }
+            .daily-streak-bar { padding: 10px 12px; font-size: 12px; }
+            .daily-streak-bar .fire { font-size: 20px; }
+            .daily-streak-bar .streak-num { font-size: 18px; }
+        }
         /* Мобильный */
         @media (max-width: 600px) {
             .shard-row { grid-template-columns: 32px 1fr auto auto; padding: 8px 10px; gap: 6px; }
@@ -1091,6 +1238,10 @@
         </div>
     </div>
 
+    <button class="fab daily-fab" id="dailyFab" style="top: 318px;">
+        <span class="icon">🎁</span>
+        <span class="btn-text">ЕЖЕДНЕВКА</span>
+    </button>
     <button class="fab profile-fab" id="profileFab">
         <span class="icon">👤</span>
         <span class="btn-text">ПРОФИЛЬ</span>
@@ -1376,6 +1527,34 @@
             <div class="hint-box" id="cardPickerHint"></div>
         </div>
     </div>
+        <!-- МОДАЛКА ЕЖЕДНЕВКИ -->
+    <div class="overlay" id="dailyOverlay">
+        <div class="modal-card" id="dailyCard">
+            <button class="modal-x" id="dailyX">×</button>
+            <div class="modal-title">🎁 Ежедневная награда</div>
+            <div class="modal-sub">Заходи каждый день — получай награды</div>
+
+            <div class="daily-streak-bar">
+                <span class="fire">🔥</span>
+                <span>Серия:</span>
+                <span class="streak-num" id="dailyStreakNum">0</span>
+                <span>дн.</span>
+            </div>
+
+            <div class="daily-grid" id="dailyGrid"></div>
+
+            <button class="daily-claim-btn" id="dailyClaimBtn">ЗАБРАТЬ НАГРАДУ</button>
+
+            <div class="daily-milestone" id="milestone7">
+                <span class="daily-milestone-icon">🥈</span>
+                <span class="daily-milestone-text"><b>7 дней подряд</b> → Серебряная обводка</span>
+            </div>
+            <div class="daily-milestone" id="milestone30">
+                <span class="daily-milestone-icon">🥇</span>
+                <span class="daily-milestone-text"><b>30 дней подряд</b> → Золотая обводка + Мифический ящик</span>
+            </div>
+        </div>
+    </div>
     <div class="overlay" id="revealOverlay">
         <div class="reveal-card" id="revealCard">
             <button class="modal-x" id="revealX">×</button>
@@ -1416,7 +1595,27 @@
             { id: 'gold',    name: 'Золотая',    desc: 'За 30 дней подряд',          unlocked: false },
             { id: 'rainbow', name: 'Радужная',   desc: 'За 5 ресетов',               unlocked: false },
         ];
+                // ═══ ЕЖЕДНЕВНАЯ НАГРАДА ═══
+        const DAILY_REWARDS = [
+            { type: 'coins',        icon: '🪙', title: '100 монет',         amount: 100 },
+            { type: 'coins',        icon: '🪙', title: '250 монет',         amount: 250 },
+            { type: 'coins',        icon: '🪙', title: '500 монет',         amount: 500 },
+            { type: 'coins_shards', icon: '🎁', title: '200🪙 + 1💎',       coins: 200, shards: 1 },
+            { type: 'shards',       icon: '💎', title: '1 осколок',         amount: 1 },
+            { type: 'shards',       icon: '💎', title: '2 осколка',         amount: 2 },
+            { type: 'shards',       icon: '💎', title: '3 осколка',         amount: 3 },
+            { type: 'box',          icon: '📦', title: 'Редкий ящик',       boxRarity: 'rare' },
+            { type: 'box',          icon: '📦', title: 'Эпический ящик',    boxRarity: 'epic' },
+            { type: 'box',          icon: '📦', title: 'Легендарный ящик',  boxRarity: 'legendary' },
+            { type: 'boost',        icon: '🔵', title: 'Буст редких',       boostType: 'rare' },
+            { type: 'boost',        icon: '🟣', title: 'Буст эпик+',        boostType: 'epic' },
+            { type: 'frame',        icon: '🎨', title: 'Рамка «Золото»',    frameId: 'gold' },
+            { type: 'coins',        icon: '🪙', title: '1000 монет',        amount: 1000 },
+        ];
 
+        const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;   // 24 часа
+        const DAILY_STREAK_RESET = 48 * 60 * 60 * 1000; // 48 часов — сброс streak
+        const DAILY_CYCLE_LENGTH = DAILY_REWARDS.length; // 14
         const ELEMENT_HEROES = [
             { id: 'fire',  name: 'Огонь',  img: 'elements/fire.png',  rarity: 'common', desc: 'Пламя жизни' },
             { id: 'water', name: 'Вода',   img: 'elements/water.png', rarity: 'common', desc: 'Поток времени' },
@@ -1508,7 +1707,9 @@
             shards: 0,
             profile: { avatar: '🐱', frame: 'default', nickname: '' },
             boost: null,
+            daily: null,
         };
+
         let currentUserId = null;
         let currentUserEmail = '';
 
@@ -1525,6 +1726,7 @@
             if (!state.profile.frame) state.profile.frame = 'default';
             if (state.profile.nickname === undefined) state.profile.nickname = '';
             if (state.boost === undefined) state.boost = null;
+            if (state.daily === undefined) state.daily = null;
         }
 
         function loadState() {
@@ -1756,7 +1958,219 @@
                 renderBoostBanner();
             }
         }, 1000);
+                // ═══ ЕЖЕДНЕВНАЯ НАГРАДА — ЛОГИКА ═══
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
 
+        function initDailyIfNeeded() {
+            if (!state.daily) {
+                state.daily = {
+                    lastClaim: null,
+                    streak: 0,
+                    bag: shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]), // индексы наград
+                    position: 0,
+                };
+            }
+        }
+
+        function canClaimDaily() {
+            initDailyIfNeeded();
+            if (!state.daily.lastClaim) return true;
+            return Date.now() - state.daily.lastClaim >= DAILY_COOLDOWN;
+        }
+
+        function checkDailyStreak() {
+            initDailyIfNeeded();
+            const d = state.daily;
+            if (!d.lastClaim) return d.streak;
+            const timeSince = Date.now() - d.lastClaim;
+            // Если прошло больше 48 часов — сбрасываем streak
+            if (timeSince > DAILY_STREAK_RESET) {
+                return 0; // можно показать 0 или 1 после получения
+            }
+            return d.streak;
+        }
+
+        function getNextDailyReward() {
+            initDailyIfNeeded();
+            const d = state.daily;
+            const idx = d.bag[d.position];
+            return DAILY_REWARDS[idx];
+        }
+
+        function applyDailyReward(reward) {
+            switch (reward.type) {
+                case 'coins':
+                    state.coins += reward.amount;
+                    break;
+                case 'shards':
+                    state.shards += reward.amount;
+                    break;
+                case 'coins_shards':
+                    state.coins += reward.coins;
+                    state.shards += reward.shards;
+                    break;
+                case 'box':
+                    // Даём ящик сразу
+                    const hero = pickHero(reward.boxRarity);
+                    state.opened[currentCategory]++;
+                    state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
+                    // Показать выпавший предмет после закрытия ежедневки
+                    setTimeout(() => showReveal(hero, false), 400);
+                    break;
+                case 'boost':
+                    activateBoost(reward.boostType);
+                    break;
+                case 'frame':
+                    // Разблокируем обводку
+                    if (!state.unlockedFrames) state.unlockedFrames = [];
+                    if (!state.unlockedFrames.includes(reward.frameId)) {
+                        state.unlockedFrames.push(reward.frameId);
+                    }
+                    break;
+            }
+        }
+
+        function claimDailyReward() {
+            if (!canClaimDaily()) return;
+            initDailyIfNeeded();
+            const d = state.daily;
+
+            // Проверка streak
+            let newStreak = 1;
+            if (d.lastClaim && (Date.now() - d.lastClaim) <= DAILY_STREAK_RESET) {
+                newStreak = d.streak + 1;
+            }
+
+            const reward = getNextDailyReward();
+
+            // Применяем награду
+            applyDailyReward(reward);
+
+            // Обновляем streak и позицию
+            d.streak = newStreak;
+            d.lastClaim = Date.now();
+            d.position++;
+
+            // Если мешок опустошён — перемешиваем заново
+            if (d.position >= DAILY_CYCLE_LENGTH) {
+                d.bag = shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]);
+                d.position = 0;
+            }
+
+            // Проверка milestones
+            checkDailyMilestones(newStreak);
+
+            saveState();
+            renderDailyPanel();
+            renderAll();
+            updateDailyFab();
+        }
+
+        function checkDailyMilestones(streak) {
+            // 7 дней подряд → серебряная обводка
+            if (streak >= 7 && !isFrameUnlocked('silver')) {
+                if (!state.unlockedFrames) state.unlockedFrames = [];
+                if (!state.unlockedFrames.includes('silver')) {
+                    state.unlockedFrames.push('silver');
+                }
+            }
+            // 30 дней подряд → золотая обводка + мифический ящик
+            if (streak >= 30 && streak % 30 === 0) {
+                if (!state.unlockedFrames) state.unlockedFrames = [];
+                if (!state.unlockedFrames.includes('gold')) {
+                    state.unlockedFrames.push('gold');
+                }
+                // Бонус: мифический ящик
+                const hero = pickHero('mythical');
+                state.opened[currentCategory]++;
+                state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
+                setTimeout(() => showReveal(hero, false), 800);
+            }
+        }
+
+        // ═══ РЕНДЕР ПАНЕЛИ ЕЖЕДНЕВКИ ═══
+        function openDailyPanel() {
+            renderDailyPanel();
+            document.getElementById('dailyOverlay').classList.add('active');
+        }
+        function closeDailyPanel() {
+            document.getElementById('dailyOverlay').classList.remove('active');
+        }
+
+        function renderDailyPanel() {
+            initDailyIfNeeded();
+            const d = state.daily;
+            const streak = d.lastClaim ? (canClaimDaily() ? d.streak : d.streak) : d.streak;
+            document.getElementById('dailyStreakNum').textContent = d.streak;
+
+            // Сетка 7 дней: показываем текущую позицию в цикле
+            const gridEl = document.getElementById('dailyGrid');
+            const startPos = d.position;
+            let html = '';
+
+            // Заголовки дней
+            const dayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            for (let i = 0; i < 7; i++) {
+                html += `<div class="daily-cell day-label">${dayLabels[i]}</div>`;
+            }
+
+            // 7 наград (текущая + 6 будущих)
+            for (let i = 0; i < 7; i++) {
+                const bagIdx = (startPos + i) % DAILY_CYCLE_LENGTH;
+                const rewardIdx = d.bag[bagIdx];
+                const reward = DAILY_REWARDS[rewardIdx];
+                const isToday = i === 0 && canClaimDaily();
+                const isLocked = i > 0;
+
+                let cls = 'daily-cell';
+                if (isToday) cls += ' today';
+                else if (isLocked) cls += ' locked';
+
+                html += `
+                    <div class="${cls}">
+                        <div class="daily-cell-icon">${isLocked ? '🔒' : reward.icon}</div>
+                        <div class="daily-cell-value">${isLocked ? '???' : reward.title.split(' ')[0]}</div>
+                    </div>
+                `;
+            }
+            gridEl.innerHTML = html;
+
+            // Кнопка
+            const btn = document.getElementById('dailyClaimBtn');
+            if (canClaimDaily()) {
+                btn.textContent = 'ЗАБРАТЬ НАГРАДУ';
+                btn.disabled = false;
+            } else {
+                const timeLeft = DAILY_COOLDOWN - (Date.now() - d.lastClaim);
+                const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+                const mins = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                btn.textContent = `СЛЕДУЮЩАЯ ЧЕРЕЗ ${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`;
+                btn.disabled = true;
+            }
+
+            // Milestones
+            const m7 = document.getElementById('milestone7');
+            const m30 = document.getElementById('milestone30');
+            if (d.streak >= 7) m7.classList.add('unlocked'); else m7.classList.remove('unlocked');
+            if (d.streak >= 30) m30.classList.add('unlocked'); else m30.classList.remove('unlocked');
+        }
+
+        function updateDailyFab() {
+            const fab = document.getElementById('dailyFab');
+            if (!fab) return;
+            if (canClaimDaily()) {
+                fab.classList.add('ready');
+            } else {
+                fab.classList.remove('ready');
+            }
+        }
         function pickHero(rarity) {
             const heroes = getHeroes();
             const pool = heroes.filter(h => h.rarity === rarity);
@@ -2119,8 +2533,14 @@
 
         function isFrameUnlocked(frameId) {
             if (frameId === 'default') return true;
-            if (frameId === 'silver') return (state.dailyStreak || 0) >= 7;
-            if (frameId === 'gold') return (state.dailyStreak || 0) >= 30;
+            if (frameId === 'silver') {
+                if ((state.unlockedFrames || []).includes('silver')) return true;
+                return (state.daily && state.daily.streak >= 7);
+            }
+            if (frameId === 'gold') {
+                if ((state.unlockedFrames || []).includes('gold')) return true;
+                return (state.daily && state.daily.streak >= 30);
+            }
             if (frameId === 'rainbow') return getTotalResets() >= 5;
             return false;
         }
@@ -2369,7 +2789,7 @@
             document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
         }
 
-     function renderAll() {
+        function renderAll() {
             renderTabs();
             renderBox();
             renderStats();
@@ -2377,6 +2797,7 @@
             updateFabs();
             updateWallet();
             renderBoostBanner();
+            updateDailyFab();
         }
 
         function updateWallet() {
@@ -2443,6 +2864,12 @@
             if (e.target.id === 'revealOverlay') closeReveal();
         });
 
+        document.getElementById('dailyFab').addEventListener('click', openDailyPanel);
+        document.getElementById('dailyX').addEventListener('click', closeDailyPanel);
+        document.getElementById('dailyOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'dailyOverlay') closeDailyPanel();
+        });
+        document.getElementById('dailyClaimBtn').addEventListener('click', claimDailyReward);
         document.getElementById('logoutFab').addEventListener('click', logout);
 
         // ─── Никнейм ───
@@ -2487,11 +2914,15 @@
         if (savedUserId) {
             currentUserId = savedUserId;
             currentUserEmail = savedEmail || '';
+            initDailyIfNeeded();
             renderAll();
             renderBoostBanner();
+            updateDailyFab();
             loadProgressFromServer().then(() => {
+                initDailyIfNeeded();
                 renderAll();
                 renderBoostBanner();
+                updateDailyFab();
             });
         } else {
             showAuthScreen();
