@@ -2856,24 +2856,48 @@
         document.getElementById('logoutFab').addEventListener('click', logout);
 
         // ─── Никнейм ───
-        document.getElementById('nicknameSaveBtn').addEventListener('click', () => {
-            const input = document.getElementById('nicknameInput');
-            const errEl = document.getElementById('nicknameError');
-            const val = input.value.trim();
-            errEl.classList.remove('success');
+       document.getElementById('nicknameSaveBtn').addEventListener('click', async () => {
+    const input = document.getElementById('nicknameInput');
+    const errEl = document.getElementById('nicknameError');
+    const btn = document.getElementById('nicknameSaveBtn');
+    const val = input.value.trim();
+    errEl.classList.remove('success');
 
-            if (!val) { errEl.textContent = 'Ник не может быть пустым'; return; }
-            if (val.length < 3) { errEl.textContent = 'Минимум 3 символа'; return; }
-            if (val.length > 20) { errEl.textContent = 'Максимум 20 символов'; return; }
-            if (!/^[a-zA-Z0-9_]+$/.test(val)) { errEl.textContent = 'Только латиница, цифры и _'; return; }
+    if (!val) { errEl.textContent = 'Ник не может быть пустым'; return; }
+    if (val.length < 3) { errEl.textContent = 'Минимум 3 символа'; return; }
+    if (val.length > 20) { errEl.textContent = 'Максимум 20 символов'; return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(val)) { errEl.textContent = 'Только латиница, цифры и _'; return; }
 
-            state.profile.nickname = val;
-            saveState();
-            renderProfilePanel();
-            errEl.classList.add('success');
-            errEl.textContent = 'Ник сохранён!';
-            setTimeout(() => { errEl.textContent = ''; errEl.classList.remove('success'); }, 2000);
+    btn.disabled = true;
+    const oldText = btn.textContent;
+    btn.textContent = '...';
+
+    try {
+        const res = await fetch(WORKER_URL + '/api/set-nickname', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId, nickname: val }),
         });
+        const data = await res.json();
+
+        if (!res.ok) {
+            errEl.textContent = data.error || 'Не удалось сохранить ник';
+            return;
+        }
+
+        state.profile.nickname = data.nickname;
+        saveState();
+        renderProfilePanel();
+        errEl.classList.add('success');
+        errEl.textContent = 'Ник сохранён!';
+        setTimeout(() => { errEl.textContent = ''; errEl.classList.remove('success'); }, 2000);
+    } catch (e) {
+        errEl.textContent = 'Ошибка соединения с сервером';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+    }
+});
 
         document.getElementById('nicknameInput').addEventListener('input', () => {
             const errEl = document.getElementById('nicknameError');
