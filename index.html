@@ -948,7 +948,56 @@
             border-radius: 4px;
             font-weight: 900;
         }
-
+                /* ═══ БУСТ ═══ */
+        .boost-banner {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(124, 58, 237, 0.15));
+            border: 2px solid rgba(168, 85, 247, 0.5);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+            animation: boostPulse 2s ease-in-out infinite;
+        }
+        .boost-banner.active {
+            display: flex;
+        }
+        @keyframes boostPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.3); }
+            50% { box-shadow: 0 0 45px rgba(168, 85, 247, 0.6); }
+        }
+        .boost-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        .boost-info {
+            flex: 1;
+            text-align: left;
+        }
+        .boost-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #c084fc;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .boost-desc {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .boost-timer {
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
         /* Мобильный */
         @media (max-width: 600px) {
             .shard-row { grid-template-columns: 32px 1fr auto auto; padding: 8px 10px; gap: 6px; }
@@ -1007,6 +1056,11 @@
             .avatar-option { font-size: 20px; border-radius: 10px; }
             .profile-stat-value { font-size: 18px; }
             .profile-stat-label { font-size: 9px; }
+            .boost-banner { padding: 10px 12px; gap: 8px; }
+            .boost-icon { font-size: 24px; }
+            .boost-title { font-size: 12px; }
+            .boost-desc { font-size: 10px; }
+            .boost-timer { font-size: 16px; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -1083,6 +1137,15 @@
                 <div class="stat-value" id="statResets">0</div>
                 <div class="stat-label">Ресетов</div>
             </div>
+        </div>
+
+                <div class="boost-banner" id="boostBanner">
+            <div class="boost-icon" id="boostIcon">⚡</div>
+            <div class="boost-info">
+                <div class="boost-title" id="boostTitle">Буст активен</div>
+                <div class="boost-desc" id="boostDesc">Усиление шансов</div>
+            </div>
+            <div class="boost-timer" id="boostTimer">00:00</div>
         </div>
 
         <div class="open-zone">
@@ -1406,6 +1469,24 @@
         };
 
         const RARITY_CHANCES = { common: 50, rare: 25, epic: 15, legendary: 8, mythical: 2 };
+                const BOOST_CHANCES = {
+            rare: { common: 35, rare: 40, epic: 15, legendary: 8, mythical: 2 },
+            epic: { common: 40, rare: 23, epic: 22, legendary: 12, mythical: 3 },
+        };
+        const BOOST_INFO = {
+            rare: {
+                icon: '🔵',
+                title: 'Буст редких',
+                desc: '+30% к шансу редких на 1 час',
+                duration: 60 * 60 * 1000,
+            },
+            epic: {
+                icon: '🟣',
+                title: 'Буст эпик+',
+                desc: '+50% к шансу эпических и выше на 1 час',
+                duration: 60 * 60 * 1000,
+            },
+        };
         const RARITY_NAMES = {
             common: 'Обычный', rare: 'Редкий', epic: 'Эпический',
             legendary: 'Легендарный', mythical: 'Мифический',
@@ -1426,6 +1507,7 @@
             coins: 0,
             shards: 0,
             profile: { avatar: '🐱', frame: 'default', nickname: '' },
+            boost: null,
         };
         let currentUserId = null;
         let currentUserEmail = '';
@@ -1442,6 +1524,7 @@
             if (!state.profile.avatar) state.profile.avatar = '🐱';
             if (!state.profile.frame) state.profile.frame = 'default';
             if (state.profile.nickname === undefined) state.profile.nickname = '';
+            if (state.boost === undefined) state.boost = null;
         }
 
         function loadState() {
@@ -1592,15 +1675,87 @@
         }
 
         // ═══ ИГРА ═══
+               function getCurrentChances() {
+            if (state.boost && state.boost.expiresAt > Date.now()) {
+                return BOOST_CHANCES[state.boost.type] || RARITY_CHANCES;
+            }
+            return RARITY_CHANCES;
+        }
+
         function rollRarity() {
+            const chances = getCurrentChances();
             const roll = Math.random() * 100;
             let acc = 0;
-            for (const [rarity, chance] of Object.entries(RARITY_CHANCES)) {
+            for (const [rarity, chance] of Object.entries(chances)) {
                 acc += chance;
                 if (roll < acc) return rarity;
             }
             return 'common';
         }
+
+        // ═══ БУСТЫ ═══
+        function activateBoost(type) {
+            const info = BOOST_INFO[type];
+            if (!info) return;
+            state.boost = {
+                type: type,
+                expiresAt: Date.now() + info.duration,
+            };
+            saveState();
+            renderBoostBanner();
+        }
+
+        function renderBoostBanner() {
+            const banner = document.getElementById('boostBanner');
+            if (!banner) return;
+
+            const boost = state.boost;
+            if (!boost || boost.expiresAt <= Date.now()) {
+                banner.classList.remove('active');
+                state.boost = null;
+                return;
+            }
+
+            const info = BOOST_INFO[boost.type];
+            if (!info) {
+                banner.classList.remove('active');
+                return;
+            }
+
+            document.getElementById('boostIcon').textContent = info.icon;
+            document.getElementById('boostTitle').textContent = info.title;
+            document.getElementById('boostDesc').textContent = info.desc;
+            banner.classList.add('active');
+            updateBoostTimer();
+        }
+
+        function updateBoostTimer() {
+            const timerEl = document.getElementById('boostTimer');
+            if (!timerEl) return;
+
+            const boost = state.boost;
+            if (!boost || boost.expiresAt <= Date.now()) {
+                document.getElementById('boostBanner').classList.remove('active');
+                return;
+            }
+
+            const remaining = boost.expiresAt - Date.now();
+            const totalSec = Math.floor(remaining / 1000);
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+
+        // Обновление таймера каждую секунду
+        setInterval(() => {
+            if (state.boost && state.boost.expiresAt > Date.now()) {
+                updateBoostTimer();
+            } else if (state.boost && state.boost.expiresAt <= Date.now()) {
+                state.boost = null;
+                saveState();
+                renderBoostBanner();
+            }
+        }, 1000);
 
         function pickHero(rarity) {
             const heroes = getHeroes();
@@ -2214,13 +2369,14 @@
             document.getElementById('boxVisual').textContent = CATEGORIES[currentCategory].boxEmoji;
         }
 
-        function renderAll() {
+     function renderAll() {
             renderTabs();
             renderBox();
             renderStats();
             renderCollection();
             updateFabs();
             updateWallet();
+            renderBoostBanner();
         }
 
         function updateWallet() {
@@ -2274,7 +2430,7 @@
         document.getElementById('cardPickerOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'cardPickerOverlay') closeCardPicker();
         });
-        
+
         document.getElementById('profileFab').addEventListener('click', openProfilePanel);
         document.getElementById('profileX').addEventListener('click', closeProfilePanel);
         document.getElementById('profileOverlay').addEventListener('click', (e) => {
@@ -2325,14 +2481,18 @@
         });
 
         // ═══ СТАРТ ═══
-        loadState();
+               loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
         const savedEmail = localStorage.getItem('boxes_user_email');
         if (savedUserId) {
             currentUserId = savedUserId;
             currentUserEmail = savedEmail || '';
             renderAll();
-            loadProgressFromServer().then(renderAll);
+            renderBoostBanner();
+            loadProgressFromServer().then(() => {
+                renderAll();
+                renderBoostBanner();
+            });
         } else {
             showAuthScreen();
         }
