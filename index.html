@@ -1668,7 +1668,7 @@
         <div class="modal-card" id="leaderCard">
             <button class="modal-x" id="leaderX">×</button>
             <div class="modal-title">🏆 Лидеры</div>
-            <div class="modal-sub">Топ-50 игроков по собранным предметам</div>
+            <div class="modal-sub">Топ-50 игроков по ресетам</div>
             <div class="leader-list" id="leaderList">
                 <div class="loading">Загрузка...</div>
             </div>
@@ -2388,17 +2388,14 @@
                     const frameClass = 'frame-' + (p.frame || 'default');
 
                     return `
-                        <div class="leader-row ${rankClass} ${meClass}">
-                            <div class="leader-rank">${rank}</div>
-                            <div class="leader-avatar ${frameClass}">${p.avatar || '🐱'}</div>
-                            <div class="leader-info">
-                                <div class="leader-nick">${p.nickname}</div>
-                                <div class="leader-stats">Открыто: ${p.total_opened || 0}</div>
-                            </div>
-                            <div class="leader-count">
-                                ${p.total_collected || 0}
-                                <small>собрано</small>
-                            </div>
+                        <div class="leader-info">
+                             <div class="leader-nick">${p.nickname}</div>
+                             <div class="leader-stats">Открыто: ${p.total_opened || 0} · Собрано: ${p.total_collected || 0}</div>
+                        </div>
+                        <div class="leader-count">
+                             ${p.total_resets || 0}
+                             <small>ресетов</small>
+                        </div>
                         </div>
                     `;
                 }).join('');
