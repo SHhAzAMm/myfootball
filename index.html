@@ -2075,6 +2075,29 @@
 
     return out;
 }
+        async function loadProgressFromServer() {
+            if (!currentUserId) return;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/progress`, {
+                    method: 'GET',
+                    headers: getAuthHeaders(),
+                });
+                if (handleAuthError(res)) return;
+                if (res.ok) {
+                    const serverState = await res.json();
+                    if (serverState && typeof serverState === 'object' && serverState.owned) {
+                        state = mergeStates(state, serverState);
+                        initState();
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                        saveState();
+                    } else {
+                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' }, unlockedFrames: [] };
+                        initState();
+                        saveState();
+                    }
+                }
+            } catch (e) { console.warn('Не удалось загрузить прогресс', e); }
+        }
 
         async function logout() {
             if (!confirm('Выйти из аккаунта? Прогресс сохранён на сервере.')) return;
@@ -2415,7 +2438,7 @@
                     return;
                 }
 
-                const myNick = state.profile.nickname || '';
+                    const myNick = state.profile.nickname || '';
 
                 list.innerHTML = leaders.map((p, i) => {
                     const rank = i + 1;
@@ -2424,14 +2447,17 @@
                     const frameClass = 'frame-' + (p.frame || 'default');
 
                     return `
-                        <div class="leader-info">
-                             <div class="leader-nick">${p.nickname}</div>
-                             <div class="leader-stats">Открыто: ${p.total_opened || 0} · Собрано: ${p.total_collected || 0}</div>
-                        </div>
-                        <div class="leader-count">
-                             ${p.total_resets || 0}
-                             <small>ресетов</small>
-                        </div>
+                        <div class="leader-row ${rankClass} ${meClass}">
+                            <div class="leader-rank">${rank}</div>
+                            <div class="leader-avatar ${frameClass}">${p.avatar || '🐱'}</div>
+                            <div class="leader-info">
+                                <div class="leader-nick">${p.nickname}</div>
+                                <div class="leader-stats">Открыто: ${p.total_opened || 0} · Собрано: ${p.total_collected || 0}</div>
+                            </div>
+                            <div class="leader-count">
+                                ${p.total_resets || 0}
+                                <small>ресетов</small>
+                            </div>
                         </div>
                     `;
                 }).join('');
