@@ -282,15 +282,17 @@ export default {
         // Агрегаты + профиль для лидерборда
         const totalOpened = Object.values(clean.opened).reduce((s, v) => s + (v || 0), 0);
         const totalCollected = Object.values(clean.owned).reduce((s, obj) => s + Object.keys(obj).length, 0);
+        const totalResets = Object.values(clean.resets).reduce((s, v) => s + (v || 0), 0);
         await env.DB.prepare(
-          'UPDATE users SET total_opened = ?, total_collected = ?, avatar = ?, frame = ? WHERE id = ?'
-        ).bind(
-          totalOpened,
-          totalCollected,
-          clean.profile.avatar || '🐱',
-          clean.profile.frame || 'default',
-          session.userId
-        ).run();
+          'UPDATE users SET total_opened = ?, total_collected = ?, total_resets = ?, avatar = ?, frame = ? WHERE id = ?'
+      ).bind(
+         totalOpened,
+         totalCollected,
+         totalResets,
+         clean.profile.avatar || '🐱',
+         clean.profile.frame || 'default',
+         session.userId
+      ).run();
 
         return json({ message: 'Прогресс сохранён' }, 200, corsHeaders);
       }
@@ -339,15 +341,15 @@ export default {
 
       // ═══ ЛИДЕРБОРД ═══
       if (path === '/api/leaderboard' && method === 'GET') {
-        const result = await env.DB.prepare(
-          `SELECT nickname, avatar, frame, total_opened, total_collected
-           FROM users
-           WHERE nickname IS NOT NULL AND nickname != ''
-           ORDER BY total_collected DESC, total_opened DESC
-           LIMIT 50`
-        ).all();
-        return json({ leaders: result.results || [] }, 200, corsHeaders);
-      }
+  const result = await env.DB.prepare(
+    `SELECT nickname, avatar, frame, total_opened, total_collected, total_resets
+     FROM users
+     WHERE nickname IS NOT NULL AND nickname != ''
+     ORDER BY total_resets DESC, total_collected DESC, total_opened DESC
+     LIMIT 50`
+  ).all();
+  return json({ leaders: result.results || [] }, 200, corsHeaders);
+}
 
       // ═══ ПРОВЕРКА СЕРВЕРА ═══
       if (path === '/api/ping') {
