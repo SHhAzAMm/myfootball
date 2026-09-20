@@ -1782,10 +1782,42 @@
             { id: 'onyx', name: 'Оникс', img: 'stones/onyx.png', rarity: 'common', desc: 'Чёрный камень' },
             { id: 'pyrite', name: 'Пирит', img: 'stones/pyrite.png', rarity: 'common', desc: 'Золото дураков' },
         ];
+                const EQUIPMENT_HEROES = [
+            // ═══ Обычные ═══
+            { id: 'daggers',    name: 'Кинжалы',     img: 'weapons/daggers.png',    rarity: 'common', desc: 'Быстрые и скрытные' },
+            { id: 'machete',    name: 'Мачете',      img: 'weapons/machete.png',    rarity: 'common', desc: 'Тесак джунглей' },
+            { id: 'nunchaku',   name: 'Нунчаки',     img: 'weapons/nunchaku.png',   rarity: 'common', desc: 'Оружие монахов' },
+            { id: 'shuriken',   name: 'Сюрикен',     img: 'weapons/shuriken.png',   rarity: 'common', desc: 'Метательная звезда' },
+            { id: 'wood',       name: 'Дубина',      img: 'weapons/wood.png',       rarity: 'common', desc: 'Просто и надёжно' },
+
+            // ═══ Редкие ═══
+            { id: 'bow',        name: 'Лук',         img: 'weapons/bow.png',        rarity: 'rare', desc: 'Меткий выстрел' },
+            { id: 'crossbow',   name: 'Арбалет',     img: 'weapons/crossbow.png',   rarity: 'rare', desc: 'Пробивает броню' },
+            { id: 'slingshot',  name: 'Рогатка',     img: 'weapons/slingshot.png',  rarity: 'rare', desc: 'Просто и метко' },
+            { id: 'spear',      name: 'Копьё',       img: 'weapons/spear.png',      rarity: 'rare', desc: 'Дальний удар' },
+
+            // ═══ Эпические ═══
+            { id: 'axe',        name: 'Топор',       img: 'weapons/axe.png',        rarity: 'epic', desc: 'Дровосек войны' },
+            { id: 'hammer',     name: 'Молот',       img: 'weapons/hammer.png',     rarity: 'epic', desc: 'Сокрушает всё' },
+            { id: 'katana',     name: 'Катана',      img: 'weapons/katana.png',     rarity: 'epic', desc: 'Путь самурая' },
+            { id: 'saber',      name: 'Сабля',       img: 'weapons/saber.png',      rarity: 'epic', desc: 'Клинок кавалерии' },
+            { id: 'morgenstern',name: 'Моргенштерн', img: 'weapons/morgenstern.png',rarity: 'epic', desc: 'Утренняя звезда' },
+
+            // ═══ Легендарные ═══
+            { id: 'sword',      name: 'Меч',         img: 'weapons/sword.png',      rarity: 'legendary', desc: 'Классика воинов' },
+            { id: 'staff',      name: 'Посох',       img: 'weapons/stick.png',      rarity: 'legendary', desc: 'Магия в руках' },
+            { id: 'chainmail',  name: 'Кольчуга',    img: 'weapons/chainmail.png',  rarity: 'legendary', desc: 'Защита воина' },
+            { id: 'shield',     name: 'Щит',         img: 'weapons/shield.png',     rarity: 'legendary', desc: 'Надёжная защита' },
+            { id: 'helmet',     name: 'Шлем',        img: 'weapons/helmet.png',     rarity: 'legendary', desc: 'Голова под защитой' },
+
+            // ═══ Мифические ═══
+            { id: 'crown',      name: 'Корона',      img: 'weapons/crown.png',      rarity: 'mythical', desc: 'Власть королей' },
+        ];
 
         const CATEGORIES = {
-            elements: { name: 'Элементы', boxEmoji: '🌋', heroes: ELEMENT_HEROES, unlockResets: 0 },
-            gems:     { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES, unlockResets: 0 },
+            elements:  { name: 'Элементы', boxEmoji: '🌋', heroes: ELEMENT_HEROES,   unlockResets: 0 },
+            gems:      { name: 'Драгоценные камни', boxEmoji: '💎', heroes: GEM_HEROES, unlockResets: 0 },
+            equipment: { name: 'Снаряжение', boxEmoji: '🛡️', heroes: EQUIPMENT_HEROES, unlockResets: 0 },
         };
 
         const RARITY_CHANCES = { common: 50, rare: 25, epic: 15, legendary: 8, mythical: 2 };
@@ -2705,10 +2737,13 @@
             } else {
                 gridEl.innerHTML = pool.map(h => {
                     const cnt = owned[h.id] || 0;
+                    const visual = h.img
+                        ? `<img src="${h.img}" alt="" draggable="false" onerror="this.style.display='none'">`
+                        : `<div style="font-size: 40px; margin-bottom: 4px; line-height: 1;">${h.emoji || '❓'}</div>`;
                     return `
                         <div class="card-picker-item ${cnt > 0 ? 'owned' : ''}" data-id="${h.id}">
                             ${cnt > 0 ? `<div class="card-picker-item-owned">×${cnt}</div>` : ''}
-                            ${h.img ? `<img src="${h.img}" alt="" draggable="false">` : ''}
+                            ${visual}
                             <div class="card-picker-item-name">${h.name}</div>
                         </div>
                     `;
