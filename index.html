@@ -2017,28 +2017,64 @@
             el.addEventListener('keydown', (e) => { if (e.key === 'Enter') authSubmitBtn.click(); });
         });
 
-        async function loadProgressFromServer() {
-            if (!currentUserId) return;
-            try {
-                const res = await fetch(`${WORKER_URL}/api/progress`, {
-                    method: 'GET',
-                    headers: getAuthHeaders(),
-                });
-                if (handleAuthError(res)) return;
-                if (res.ok) {
-                    const serverState = await res.json();
-                    if (serverState && typeof serverState === 'object' && serverState.owned) {
-                        state = serverState;
-                        initState();
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    } else {
-                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' }, unlockedFrames: [] };
-                        initState();
-                        saveState();
-                    }
-                }
-            } catch (e) { console.warn('Не удалось загрузить прогресс', e); }
+        function mergeStates(local, server) {
+    // За основу берём сервер (у него свежие монеты/осколки/профиль)
+    const out = {
+        opened: {},
+        owned: {},
+        resets: {},
+        coins: server.coins || 0,
+        shards: server.shards || 0,
+        profile: { ...local.profile, ...(server.profile || {}) },
+        boost: server.boost || null,
+        daily: server.daily || null,
+        unlockedFrames: server.unlockedFrames || [],
+    };
+
+    // По счётчикам берём МАКСИМУМ — они только растут, потерять нельзя
+    for (const cat of Object.keys(CATEGORIES)) {
+        out.opened[cat] = Math.max(
+            (local.opened && local.opened[cat]) || 0,
+            (server.opened && server.opened[cat]) || 0
+        );
+        out.resets[cat] = Math.max(
+            (local.resets && local.resets[cat]) || 0,
+            (server.resets && server.resets[cat]) || 0
+        );
+        out.owned[cat] = {};
+        const lOwned = (local.owned && local.owned[cat]) || {};
+        const sOwned = (server.owned && server.owned[cat]) || {};
+        const allIds = new Set([...Object.keys(lOwned), ...Object.keys(sOwned)]);
+        for (const id of allIds) {
+            out.owned[cat][id] = Math.max(lOwned[id] || 0, sOwned[id] || 0);
         }
+    }
+
+    // Ник — всегда серверный (authoritative)
+    if (server.profile && server.profile.nickname) {
+        out.profile.nickname = server.profile.nickname;
+    }
+
+    // Рамки — объединяем (union)
+    const frames = new Set([...(local.unlockedFrames || []), ...(server.unlockedFrames || [])]);
+    out.unlockedFrames = [...frames];
+
+    // Буст — тот, что дольше действует
+    if (local.boost && server.boost) {
+        out.boost = (local.boost.expiresAt || 0) > (server.boost.expiresAt || 0) ? local.boost : server.boost;
+    } else {
+        out.boost = local.boost || server.boost || null;
+    }
+
+    // Ежедневка — та, где последний клейм позже
+    if (local.daily && server.daily) {
+        out.daily = (local.daily.lastClaim || 0) > (server.daily.lastClaim || 0) ? local.daily : server.daily;
+    } else {
+        out.daily = local.daily || server.daily || null;
+    }
+
+    return out;
+}
 
         async function logout() {
             if (!confirm('Выйти из аккаунта? Прогресс сохранён на сервере.')) return;
@@ -3178,7 +3214,6 @@
     currentUserId = savedUserId;
     currentUserEmail = savedEmail || '';
     initDailyIfNeeded();
-    saveState();
     renderAll();
     loadProgressFromServer().then(() => {
         initDailyIfNeeded();
