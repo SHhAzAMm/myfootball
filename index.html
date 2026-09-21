@@ -1924,10 +1924,18 @@
             saveTimer = setTimeout(async () => {
                 saveTimer = null;
                 try {
+                    const clientData = {
+                        coins: state.coins,
+                        shards: state.shards,
+                        profile: state.profile,
+                        boost: state.boost,
+                        daily: state.daily,
+                        unlockedFrames: state.unlockedFrames,
+                    };
                     const res = await fetch(`${WORKER_URL}/api/progress`, {
                         method: 'POST',
                         headers: getAuthHeaders(),
-                        body: JSON.stringify({ progressData: state }),
+                        body: JSON.stringify({ progressData: clientData }),
                     });
                     handleAuthError(res);
                 } catch (e) { console.warn('Не удалось сохранить прогресс', e); }
@@ -1942,8 +1950,16 @@
             saveTimer = null;
             try {
                 const token = localStorage.getItem('boxes_auth_token');
+                const clientData = {
+                    coins: state.coins,
+                    shards: state.shards,
+                    profile: state.profile,
+                    boost: state.boost,
+                    daily: state.daily,
+                    unlockedFrames: state.unlockedFrames,
+                };
                 const blob = new Blob(
-                    [JSON.stringify({ progressData: state, token: token })],
+                    [JSON.stringify({ progressData: clientData, token: token })],
                     { type: 'application/json' }
                 );
                 navigator.sendBeacon(`${WORKER_URL}/api/progress`, blob);
@@ -2064,23 +2080,11 @@
     };
 
     // По счётчикам берём МАКСИМУМ — они только растут, потерять нельзя
-    for (const cat of Object.keys(CATEGORIES)) {
-        out.opened[cat] = Math.max(
-            (local.opened && local.opened[cat]) || 0,
-            (server.opened && server.opened[cat]) || 0
-        );
-        out.resets[cat] = Math.max(
-            (local.resets && local.resets[cat]) || 0,
-            (server.resets && server.resets[cat]) || 0
-        );
-        out.owned[cat] = {};
-        const lOwned = (local.owned && local.owned[cat]) || {};
-        const sOwned = (server.owned && server.owned[cat]) || {};
-        const allIds = new Set([...Object.keys(lOwned), ...Object.keys(sOwned)]);
-        for (const id of allIds) {
-            out.owned[cat][id] = Math.max(lOwned[id] || 0, sOwned[id] || 0);
-        }
-    }
+        for (const cat of Object.keys(CATEGORIES)) {
+            out.opened[cat] = (server.opened && server.opened[cat]) || 0;
+            out.resets[cat] = (server.resets && server.resets[cat]) || 0;
+             out.owned[cat] = { ...((server.owned && server.owned[cat]) || {}) };
+         }
 
     // Ник — всегда серверный (authoritative)
     if (server.profile && server.profile.nickname) {
@@ -2510,16 +2514,45 @@
             const box = document.getElementById('boxVisual');
             btn.disabled = true;
             box.classList.add('shaking');
+
+            let result;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/open-box`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ category: currentCategory }),
+                });
+                if (handleAuthError(res)) {
+                    box.classList.remove('shaking');
+                    btn.disabled = false;
+                    return;
+                }
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    box.classList.remove('shaking');
+                    btn.disabled = false;
+                    alert(err.error || 'Не удалось открыть бокс');
+                    return;
+                }
+                result = await res.json();
+            } catch (e) {
+                box.classList.remove('shaking');
+                btn.disabled = false;
+                alert('Ошибка соединения с сервером');
+                return;
+            }
+
             await new Promise(r => setTimeout(r, 900));
             box.classList.remove('shaking');
 
-            const rarity = rollRarity();
-            const hero = pickHero(rarity);
-            state.opened[currentCategory]++;
-            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
-            saveState();
+            state.opened[currentCategory] = (state.opened[currentCategory] || 0) + 1;
+            if (!state.owned[currentCategory]) state.owned[currentCategory] = {};
+            state.owned[currentCategory][result.itemId] = (state.owned[currentCategory][result.itemId] || 0) + 1;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-            showReveal(hero, false);
+            const hero = getHeroes().find(h => h.id === result.itemId);
+            if (hero) showReveal(hero, false);
+
             renderStats();
             renderCollection();
             updateFabs();
@@ -3033,17 +3066,33 @@
 
         function closeResetPanel() { document.getElementById('resetOverlay').classList.remove('active'); }
 
-        function doReset() {
+        async function doReset() {
             const s = getResetStatus(currentCategory);
             if (!s.canReset) return;
             if (!confirm(`Ресет категории «${CATEGORIES[currentCategory].name}»?`)) return;
 
-            state.opened[currentCategory] = 0;
-            state.owned[currentCategory] = {};
-            state.resets[currentCategory]++;
-            saveState();
-            closeResetPanel();
-            renderAll();
+            try {
+                const res = await fetch(`${WORKER_URL}/api/reset`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ category: currentCategory }),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось сделать ресет');
+                    return;
+                }
+                const data = await res.json();
+                state.resets = data.resets;
+                state.owned = data.owned;
+                state.opened = data.opened;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                closeResetPanel();
+                renderAll();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
         }
 
         // ═══ РЕНДЕР ═══
