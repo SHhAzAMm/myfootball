@@ -1925,8 +1925,6 @@
                 saveTimer = null;
                 try {
                     const clientData = {
-                        coins: state.coins,
-                        shards: state.shards,
                         profile: state.profile,
                         boost: state.boost,
                         daily: state.daily,
@@ -1951,8 +1949,6 @@
             try {
                 const token = localStorage.getItem('boxes_auth_token');
                 const clientData = {
-                    coins: state.coins,
-                    shards: state.shards,
                     profile: state.profile,
                     boost: state.boost,
                     daily: state.daily,
@@ -2095,12 +2091,8 @@
     const frames = new Set([...(local.unlockedFrames || []), ...(server.unlockedFrames || [])]);
     out.unlockedFrames = [...frames];
 
-    // Буст — тот, что дольше действует
-    if (local.boost && server.boost) {
-        out.boost = (local.boost.expiresAt || 0) > (server.boost.expiresAt || 0) ? local.boost : server.boost;
-    } else {
-        out.boost = local.boost || server.boost || null;
-    }
+    // Буст — только серверный
+    out.boost = server.boost || null;
 
     // Ежедневка — та, где последний клейм позже
     if (local.daily && server.daily) {
@@ -2607,28 +2599,44 @@
             return total;
         }
 
-        function sellAllDuplicates() {
+        async function sellAllDuplicates() {
             const total = calcDuplicatesValue();
             if (total === 0) return;
             if (!confirm(`Продать все дубликаты за ${total} 🪙?`)) return;
 
-            for (const catId of Object.keys(CATEGORIES)) {
-                const heroes = CATEGORIES[catId].heroes;
-                const owned = state.owned[catId] || {};
-                heroes.forEach(h => {
-                    const count = owned[h.id] || 0;
-                    if (count > 1) owned[h.id] = 1;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/sell`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({}),
                 });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось продать дубликаты');
+                    return;
+                }
+                const data = await res.json();
+
+                // Обновляем локальный state — все дубликаты стали ×1
+                for (const catId of Object.keys(CATEGORIES)) {
+                    const owned = state.owned[catId] || {};
+                    for (const id of Object.keys(owned)) {
+                        if (owned[id] > 1) owned[id] = 1;
+                    }
+                }
+                state.coins = data.coins;
+                state.shards = data.shards;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+                renderShopPanel();
+                updateWallet();
+                renderStats();
+                renderCollection();
+                updateFabs();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
             }
-
-            state.coins += total;
-            saveState();
-
-            renderShopPanel();
-            updateWallet();
-            renderStats();
-            renderCollection();
-            updateFabs();
         }
 
         function buyBoxOfRarity(rarity) {
