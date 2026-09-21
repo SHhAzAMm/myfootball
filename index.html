@@ -2094,12 +2094,8 @@
     // Буст — только серверный
     out.boost = server.boost || null;
 
-    // Ежедневка — та, где последний клейм позже
-    if (local.daily && server.daily) {
-        out.daily = (local.daily.lastClaim || 0) > (server.daily.lastClaim || 0) ? local.daily : server.daily;
-    } else {
-        out.daily = local.daily || server.daily || null;
-    }
+    // Ежедневка — всегда с сервера
+    out.daily = server.daily || local.daily || null;
 
     return out;
 }
@@ -2265,7 +2261,7 @@
                 state.daily = {
                     lastClaim: null,
                     streak: 0,
-                    bag: shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]),
+                    bag: null,
                     position: 0,
                 };
             }
@@ -2314,34 +2310,63 @@
             }
         }
 
-        function claimDailyReward() {
+        async function claimDailyReward() {
             if (!canClaimDaily()) return;
-            initDailyIfNeeded();
-            const d = state.daily;
 
-            let newStreak = 1;
-            if (d.lastClaim && (Date.now() - d.lastClaim) <= DAILY_STREAK_RESET) {
-                newStreak = d.streak + 1;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/daily`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({}),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось забрать награду');
+                    return;
+                }
+                const data = await res.json();
+
+                // Обновляем daily-состояние
+                state.daily = {
+                    lastClaim: data.lastClaim,
+                    streak: data.streak,
+                    bag: data.bag,
+                    position: data.position,
+                };
+                // Обновляем валюты
+                state.coins = data.coins;
+                state.shards = data.shards;
+
+                // Если в награде был ящик — добавляем предмет
+                if (data.rewardItem) {
+                    const cat = data.rewardItem.category;
+                    if (!state.owned[cat]) state.owned[cat] = {};
+                    state.owned[cat][data.rewardItem.itemId] = (state.owned[cat][data.rewardItem.itemId] || 0) + 1;
+                    state.opened[cat] = (state.opened[cat] || 0) + 1;
+
+                    const hero = CATEGORIES[cat].heroes.find(h => h.id === data.rewardItem.itemId);
+                    if (hero) setTimeout(() => showReveal(hero, false), 400);
+                }
+
+                // Если активировался буст
+                if (data.boostActivated) {
+                    state.boost = {
+                        type: data.boostActivated,
+                        expiresAt: Date.now() + BOOST_INFO[data.boostActivated].duration,
+                    };
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+                checkDailyMilestones(data.streak);
+
+                renderDailyPanel();
+                renderAll();
+                updateDailyFab();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
             }
-
-            const reward = getNextDailyReward();
-            applyDailyReward(reward);
-
-            d.streak = newStreak;
-            d.lastClaim = Date.now();
-            d.position++;
-
-            if (d.position >= DAILY_CYCLE_LENGTH) {
-                d.bag = shuffleArray([...Array(DAILY_CYCLE_LENGTH).keys()]);
-                d.position = 0;
-            }
-
-            checkDailyMilestones(newStreak);
-
-            saveState();
-            renderDailyPanel();
-            renderAll();
-            updateDailyFab();
         }
 
         function checkDailyMilestones(streak) {
@@ -2364,7 +2389,26 @@
             }
         }
 
-        function openDailyPanel() {
+        async function openDailyPanel() {
+            // Тянем актуальные данные ежедневки с сервера
+            try {
+                const res = await fetch(`${WORKER_URL}/api/daily-info`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({}),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    state.daily = {
+                        lastClaim: data.lastClaim,
+                        streak: data.streak,
+                        bag: data.bag,
+                        position: data.position,
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                }
+            } catch (e) { console.warn('daily-info error', e); }
+
             renderDailyPanel();
             document.getElementById('dailyOverlay').classList.add('active');
         }
@@ -2406,9 +2450,11 @@
                 html += `<div class="daily-cell day-label">${isToday ? 'Сегодня' : dayName}</div>`;
             }
 
+            const safeBag = d.bag || [...Array(DAILY_CYCLE_LENGTH).keys()];
+
             for (let i = 0; i < 7; i++) {
                 const bagIdx = (startPos + i) % DAILY_CYCLE_LENGTH;
-                const rewardIdx = d.bag[bagIdx];
+                const rewardIdx = safeBag[bagIdx];
                 const reward = DAILY_REWARDS[rewardIdx];
                 const isToday = i === 0 && canClaimDaily();
                 const isLocked = i > 0;
@@ -2639,26 +2685,46 @@
             }
         }
 
-        function buyBoxOfRarity(rarity) {
+        async function buyBoxOfRarity(rarity) {
             const price = BOX_PRICES[rarity];
             if (state.coins < price) return;
 
             const catName = CATEGORIES[currentCategory].name;
             if (!confirm(`Купить ${RARITY_NAMES[rarity].toLowerCase()} ящик за ${price} 🪙?\n\nПредмет будет из категории «${catName}».`)) return;
 
-            state.coins -= price;
-            const hero = pickHero(rarity);
+            try {
+                const res = await fetch(`${WORKER_URL}/api/buy-box`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ rarity, currency: 'coins', category: currentCategory }),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось купить ящик');
+                    return;
+                }
+                const data = await res.json();
 
-            state.opened[currentCategory]++;
-            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
-            saveState();
+                // Синхронизируем локальное состояние
+                state.coins = data.coins;
+                state.shards = data.shards;
+                state.opened[currentCategory] = (state.opened[currentCategory] || 0) + 1;
+                if (!state.owned[currentCategory]) state.owned[currentCategory] = {};
+                state.owned[currentCategory][data.itemId] = (state.owned[currentCategory][data.itemId] || 0) + 1;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-            closeShopPanel();
-            showReveal(hero, false);
-            renderStats();
-            renderCollection();
-            updateFabs();
-            updateWallet();
+                const hero = getHeroes().find(h => h.id === data.itemId);
+                closeShopPanel();
+                if (hero) showReveal(hero, false);
+
+                renderStats();
+                renderCollection();
+                updateFabs();
+                updateWallet();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
         }
 
         function renderShopPanel() {
@@ -2717,26 +2783,45 @@
             }
         }
 
-        function buyBoxWithShards(rarity) {
+        async function buyBoxWithShards(rarity) {
             const price = SHARD_BOX_PRICES[rarity];
             if (state.shards < price) return;
 
             const catName = CATEGORIES[currentCategory].name;
             if (!confirm(`Купить ${RARITY_NAMES[rarity].toLowerCase()} ящик за ${price} 💎?\n\nПредмет будет из категории «${catName}».`)) return;
 
-            state.shards -= price;
-            const hero = pickHero(rarity);
+            try {
+                const res = await fetch(`${WORKER_URL}/api/buy-box`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ rarity, currency: 'shards', category: currentCategory }),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось купить ящик');
+                    return;
+                }
+                const data = await res.json();
 
-            state.opened[currentCategory]++;
-            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
-            saveState();
+                state.coins = data.coins;
+                state.shards = data.shards;
+                state.opened[currentCategory] = (state.opened[currentCategory] || 0) + 1;
+                if (!state.owned[currentCategory]) state.owned[currentCategory] = {};
+                state.owned[currentCategory][data.itemId] = (state.owned[currentCategory][data.itemId] || 0) + 1;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-            closeShopPanel();
-            showReveal(hero, false);
-            renderStats();
-            renderCollection();
-            updateFabs();
-            updateWallet();
+                const hero = getHeroes().find(h => h.id === data.itemId);
+                closeShopPanel();
+                if (hero) showReveal(hero, false);
+
+                renderStats();
+                renderCollection();
+                updateFabs();
+                updateWallet();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
         }
 
         // ═══ ВЫБОР КАРТЫ ═══
@@ -2802,7 +2887,7 @@
             }
         }
 
-        function buySpecificCard(heroId) {
+        async function buySpecificCard(heroId) {
             if (state.shards < SHARD_CARD_PRICE) return;
 
             const hero = getHeroes().find(h => h.id === heroId);
@@ -2810,18 +2895,39 @@
 
             if (!confirm(`Купить карту «${hero.name}» за ${SHARD_CARD_PRICE} 💎?`)) return;
 
-            state.shards -= SHARD_CARD_PRICE;
-            state.opened[currentCategory]++;
-            state.owned[currentCategory][hero.id] = (state.owned[currentCategory][hero.id] || 0) + 1;
-            saveState();
+            try {
+                const res = await fetch(`${WORKER_URL}/api/buy-card`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ category: currentCategory, itemId: heroId }),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось купить карту');
+                    return;
+                }
+                const data = await res.json();
 
-            closeCardPicker();
-            closeShopPanel();
-            showReveal(hero, false);
-            renderStats();
-            renderCollection();
-            updateFabs();
-            updateWallet();
+                state.coins = data.coins;
+                state.shards = data.shards;
+                state.opened[currentCategory] = (state.opened[currentCategory] || 0) + 1;
+                if (!state.owned[currentCategory]) state.owned[currentCategory] = {};
+                state.owned[currentCategory][data.itemId] = (state.owned[currentCategory][data.itemId] || 0) + 1;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+                closeCardPicker();
+                closeShopPanel();
+                const heroObj = getHeroes().find(h => h.id === data.itemId);
+                if (heroObj) showReveal(heroObj, false);
+
+                renderStats();
+                renderCollection();
+                updateFabs();
+                updateWallet();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
         }
 
         function openShopPanel() {
@@ -2965,47 +3071,39 @@
             else hintEl.textContent = '📋 Накопи по 10 предметов одной редкости.';
         }
 
-        function craftUpgrade(fromRarity) {
+        async function craftUpgrade(fromRarity) {
             const nextRarity = CRAFT_UPGRADE[fromRarity];
             if (!nextRarity) return;
 
-            const catId = currentCategory;
-            const heroes = CATEGORIES[catId].heroes;
-            const owned = state.owned[catId] || {};
-
-            // Собираем пул того, что плавим
-            const pool = [];
-            heroes.forEach(h => {
-                if (h.rarity === fromRarity) {
-                    const c = owned[h.id] || 0;
-                    for (let i = 0; i < c; i++) pool.push(h.id);
+            try {
+                const res = await fetch(`${WORKER_URL}/api/craft`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ category: currentCategory, fromRarity }),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Не удалось выполнить плавку');
+                    return;
                 }
-            });
-            if (pool.length < CRAFT_AMOUNT) return;
+                const data = await res.json();
 
-            // ⚠️ Проверяем пул наград ДО удаления — иначе можно потерять предметы впустую
-            const nextPool = heroes.filter(h => h.rarity === nextRarity);
-            if (nextPool.length === 0) return;
+                // Синхронизируем inventory
+                state.owned = data.owned;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-            // Теперь безопасно удаляем 10 предметов
-            for (let i = 0; i < CRAFT_AMOUNT; i++) {
-                const idx = Math.floor(Math.random() * pool.length);
-                const id = pool.splice(idx, 1)[0];
-                owned[id]--;
-                if (owned[id] <= 0) delete owned[id];
+                renderCraftPanel();
+                renderStats();
+                renderCollection();
+                updateFabs();
+                closeCraftPanel();
+
+                const newHero = getHeroes().find(h => h.id === data.itemId);
+                if (newHero) showReveal(newHero, false);
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
             }
-
-            // Выдаём награду
-            const newHero = nextPool[Math.floor(Math.random() * nextPool.length)];
-            owned[newHero.id] = (owned[newHero.id] || 0) + 1;
-
-            saveState();
-            renderCraftPanel();
-            renderStats();
-            renderCollection();
-            updateFabs();
-            closeCraftPanel();
-            showReveal(newHero, false);
         }
 
         // ═══ RESET ═══
