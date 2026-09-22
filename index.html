@@ -1315,6 +1315,126 @@
             .boost-desc { font-size: 10px; }
             .boost-timer { font-size: 16px; padding: 4px 10px; }
         }
+        /* ═══ СТАТИСТИКА ═══ */
+        .stats-fab { top: 378px; }
+        .logout-fab { top: 438px; }
+        .stats-fab:hover {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+
+        .stats-switch {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .stats-switch-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .stats-switch-btn:hover { background: rgba(255,255,255,0.12); }
+        .stats-switch-btn.active {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .stats-table {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+        .stats-row.header {
+            background: transparent;
+            border: none;
+            padding: 0 14px 4px;
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 900;
+        }
+        .stats-row.common    { border-color: rgba(148, 163, 184, 0.4); }
+        .stats-row.rare      { border-color: rgba(59, 130, 246, 0.4); }
+        .stats-row.epic      { border-color: rgba(168, 85, 247, 0.4); }
+        .stats-row.legendary { border-color: rgba(245, 158, 11, 0.4); }
+        .stats-row.mythical  { border-color: rgba(239, 68, 68, 0.4); }
+
+        .stats-name { font-weight: 900; font-size: 13px; }
+        .stats-row.common    .stats-name { color: #94a3b8; }
+        .stats-row.rare      .stats-name { color: #60a5fa; }
+        .stats-row.epic      .stats-name { color: #c084fc; }
+        .stats-row.legendary .stats-name { color: #fbbf24; }
+        .stats-row.mythical  .stats-name { color: #f87171; }
+
+        .stats-value { font-weight: 700; color: #cbd5e1; font-size: 12px; text-align: right; min-width: 50px; }
+        .stats-diff  { font-weight: 900; font-size: 12px; text-align: right; min-width: 60px; }
+        .stats-diff.ok    { color: #4ade80; }
+        .stats-diff.warn  { color: #fbbf24; }
+        .stats-diff.bad   { color: #f87171; }
+
+        .stats-chart-title {
+            font-size: 11px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 1px;
+            font-weight: 900; margin-bottom: 10px; text-align: center;
+        }
+        .stats-chart {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 3px; height: 120px; padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 16px;
+        }
+        .stats-bar-wrap {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: flex-end; height: 100%; position: relative;
+        }
+        .stats-bar {
+            width: 100%; border-radius: 3px 3px 0 0;
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            min-height: 2px; transition: all 0.2s;
+        }
+        .stats-bar-wrap:hover .stats-bar { filter: brightness(1.3); }
+        .stats-bar-label {
+            font-size: 8px; color: #64748b; text-align: center;
+            margin-top: 4px; font-weight: 900;
+        }
+
+        .stats-footer { font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.5; }
+        .stats-footer b { color: #cbd5e1; }
+
+        @media (max-width: 600px) {
+            .stats-fab { top: 324px !important; }
+            .logout-fab { top: 376px !important; }
+            .stats-row { grid-template-columns: 1fr auto auto; padding: 8px 10px; gap: 6px; font-size: 11px; }
+            .stats-row.header { grid-template-columns: 1fr auto auto; font-size: 9px; }
+            .stats-value { font-size: 10px; min-width: 35px; }
+            .stats-diff { font-size: 10px; min-width: 45px; }
+            .stats-chart { height: 90px; }
+        }
     </style>
 </head>
 <body>
@@ -1366,6 +1486,10 @@
     <button class="fab shop-fab" id="shopFab">
         <span class="icon">🛒</span>
         <span class="btn-text">МАГАЗИН</span>
+    </button>
+    <button class="fab stats-fab" id="statsFab">
+        <span class="icon">📊</span>
+        <span class="btn-text">СТАТИСТИКА</span>
     </button>
     <button class="fab logout-fab" id="logoutFab">
         <span class="icon">🚪</span>
@@ -1672,6 +1796,27 @@
             <div class="leader-list" id="leaderList">
                 <div class="loading">Загрузка...</div>
             </div>
+        </div>
+    </div>
+    <div class="overlay" id="statsOverlay">
+        <div class="modal-card" id="statsCard">
+            <button class="modal-x" id="statsX">×</button>
+            <div class="modal-title">📊 Статистика дропа</div>
+            <div class="modal-sub">Заявленные шансы vs. фактический дроп</div>
+
+            <div class="stats-switch" id="statsSwitch">
+                <button class="stats-switch-btn active" data-period="overall">Всё время</button>
+                <button class="stats-switch-btn" data-period="24h">24 часа</button>
+            </div>
+
+            <div class="stats-table" id="statsTable">
+                <div class="loading">Загрузка...</div>
+            </div>
+
+            <div class="stats-chart-title">Открытий по дням (14 дней)</div>
+            <div class="stats-chart" id="statsChart"></div>
+
+            <div class="stats-footer" id="statsFooter"></div>
         </div>
     </div>
     <div class="overlay" id="revealOverlay">
@@ -3433,6 +3578,121 @@
             if (e.target.tagName === 'IMG') e.preventDefault();
         });
 
+        // ═══ СТАТИСТИКА ДРОПА ═══
+        let statsData = null;
+        let statsPeriod = 'overall';
+
+        function openStatsPanel() {
+            document.getElementById('statsOverlay').classList.add('active');
+            loadStats();
+        }
+        function closeStatsPanel() {
+            document.getElementById('statsOverlay').classList.remove('active');
+        }
+
+        async function loadStats() {
+            const tableEl = document.getElementById('statsTable');
+            tableEl.innerHTML = '<div class="loading">Загрузка...</div>';
+
+            try {
+                const res = await fetch(WORKER_URL + '/api/stats/drops');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                statsData = await res.json();
+                renderStats();
+            } catch (e) {
+                tableEl.innerHTML = '<div class="error">Не удалось загрузить статистику</div>';
+                console.error(e);
+            }
+        }
+
+        function renderStats() {
+            if (!statsData) return;
+
+            const tableEl = document.getElementById('statsTable');
+            const chartEl = document.getElementById('statsChart');
+            const footerEl = document.getElementById('statsFooter');
+
+            const rows = statsPeriod === '24h' ? statsData.last24h : statsData.overall;
+            const byRarity = {};
+            for (const r of rows) byRarity[r.rarity] = r.cnt;
+
+            const total = Object.values(byRarity).reduce((s, v) => s + v, 0);
+            const rarities = ['common', 'rare', 'epic', 'legendary', 'mythical'];
+
+            let html = `
+                <div class="stats-row header">
+                    <span>Редкость</span>
+                    <span>Заявл.</span>
+                    <span>Факт</span>
+                    <span>Откл.</span>
+                </div>
+            `;
+
+            for (const r of rarities) {
+                const declared = RARITY_CHANCES[r];
+                const cnt = byRarity[r] || 0;
+                const actual = total > 0 ? (cnt / total * 100) : 0;
+                const diff = actual - declared;
+                const absDiff = Math.abs(diff);
+
+                let diffClass = 'ok';
+                if (absDiff > 5) diffClass = 'bad';
+                else if (absDiff > 2) diffClass = 'warn';
+
+                const sign = diff > 0 ? '+' : '';
+
+                html += `
+                    <div class="stats-row ${r}">
+                        <span class="stats-name">${RARITY_NAMES[r]}</span>
+                        <span class="stats-value">${declared}%</span>
+                        <span class="stats-value">${actual.toFixed(1)}%</span>
+                        <span class="stats-diff ${diffClass}">${sign}${diff.toFixed(1)}%</span>
+                    </div>
+                `;
+            }
+            tableEl.innerHTML = html;
+
+            const daysMap = {};
+            for (const row of statsData.daily) {
+                if (!daysMap[row.day]) daysMap[row.day] = 0;
+                daysMap[row.day] += row.cnt;
+            }
+            const days = Object.keys(daysMap).sort();
+            const maxVal = Math.max(1, ...Object.values(daysMap));
+
+            if (days.length === 0) {
+                chartEl.innerHTML = '<div style="width:100%;text-align:center;color:#64748b;font-size:11px;align-self:center;">Нет данных</div>';
+            } else {
+                chartEl.innerHTML = days.map(d => {
+                    const v = daysMap[d];
+                    const pct = (v / maxVal) * 100;
+                    const dayLabel = d.slice(8);
+                    return `
+                        <div class="stats-bar-wrap" title="${d}: ${v} открытий">
+                            <div class="stats-bar" style="height:${pct}%;"></div>
+                            <div class="stats-bar-label">${dayLabel}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const label = statsPeriod === '24h' ? 'за 24 часа' : 'за всё время';
+            footerEl.innerHTML = `Всего открытий ${label}: <b>${total.toLocaleString('ru-RU')}</b>`;
+        }
+
+        document.getElementById('statsFab').addEventListener('click', openStatsPanel);
+        document.getElementById('statsX').addEventListener('click', closeStatsPanel);
+        document.getElementById('statsOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'statsOverlay') closeStatsPanel();
+        });
+        document.getElementById('statsSwitch').addEventListener('click', (e) => {
+            if (!e.target.classList.contains('stats-switch-btn')) return;
+            document.querySelectorAll('.stats-switch-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            statsPeriod = e.target.dataset.period;
+            renderStats();
+        });
+        
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
