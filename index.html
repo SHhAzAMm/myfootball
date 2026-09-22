@@ -53,9 +53,84 @@
         .wallet-coins { color: #ffd700; }
         .wallet-shards { color: #a855f7; }
 
-        .fab {
+        /* ═══ КНОПКА МЕНЮ (гамбургер) ═══ */
+        .menu-btn {
             position: fixed;
+            top: 18px;
             right: 18px;
+            z-index: 96;
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s;
+            font-family: inherit;
+            padding: 0;
+        }
+        .menu-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.22);
+        }
+        .menu-btn:active { transform: scale(0.95); }
+
+        .menu-lines {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 22px;
+            height: 16px;
+        }
+        .menu-lines span {
+            display: block;
+            height: 3px;
+            background: #cbd5e1;
+            border-radius: 2px;
+            transition: all 0.25s;
+        }
+        .menu-btn.open .menu-lines span:nth-child(1) {
+            transform: translateY(6.5px) rotate(45deg);
+        }
+        .menu-btn.open .menu-lines span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-btn.open .menu-lines span:nth-child(3) {
+            transform: translateY(-6.5px) rotate(-45deg);
+        }
+
+        /* ═══ ПАНЕЛЬ КНОПОК ═══ */
+        .fab-panel {
+            position: fixed;
+            top: 76px;
+            right: 18px;
+            z-index: 95;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            animation: panelSlide 0.2s ease-out;
+        }
+        .fab-panel.open { display: flex; }
+
+        @keyframes panelSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fab-panel .fab {
+            position: static;
+            right: auto;
+            top: auto;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .fab {
+            position: static;
             z-index: 90;
             background: rgba(255,255,255,0.06);
             border: 2px solid rgba(255,255,255,0.12);
@@ -72,19 +147,8 @@
             gap: 8px;
             transition: all 0.2s;
             backdrop-filter: blur(10px);
+            white-space: nowrap;
         }
-        .fab:hover {
-            background: rgba(255,255,255,0.12);
-            color: #cbd5e1;
-            transform: translateY(-2px);
-        }
-        .profile-fab { top: 18px; }
-        .reset-fab { top: 78px; }
-        .craft-fab { top: 138px; }
-        .shop-fab { top: 198px; }
-        .daily-fab { top: 258px; }
-        .leader-fab { top: 318px; }
-        .logout-fab { top: 378px; }
         .profile-fab:hover {
             background: rgba(168, 85, 247, 0.15);
             color: #c084fc;
@@ -1271,11 +1335,6 @@
             .fab { right: 12px; padding: 10px 14px; font-size: 12px; }
             .fab .btn-text { display: none; }
             .fab .icon { font-size: 18px; }
-            .profile-fab { top: 12px; }
-            .reset-fab { top: 64px; }
-            .craft-fab { top: 116px; }
-            .shop-fab { top: 168px; }
-            .daily-fab { top: 220px !important; }
             .header { padding-top: 52px; }
             .header h1 { font-size: 30px; }
             .cat-tab { padding: 10px 16px; font-size: 13px; }
@@ -1314,16 +1373,18 @@
             .boost-title { font-size: 12px; }
             .boost-desc { font-size: 10px; }
             .boost-timer { font-size: 16px; padding: 4px 10px; }
+            .menu-btn { top: 12px; right: 12px; width: 42px; height: 42px; }
+            .fab-panel { top: 62px; right: 12px; }
+            .fab-panel .fab { padding: 10px 14px; font-size: 12px; }
+            .fab-panel .btn-text { display: inline !important; }
+            .fab-panel .fab .icon { font-size: 16px; }
         }
         /* ═══ СТАТИСТИКА ═══ */
-        .stats-fab { top: 378px; }
-        .logout-fab { top: 438px; }
         .stats-fab:hover {
             background: rgba(96, 165, 250, 0.15);
             color: #60a5fa;
             border-color: rgba(96, 165, 250, 0.4);
         }
-
         .stats-switch {
             display: flex;
             justify-content: center;
@@ -1463,38 +1524,44 @@
             <span class="wallet-shards" id="walletShards">0</span>
         </div>
     </div>
-    <button class="fab leader-fab" id="leaderFab">
-        <span class="icon">🏆</span>
-        <span class="btn-text">ЛИДЕРЫ</span>
+    <button class="menu-btn" id="menuBtn" aria-label="Меню">
+        <span class="menu-lines"><span></span><span></span><span></span></span>
     </button>
-    <button class="fab daily-fab" id="dailyFab">
-        <span class="icon">🎁</span>
-        <span class="btn-text">ЕЖЕДНЕВКА</span>
-    </button>
-    <button class="fab profile-fab" id="profileFab">
-        <span class="icon">👤</span>
-        <span class="btn-text">ПРОФИЛЬ</span>
-    </button>
-    <button class="fab reset-fab" id="resetFab">
-        <span class="icon">🔄</span>
-        <span class="btn-text">RESET</span>
-    </button>
-    <button class="fab craft-fab" id="craftFab">
-        <span class="icon">⚗️</span>
-        <span class="btn-text">КРАФТ</span>
-    </button>
-    <button class="fab shop-fab" id="shopFab">
-        <span class="icon">🛒</span>
-        <span class="btn-text">МАГАЗИН</span>
-    </button>
-    <button class="fab stats-fab" id="statsFab">
-        <span class="icon">📊</span>
-        <span class="btn-text">СТАТИСТИКА</span>
-    </button>
-    <button class="fab logout-fab" id="logoutFab">
-        <span class="icon">🚪</span>
-        <span class="btn-text">ВЫЙТИ</span>
-    </button>
+
+    <div class="fab-panel" id="fabPanel">
+        <button class="fab profile-fab" id="profileFab">
+            <span class="icon">👤</span>
+            <span class="btn-text">ПРОФИЛЬ</span>
+        </button>
+        <button class="fab reset-fab" id="resetFab">
+            <span class="icon">🔄</span>
+            <span class="btn-text">RESET</span>
+        </button>
+        <button class="fab craft-fab" id="craftFab">
+            <span class="icon">⚗️</span>
+            <span class="btn-text">КРАФТ</span>
+        </button>
+        <button class="fab shop-fab" id="shopFab">
+            <span class="icon">🛒</span>
+            <span class="btn-text">МАГАЗИН</span>
+        </button>
+        <button class="fab daily-fab" id="dailyFab">
+            <span class="icon">🎁</span>
+            <span class="btn-text">ЕЖЕДНЕВКА</span>
+        </button>
+        <button class="fab leader-fab" id="leaderFab">
+            <span class="icon">🏆</span>
+            <span class="btn-text">ЛИДЕРЫ</span>
+        </button>
+        <button class="fab stats-fab" id="statsFab">
+            <span class="icon">📊</span>
+            <span class="btn-text">СТАТИСТИКА</span>
+        </button>
+        <button class="fab logout-fab" id="logoutFab">
+            <span class="icon">🚪</span>
+            <span class="btn-text">ВЫЙТИ</span>
+        </button>
+    </div>
 
     <div class="container">
         <div class="header">
@@ -3598,14 +3665,14 @@
                 const res = await fetch(WORKER_URL + '/api/stats/drops');
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 statsData = await res.json();
-                renderStats();
+                renderDropStats();
             } catch (e) {
                 tableEl.innerHTML = '<div class="error">Не удалось загрузить статистику</div>';
                 console.error(e);
             }
         }
 
-        function renderStats() {
+        function renderDropStats() {
             if (!statsData) return;
 
             const tableEl = document.getElementById('statsTable');
@@ -3690,9 +3757,32 @@
             document.querySelectorAll('.stats-switch-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
             statsPeriod = e.target.dataset.period;
-            renderStats();
+            renderDropStats();
         });
-        
+                // ═══ МЕНЮ ═══
+        const menuBtn = document.getElementById('menuBtn');
+        const fabPanel = document.getElementById('fabPanel');
+
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabPanel.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!fabPanel.classList.contains('open')) return;
+            if (fabPanel.contains(e.target)) return;
+            if (e.target === menuBtn || menuBtn.contains(e.target)) return;
+            fabPanel.classList.remove('open');
+            menuBtn.classList.remove('open');
+        });
+
+        document.querySelectorAll('.fab-panel .fab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                fabPanel.classList.remove('open');
+                menuBtn.classList.remove('open');
+            });
+        });
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
