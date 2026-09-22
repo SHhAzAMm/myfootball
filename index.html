@@ -1897,6 +1897,37 @@
             if (currentUserId) saveProgressToServer();
         }
         let saveTimer = null;
+        async function saveProgressToServer() {
+            if (!currentUserId) return;
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(async () => {
+                saveTimer = null;
+                try {
+                    const res = await fetch(`${WORKER_URL}/api/progress`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            progressData: { profile: state.profile },
+                        }),
+                    });
+                    handleAuthError(res);
+                } catch (e) { console.warn('Не удалось сохранить профиль', e); }
+            }, 300);
+        }
+        async function apiCall(endpoint, body = {}) {
+            const res = await fetch(WORKER_URL + endpoint, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(body),
+            });
+            if (handleAuthError(res)) return null;
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Ошибка сервера');
+                return null;
+            }
+            return data;
+        }
         function getAuthHeaders() {
             const token = localStorage.getItem('boxes_auth_token');
             return token
@@ -1917,27 +1948,6 @@
                 return true;
             }
             return false;
-        }
-        async function saveProgressToServer() {
-            if (!currentUserId) return;
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(async () => {
-                saveTimer = null;
-                try {
-                    const clientData = {
-                        profile: state.profile,
-                        boost: state.boost,
-                        daily: state.daily,
-                        unlockedFrames: state.unlockedFrames,
-                    };
-                    const res = await fetch(`${WORKER_URL}/api/progress`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({ progressData: clientData }),
-                    });
-                    handleAuthError(res);
-                } catch (e) { console.warn('Не удалось сохранить прогресс', e); }
-            }, 300);
         }
 
         // ─── Досыл прогресса при закрытии/сворачивании вкладки ───
@@ -2109,16 +2119,19 @@
                 if (handleAuthError(res)) return;
                 if (res.ok) {
                     const serverState = await res.json();
-                    if (serverState && typeof serverState === 'object' && serverState.owned) {
-                        state = mergeStates(state, serverState);
-                        initState();
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                        saveState();
-                    } else {
-                        state = { opened: {}, owned: {}, resets: {}, coins: 0, shards: 0, profile: { avatar: '🐱', frame: 'default', nickname: '' }, unlockedFrames: [] };
-                        initState();
-                        saveState();
-                    }
+                    state = {
+                        opened: serverState.opened || {},
+                        owned: serverState.owned || {},
+                        resets: serverState.resets || {},
+                        coins: serverState.coins || 0,
+                        shards: serverState.shards || 0,
+                        profile: serverState.profile || { avatar: '🐱', frame: 'default', nickname: '' },
+                        boost: serverState.boost || null,
+                        daily: serverState.daily || null,
+                        unlockedFrames: serverState.unlockedFrames || [],
+                    };
+                    initState();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                 }
             } catch (e) { console.warn('Не удалось загрузить прогресс', e); }
         }
@@ -2358,8 +2371,6 @@
                 }
 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-                checkDailyMilestones(data.streak);
 
                 renderDailyPanel();
                 renderAll();
@@ -3426,18 +3437,16 @@
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
         const savedEmail = localStorage.getItem('boxes_user_email');
-       if (savedUserId) {
-    currentUserId = savedUserId;
-    currentUserEmail = savedEmail || '';
-    initDailyIfNeeded();
-    renderAll();
-    loadProgressFromServer().then(() => {
-        initDailyIfNeeded();
-        renderAll();
-    });
-} else {
-    showAuthScreen();
-}
+        if (savedUserId) {
+            currentUserId = savedUserId;
+            currentUserEmail = savedEmail || '';
+            renderAll();
+            loadProgressFromServer().then(() => {
+                renderAll();
+            });
+        } else {
+            showAuthScreen();
+        }
     </script>
     <script>
   if ('serviceWorker' in navigator) {
