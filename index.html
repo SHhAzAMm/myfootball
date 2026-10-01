@@ -1245,7 +1245,7 @@
         }
         .leader-row {
             display: grid;
-            grid-template-columns: 40px 44px 1fr auto;
+            grid-template-columns: 40px 44px 1fr auto auto;
             align-items: center;
             gap: 10px;
             background: rgba(255,255,255,0.04);
@@ -1299,7 +1299,7 @@
         @media (max-width: 600px) {
             .leader-fab { top: 272px !important; }
             .logout-fab { top: 324px !important; }
-            .leader-row { grid-template-columns: 30px 36px 1fr auto; padding: 6px 10px; gap: 6px; }
+            .leader-row { grid-template-columns: 30px 36px 1fr auto auto; padding: 6px 10px; gap: 6px; }
             .leader-rank { font-size: 13px; }
             .leader-avatar { width: 32px; height: 32px; font-size: 18px; }
             .leader-nick { font-size: 12px; }
@@ -2333,6 +2333,7 @@
                     const serverState = await res.json();
                     state = {
                         opened: serverState.opened || {},
+                        openedTotal: serverState.openedTotal || 0,
                         owned: serverState.owned || {},
                         resets: serverState.resets || {},
                         coins: serverState.coins || 0,
@@ -2749,7 +2750,11 @@
                             <div class="leader-avatar ${frameClass}">${p.avatar || '🐱'}</div>
                             <div class="leader-info">
                                 <div class="leader-nick">${p.nickname}</div>
-                                <div class="leader-stats">Открыто: ${p.total_opened || 0} · Собрано: ${p.total_collected || 0}</div>
+                                <div class="leader-stats">Собрано: ${p.total_collected || 0}</div>
+                            </div>
+                            <div class="leader-count">
+                                ${p.total_opened || 0}
+                                <small>открыто</small>
                             </div>
                             <div class="leader-count">
                                 ${p.total_resets || 0}
