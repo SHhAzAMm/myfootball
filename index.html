@@ -1496,6 +1496,137 @@
             .stats-diff { font-size: 10px; min-width: 45px; }
             .stats-chart { height: 90px; }
         }
+        /* ═══ ДОСТИЖЕНИЯ ═══ */
+        .ach-fab:hover {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+        .ach-fab.ready {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1a2e;
+            border-color: transparent;
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.5);
+            animation: shakeReady 1.2s infinite;
+        }
+        .ach-fab.ready:hover { transform: translateY(-2px) scale(1.05); animation-play-state: paused; }
+
+        .ach-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 2px;
+        }
+        .ach-row {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: all 0.15s;
+        }
+        .ach-row.ready {
+            border-color: rgba(251, 191, 36, 0.6);
+            background: rgba(251, 191, 36, 0.08);
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.2);
+        }
+        .ach-row.claimed {
+            opacity: 0.55;
+            border-color: rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.05);
+        }
+        .ach-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .ach-row.ready .ach-icon { background: rgba(251, 191, 36, 0.2); }
+        .ach-row.claimed .ach-icon { background: rgba(74, 222, 128, 0.2); }
+
+        .ach-info { min-width: 0; line-height: 1.3; }
+        .ach-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; }
+        .ach-desc { font-size: 11px; color: #94a3b8; }
+        .ach-progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .ach-progress-bar {
+            flex: 1;
+            height: 5px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .ach-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #7c3aed);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .ach-row.ready .ach-progress-fill { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .ach-row.claimed .ach-progress-fill { background: linear-gradient(90deg, #4ade80, #22c55e); }
+        .ach-progress-text {
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .ach-row.ready .ach-progress-text { color: #fbbf24; }
+        .ach-row.claimed .ach-progress-text { color: #4ade80; }
+
+        .ach-btn {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: not-allowed;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .ach-row.ready .ach-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1a2e;
+            border-color: transparent;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+        .ach-row.ready .ach-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.15);
+        }
+        .ach-row.claimed .ach-btn {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .ach-row { grid-template-columns: 36px 1fr auto; padding: 10px; gap: 8px; }
+            .ach-icon { width: 32px; height: 32px; font-size: 18px; }
+            .ach-name { font-size: 12px; }
+            .ach-desc { font-size: 10px; }
+            .ach-btn { padding: 6px 10px; font-size: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -1552,6 +1683,10 @@
         <button class="fab leader-fab" id="leaderFab">
             <span class="icon">🏆</span>
             <span class="btn-text">ЛИДЕРЫ</span>
+        </button>
+        <button class="fab ach-fab" id="achFab">
+            <span class="icon">🎖️</span>
+            <span class="btn-text">ДОСТИЖЕНИЯ</span>
         </button>
         <button class="fab stats-fab" id="statsFab">
             <span class="icon">📊</span>
@@ -1861,6 +1996,16 @@
             <div class="modal-title">🏆 Лидеры</div>
             <div class="modal-sub">Топ-50 игроков по ресетам</div>
             <div class="leader-list" id="leaderList">
+                <div class="loading">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="achOverlay">
+        <div class="modal-card" id="achCard">
+            <button class="modal-x" id="achX">×</button>
+            <div class="modal-title">🎖️ Достижения</div>
+            <div class="modal-sub" id="achSub">Выполняй условия — забирай награды</div>
+            <div class="ach-list" id="achList">
                 <div class="loading">Загрузка...</div>
             </div>
         </div>
@@ -3788,6 +3933,145 @@
                 menuBtn.classList.remove('open');
             });
         });
+        // ═══ ДОСТИЖЕНИЯ ═══
+        let achData = null;
+
+        function openAchPanel() {
+            document.getElementById('achOverlay').classList.add('active');
+            loadAchievements();
+        }
+        function closeAchPanel() {
+            document.getElementById('achOverlay').classList.remove('active');
+        }
+
+        async function loadAchievements() {
+            const list = document.getElementById('achList');
+            list.innerHTML = '<div class="loading">Загрузка...</div>';
+            try {
+                const res = await fetch(WORKER_URL + '/api/achievements', {
+                    method: 'GET',
+                    headers: getAuthHeaders(),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                achData = await res.json();
+                renderAchievements();
+            } catch (e) {
+                list.innerHTML = '<div class="loading" style="color:#f87171;">Не удалось загрузить</div>';
+                console.error(e);
+            }
+        }
+
+        function renderAchievements() {
+            if (!achData) return;
+            const list = document.getElementById('achList');
+            const arr = achData.achievements || [];
+
+            const claimedCount = arr.filter(a => a.claimed).length;
+            const readyCount = arr.filter(a => a.done && !a.claimed).length;
+            const sub = document.getElementById('achSub');
+            sub.innerHTML = `Получено: <b>${claimedCount} / ${arr.length}</b>` +
+                (readyCount > 0 ? ` · <b style="color:#fbbf24;">${readyCount} готово к получению!</b>` : '');
+
+            list.innerHTML = arr.map(a => {
+                const pct = Math.min(100, (a.current / a.target) * 100);
+                let cls = 'ach-row';
+                if (a.claimed) cls += ' claimed';
+                else if (a.done) cls += ' ready';
+
+                let btn;
+                if (a.claimed) {
+                    btn = `<button class="ach-btn" disabled>✓ ПОЛУЧЕНО</button>`;
+                } else if (a.done) {
+                    btn = `<button class="ach-btn" data-claim="${a.id}">ЗАБРАТЬ</button>`;
+                } else {
+                    const rewardParts = [];
+                    if (a.reward.coins)  rewardParts.push(`🪙${a.reward.coins}`);
+                    if (a.reward.shards) rewardParts.push(`💎${a.reward.shards}`);
+                    btn = `<button class="ach-btn" disabled>${rewardParts.join(' ')}</button>`;
+                }
+
+                return `
+                    <div class="${cls}">
+                        <div class="ach-icon">${a.icon}</div>
+                        <div class="ach-info">
+                            <div class="ach-name">${a.name}</div>
+                            <div class="ach-desc">${a.desc}</div>
+                            <div class="ach-progress-wrap">
+                                <div class="ach-progress-bar">
+                                    <div class="ach-progress-fill" style="width:${pct}%"></div>
+                                </div>
+                                <div class="ach-progress-text">${a.current} / ${a.target}</div>
+                            </div>
+                        </div>
+                        ${btn}
+                    </div>
+                `;
+            }).join('');
+
+            list.querySelectorAll('.ach-btn[data-claim]').forEach(btn => {
+                btn.addEventListener('click', () => claimAchievement(btn.dataset.claim));
+            });
+
+            updateAchFab();
+        }
+
+        async function claimAchievement(id) {
+            try {
+                const res = await fetch(WORKER_URL + '/api/achievements/claim', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ id }),
+                });
+                if (handleAuthError(res)) return;
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Не удалось получить награду');
+                    return;
+                }
+
+                state.coins = data.coins;
+                state.shards = data.shards;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                updateWallet();
+
+                const rewardParts = [];
+                if (data.coinGain)  rewardParts.push(`🪙 ${data.coinGain}`);
+                if (data.shardGain) rewardParts.push(`💎 ${data.shardGain}`);
+                alert(`Награда получена: ${rewardParts.join(' + ')}`);
+
+                await loadAchievements();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        function updateAchFab() {
+            const fab = document.getElementById('achFab');
+            if (!fab || !achData) return;
+            const hasReady = (achData.achievements || []).some(a => a.done && !a.claimed);
+            fab.classList.toggle('ready', hasReady);
+        }
+
+        // Проверяем статус достижений при старте (для «ready»-подсветки кнопки)
+        async function refreshAchFab() {
+            try {
+                const res = await fetch(WORKER_URL + '/api/achievements', {
+                    method: 'GET',
+                    headers: getAuthHeaders(),
+                });
+                if (!res.ok) return;
+                achData = await res.json();
+                updateAchFab();
+            } catch (e) { /* тихо */ }
+        }
+
+        document.getElementById('achFab').addEventListener('click', openAchPanel);
+        document.getElementById('achX').addEventListener('click', closeAchPanel);
+        document.getElementById('achOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'achOverlay') closeAchPanel();
+        });
+
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
@@ -3798,6 +4082,7 @@
             renderAll();
             loadProgressFromServer().then(() => {
                 renderAll();
+                refreshAchFab();
             });
         } else {
             showAuthScreen();
