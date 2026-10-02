@@ -1627,6 +1627,149 @@
             .ach-desc { font-size: 10px; }
             .ach-btn { padding: 6px 10px; font-size: 10px; }
         }
+        /* ═══ КВЕСТЫ ═══ */
+        .quest-fab:hover {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+        .quest-fab.ready {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 8px 24px rgba(96, 165, 250, 0.5);
+            animation: shakeReady 1.2s infinite;
+        }
+        .quest-fab.ready:hover { transform: translateY(-2px) scale(1.05); animation-play-state: paused; }
+
+        .quest-section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+            margin: 18px 0 10px;
+            text-align: left;
+        }
+        .quest-section-title:first-of-type { margin-top: 0; }
+        .quest-timer {
+            font-size: 11px;
+            color: #60a5fa;
+            letter-spacing: 0.5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .quest-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+        .quest-row {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: all 0.15s;
+        }
+        .quest-row.ready {
+            border-color: rgba(96, 165, 250, 0.6);
+            background: rgba(96, 165, 250, 0.08);
+            box-shadow: 0 0 16px rgba(96, 165, 250, 0.2);
+        }
+        .quest-row.claimed {
+            opacity: 0.55;
+            border-color: rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.05);
+        }
+        .quest-icon {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            background: rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .quest-row.ready .quest-icon { background: rgba(96, 165, 250, 0.2); }
+        .quest-row.claimed .quest-icon { background: rgba(74, 222, 128, 0.2); }
+
+        .quest-info { min-width: 0; line-height: 1.3; }
+        .quest-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; }
+        .quest-reward {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .quest-progress-wrap {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .quest-progress-bar {
+            flex: 1;
+            height: 5px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .quest-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .quest-row.ready .quest-progress-fill { background: linear-gradient(90deg, #60a5fa, #2563eb); }
+        .quest-row.claimed .quest-progress-fill { background: linear-gradient(90deg, #4ade80, #22c55e); }
+        .quest-progress-text {
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .quest-row.ready .quest-progress-text { color: #60a5fa; }
+        .quest-row.claimed .quest-progress-text { color: #4ade80; }
+
+        .quest-btn {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: not-allowed;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .quest-row.ready .quest-btn {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: #fff;
+            border-color: transparent;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
+        }
+        .quest-row.ready .quest-btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
+        .quest-row.claimed .quest-btn {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .quest-row { grid-template-columns: 36px 1fr auto; padding: 10px; gap: 8px; }
+            .quest-icon { width: 32px; height: 32px; font-size: 18px; }
+            .quest-name { font-size: 12px; }
+            .quest-reward { font-size: 10px; }
+            .quest-btn { padding: 6px 10px; font-size: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -1687,6 +1830,10 @@
         <button class="fab ach-fab" id="achFab">
             <span class="icon">🎖️</span>
             <span class="btn-text">ДОСТИЖЕНИЯ</span>
+        </button>
+        <button class="fab quest-fab" id="questFab">
+            <span class="icon">📋</span>
+            <span class="btn-text">КВЕСТЫ</span>
         </button>
         <button class="fab stats-fab" id="statsFab">
             <span class="icon">📊</span>
@@ -1998,6 +2145,19 @@
             <div class="leader-list" id="leaderList">
                 <div class="loading">Загрузка...</div>
             </div>
+        </div>
+    </div>
+    <div class="overlay" id="questOverlay">
+        <div class="modal-card" id="questCard">
+            <button class="modal-x" id="questX">×</button>
+            <div class="modal-title">📋 Квесты</div>
+            <div class="modal-sub" id="questSub">Выполняй — забирай награды</div>
+
+            <div class="quest-section-title">☀️ Ежедневные <span id="questDailyTimer" class="quest-timer"></span></div>
+            <div class="quest-list" id="questDailyList"></div>
+
+            <div class="quest-section-title">📅 Недельные <span id="questWeeklyTimer" class="quest-timer"></span></div>
+            <div class="quest-list" id="questWeeklyList"></div>
         </div>
     </div>
     <div class="overlay" id="achOverlay">
@@ -4071,7 +4231,172 @@
         document.getElementById('achOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'achOverlay') closeAchPanel();
         });
+        // ═══ КВЕСТЫ ═══
+        let questData = null;
+        let questTickTimer = null;
 
+        function openQuestPanel() {
+            document.getElementById('questOverlay').classList.add('active');
+            loadQuests();
+            if (questTickTimer) clearInterval(questTickTimer);
+            questTickTimer = setInterval(updateQuestTimers, 1000);
+        }
+        function closeQuestPanel() {
+            document.getElementById('questOverlay').classList.remove('active');
+            if (questTickTimer) { clearInterval(questTickTimer); questTickTimer = null; }
+        }
+
+        async function loadQuests() {
+            const dl = document.getElementById('questDailyList');
+            const wl = document.getElementById('questWeeklyList');
+            dl.innerHTML = '<div class="loading">Загрузка...</div>';
+            wl.innerHTML = '';
+            try {
+                const res = await fetch(WORKER_URL + '/api/quests', {
+                    method: 'GET', headers: getAuthHeaders(),
+                });
+                if (handleAuthError(res)) return;
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                questData = await res.json();
+                renderQuests();
+            } catch (e) {
+                dl.innerHTML = '<div class="loading" style="color:#f87171;">Не удалось загрузить</div>';
+                console.error(e);
+            }
+        }
+
+        function renderQuestList(kind, arr) {
+            if (!arr || arr.length === 0) {
+                return '<div class="loading">Нет активных квестов</div>';
+            }
+            return arr.map(q => {
+                const pct = Math.min(100, (q.current / q.target) * 100);
+                let cls = 'quest-row';
+                if (q.claimed) cls += ' claimed';
+                else if (q.done) cls += ' ready';
+
+                const rewardParts = [];
+                if (q.reward.coins)  rewardParts.push(`<span class="emoji-inline">🪙</span>${q.reward.coins}`);
+                if (q.reward.shards) rewardParts.push(`<span class="emoji-inline">💎</span>${q.reward.shards}`);
+
+                let btn;
+                if (q.claimed) {
+                    btn = `<button class="quest-btn" disabled>✓ ПОЛУЧЕНО</button>`;
+                } else if (q.done) {
+                    btn = `<button class="quest-btn" data-kind="${kind}" data-claim="${q.id}">ЗАБРАТЬ</button>`;
+                } else {
+                    btn = `<button class="quest-btn" disabled>${rewardParts.join(' ')}</button>`;
+                }
+
+                return `
+                    <div class="${cls}">
+                        <div class="quest-icon">${q.icon}</div>
+                        <div class="quest-info">
+                            <div class="quest-name">${q.name}</div>
+                            ${q.claimed ? '' : `<div class="quest-reward">Награда: ${rewardParts.join(' + ')}</div>`}
+                            <div class="quest-progress-wrap">
+                                <div class="quest-progress-bar">
+                                    <div class="quest-progress-fill" style="width:${pct}%"></div>
+                                </div>
+                                <div class="quest-progress-text">${q.current} / ${q.target}</div>
+                            </div>
+                        </div>
+                        ${btn}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderQuests() {
+            if (!questData) return;
+            document.getElementById('questDailyList').innerHTML  = renderQuestList('daily',  questData.daily);
+            document.getElementById('questWeeklyList').innerHTML = renderQuestList('weekly', questData.weekly);
+
+            document.querySelectorAll('.quest-btn[data-claim]').forEach(btn => {
+                btn.addEventListener('click', () => claimQuest(btn.dataset.kind, btn.dataset.claim));
+            });
+
+            const all = [...(questData.daily || []), ...(questData.weekly || [])];
+            const claimedCount = all.filter(q => q.claimed).length;
+            const readyCount = all.filter(q => q.done && !q.claimed).length;
+            document.getElementById('questSub').innerHTML =
+                `Получено: <b>${claimedCount} / ${all.length}</b>` +
+                (readyCount > 0 ? ` · <b style="color:#60a5fa;">${readyCount} готово к получению!</b>` : '');
+
+            updateQuestTimers();
+            updateQuestFab();
+        }
+
+        function fmtHMS(ms) {
+            if (ms <= 0) return '00:00:00';
+            const totalSec = Math.floor(ms / 1000);
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function updateQuestTimers() {
+            if (!questData) return;
+            const now = Date.now();
+            document.getElementById('questDailyTimer').textContent  = '⏳ ' + fmtHMS(questData.dailyResetAt - now);
+            document.getElementById('questWeeklyTimer').textContent = '⏳ ' + fmtHMS(questData.weeklyResetAt - now);
+        }
+
+        async function claimQuest(kind, id) {
+            try {
+                const res = await fetch(WORKER_URL + '/api/quests/claim', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ kind, id }),
+                });
+                if (handleAuthError(res)) return;
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Не удалось получить награду');
+                    return;
+                }
+
+                state.coins = data.coins;
+                state.shards = data.shards;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                updateWallet();
+
+                const rewardParts = [];
+                if (data.coinGain)  rewardParts.push(`🪙 ${data.coinGain}`);
+                if (data.shardGain) rewardParts.push(`💎 ${data.shardGain}`);
+                alert(`Награда получена: ${rewardParts.join(' + ')}`);
+
+                await loadQuests();
+            } catch (e) {
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        function updateQuestFab() {
+            const fab = document.getElementById('questFab');
+            if (!fab || !questData) return;
+            const all = [...(questData.daily || []), ...(questData.weekly || [])];
+            const hasReady = all.some(q => q.done && !q.claimed);
+            fab.classList.toggle('ready', hasReady);
+        }
+
+        async function refreshQuestFab() {
+            try {
+                const res = await fetch(WORKER_URL + '/api/quests', {
+                    method: 'GET', headers: getAuthHeaders(),
+                });
+                if (!res.ok) return;
+                questData = await res.json();
+                updateQuestFab();
+            } catch (e) { /* тихо */ }
+        }
+
+        document.getElementById('questFab').addEventListener('click', openQuestPanel);
+        document.getElementById('questX').addEventListener('click', closeQuestPanel);
+        document.getElementById('questOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'questOverlay') closeQuestPanel();
+        });
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
@@ -4083,6 +4408,7 @@
             loadProgressFromServer().then(() => {
                 renderAll();
                 refreshAchFab();
+                refreshQuestFab();
             });
         } else {
             showAuthScreen();
