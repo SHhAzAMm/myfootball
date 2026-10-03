@@ -157,6 +157,8 @@ function renderTab(id) {
   document.querySelectorAll('.tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === id);
   });
+  // Кнопка ИГРАТЬ — только на табе "В БОЙ"
+  document.getElementById('playBtn').style.display = (id === 'battle') ? 'block' : 'none';
 }
 
 document.querySelectorAll('.tab').forEach(el => {
