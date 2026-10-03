@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Осада — прототип</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+  }
+  h1 {
+    font-size: 28px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .top-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 560px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    min-width: 90px;
+    text-align: center;
+  }
+  .stat b { display: block; font-size: 20px; font-weight: 900; color: #ffd700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat.danger b { color: #f87171; }
+  .stat.wave b { color: #a855f7; }
+
+  .wave-banner {
+    min-height: 24px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #a855f7;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: opacity 0.2s;
+  }
+  .wave-banner.hidden { opacity: 0; }
+
+  #game {
+    background: #0a0a1a;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    display: block;
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 560px;
+    align-items: center;
+  }
+  button {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #fff;
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.15); }
+
+  #rollBtn {
+    background: linear-gradient(135deg, #ffd700, #ff9500);
+    color: #1a1a2e;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  }
+  #sellBtn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+  #restartBtn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  }
+
+  .hand {
+    background: rgba(255,255,255,0.04);
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 130px;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+  .hand b { display: block; font-size: 20px; margin-top: 4px; color: #fff; }
+
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .deck-card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 10px;
+    color: #cbd5e1;
+  }
+  .deck-card .emoji { font-size: 22px; line-height: 1; margin-bottom: 2px; }
+  .deck-card .name { font-weight: 900; margin-bottom: 2px; }
+  .deck-card .stat-line { color: #94a3b8; font-size: 9px; line-height: 1.2; }
+
+  .hint-bar {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    max-width: 560px;
+    line-height: 1.5;
+  }
+
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .overlay.active { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 18px;
+    padding: 36px 32px;
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+    border: 3px solid #475569;
+    animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal h2 { font-size: 26px; margin-bottom: 10px; color: #f87171; }
+  .modal p { color: #94a3b8; margin-bottom: 8px; font-size: 14px; }
+  .modal .big { font-size: 28px; font-weight: 900; color: #ffd700; margin: 10px 0 20px; line-height: 1.3; }
+  .modal button {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    padding: 14px 32px;
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+  }
+</style>
+</head>
+<body>
+
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+  <button onclick="window.location.href='siege.html'" style="padding:8px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:8px; font-size:13px; font-weight:900; cursor:pointer; font-family:inherit;">← МЕНЮ</button>
+  <h1>⚔️ ОСАДА</h1>
+</div>
+
+<div class="top-bar">
+  <div class="stat">Очки<b id="statPoints">100</b><small id="statIncome">+1.0/с</small></div>
+  <div class="stat wave">Волна<b id="statWave">1</b></div>
+  <div class="stat">Время<b id="statTime">0с</b></div>
+  <div class="stat danger">Мобы<b id="statMobs">0 / 40</b></div>
+</div>
+
+<div class="wave-banner" id="waveBanner"></div>
+
+<canvas id="game" width="480" height="480"></canvas>
+
+<div class="controls">
+  <button id="rollBtn">🎲 БРОСИТЬ (50)</button>
+  <button id="sellBtn" disabled>💰 ПРОДАТЬ</button>
+  <div class="hand">
+    В руке
+    <b id="handEmoji">—</b>
+  </div>
+</div>
+
+<div class="deck" id="deck"></div>
+
+<div class="hint-bar">
+  🎲 Бросок → юнит в руке → кликни по клетке чтобы поставить.<br>
+  🖱 Клик по юниту → выделить. Клик по пустой клетке → переместить выделенного.<br>
+  ⚗️ Поставь двух одинаковых на одну клетку — сработает мерж.
+</div>
+
+<div class="overlay" id="endOverlay">
+  <div class="modal" id="endModal">
+    <h2 id="endTitle">💀 Поражение</h2>
+    <p id="endDesc">Поле переполнено мобами</p>
+    <div class="big" id="endScore">0</div>
+    <button id="restartBtn">ИГРАТЬ СНОВА</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  КОНФИГ
+// ═══════════════════════════════════════════════
+const CELL = 60;
+const COLS = 8, ROWS = 8;
+const FIELD_MIN = 1, FIELD_MAX = 6;
+
+const START_POINTS = 100;
+const ROLL_BASE_COST = 50;
+const ROLL_STEP = 6;
+const MAX_MOBS = 40;
+const MAX_MERGE_LEVEL = 3;
+
+const WAVE_INTERVAL_MS = 20000;
+const FIRST_SPAWN_DELAY_MS = 1500;
+
+// ─── Бесконечные волны ───
+function getWaveConfig(wave) {
+  return {
+    count:         3 + Math.floor(wave * 0.8),
+    mobHp:         10 + (wave - 1) * 3,
+    spawnInterval: Math.max(600, 1500 - (wave - 1) * 60),
+    reward:        3, // фиксировано — 3 очка за моба на любой волне
+  };
+}
+
+// ─── Пассивный доход очков (фиксированный) ───
+function getPassiveIncome(wave) {
+  return 1; // всегда 1 очко в секунду, не растёт с волной
+}
+
+// Направления для линейной атаки
+const FOUR_DIRS = [
+  { x: 0, y: -1 },
+  { x: 0, y: 1 },
+  { x: -1, y: 0 },
+  { x: 1, y: 0 },
+];
+
+const EIGHT_DIRS = [
+  ...FOUR_DIRS,
+  { x: -0.707, y: -0.707 },
+  { x: 0.707, y: -0.707 },
+  { x: -0.707, y: 0.707 },
+  { x: 0.707, y: 0.707 },
+];
+
+// Карты (заглушки)
+// id → units/{id}.png подхватывается автоматически
+const CARDS = [
+  { id: 'spike',    emoji: '🟩', name: 'Шип',      damage: 6,  range: 6.0, attackSpeed: 1.5, attackType: 'line' },
+  { id: 'rhombus',  emoji: '🔷', name: 'Ромб',     damage: 3,  range: 6.0, attackSpeed: 1.0, attackType: 'sniper' },
+  { id: 'rhythm',   emoji: '🟨', name: 'Ритм',     damage: 0,  range: 1.5, attackSpeed: 0,   attackType: 'support' },
+  { id: 'iceberg',  emoji: '🧊', name: 'Айсберг',  damage: 5,  range: 2.5, attackSpeed: 0.9, attackType: 'ice' },
+  { id: 'boom',     emoji: '💥', name: 'Бум',      damage: 25, range: 5.0, attackSpeed: 0.3, attackType: 'catapult' },
+  { id: 'thunder',  emoji: '⚡', name: 'Гром',      damage: 12, range: 2.5, attackSpeed: 0.5 },
+  { id: 'assassin', emoji: '🗡️', name: 'Ассасин',   damage: 18, range: 1.5, attackSpeed: 2.0 },
+  { id: 'butcher',  emoji: '🟥', name: 'Мясник',    damage: 5,  range: 1.8, attackSpeed: 1.2, attackType: 'butcher' },
+];
+
+const CARD_COLORS = ['#ff6b6b','#60a5fa','#fbbf24','#4ade80','#a855f7','#22d3ee','#f472b6','#94a3b8'];
+
+const MOB_EMOJI  = '👹';
+const MOB_COLOR  = '#ef4444';
+const MOB_SPEED  = 1.2;
+
+// ═══════════════════════════════════════════════
+//  ДОРОЖКА (периметр 8×8, по часовой)
+// ═══════════════════════════════════════════════
+const PATH = [];
+for (let x = 0; x < COLS; x++) PATH.push({ x, y: 0 });
+for (let y = 1; y < ROWS; y++) PATH.push({ x: COLS - 1, y });
+for (let x = COLS - 2; x >= 0; x--) PATH.push({ x, y: ROWS - 1 });
+for (let y = ROWS - 2; y >= 1; y--) PATH.push({ x: 0, y });
+const PATH_LEN = PATH.length;
+
+// ═══════════════════════════════════════════════
+//  СОСТОЯНИЕ
+// ═══════════════════════════════════════════════
+let state, units, mobs, effects, selectedUnit, handCard, lastTime, gameOver;
+
+function newGame() {
+  state = {
+    points: START_POINTS,
+    rollCost: ROLL_BASE_COST,
+    wave: 1,
+    mobsSpawned: 0,
+    mobsTotalInWave: getWaveConfig(1).count,
+    nextWaveAt: 0,
+    startTime: performance.now(),
+    timeSurvived: 0,
+    nextSpawnAt: 0,
+    kills: 0,
+    incomeAccum: 0,    // ← накопитель дробных очков
+    incomeTotal: 0,    // ← всего заработано пассивно (для статистики)
+    waveClearPending: false, // ← флаг: волна зачищена, идёт ускоренный отсчёт
+  };
+  units = [];
+  mobs = [];
+  effects = [];
+  state.puddles = [];
+  state.fireZones = [];
+  selectedUnit = null;
+  handCard = null;
+  gameOver = false;
+
+  const nowMs = performance.now();
+  state.nextSpawnAt = nowMs + FIRST_SPAWN_DELAY_MS;
+  state.nextWaveAt  = nowMs + WAVE_INTERVAL_MS;
+  document.getElementById('endOverlay').classList.remove('active');
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════
+//  СПРАЙТЫ — грузим units/{id}.png для всех карт
+// ═══════════════════════════════════════════════
+const SPRITES = {};
+
+function loadSprites() {
+  for (const card of CARDS) {
+    const path = card.sprite || `units/${card.id}.png`;
+    const img = new Image();
+    img.onload  = () => {
+      SPRITES[card.id] = cleanSprite(img);
+      console.log('✓ Спрайт:', card.id);
+    };
+    img.onerror = () => { console.warn('✗ Нет спрайта:', path); };
+    img.src = path;
+  }
+}
+
+// Чистит спрайт: убирает белый ореол и делает края резкими
+function cleanSprite(img) {
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth;
+  c.height = img.naturalHeight;
+  const cx = c.getContext('2d');
+  cx.imageSmoothingEnabled = false;
+  cx.drawImage(img, 0, 0);
+
+  const data = cx.getImageData(0, 0, c.width, c.height);
+  const d = data.data;
+
+  for (let i = 0; i < d.length; i += 4) {
+    const a = d[i+3];
+    if (a === 0) continue;
+
+    // Краевые полупрозрачные пиксели — затемняем RGB,
+    // чтобы они не светились на тёмно-синем фоне
+    if (a < 255) {
+      const k = a / 255;              // коэффициент прозрачности (0..1)
+      d[i]   = Math.round(d[i]   * k); // R
+      d[i+1] = Math.round(d[i+1] * k); // G
+      d[i+2] = Math.round(d[i+2] * k); // B
+    }
+  }
+
+  cx.putImageData(data, 0, 0);
+  return c;
+}
+
+// ═══════════════════════════════════════════════
+//  УТИЛИТЫ
+// ═══════════════════════════════════════════════
+function cardById(id) { return CARDS.find(c => c.id === id); }
+function unitAt(col, row) { return units.find(u => u.col === col && u.row === row); }
+function inField(col, row) {
+  return col >= FIELD_MIN && col <= FIELD_MAX && row >= FIELD_MIN && row <= FIELD_MAX;
+}
+
+function mobPos(mob) {
+  const idx = Math.floor(mob.progress) % PATH_LEN;
+  const t = mob.progress - Math.floor(mob.progress);
+  const a = PATH[idx];
+  const b = PATH[(idx + 1) % PATH_LEN];
+  return {
+    x: a.x + (b.x - a.x) * t + 0.5,
+    y: a.y + (b.y - a.y) * t + 0.5,
+  };
+}
+
+function fmtTime(sec) {
+  const s = Math.floor(sec);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  if (m === 0) return r + 'с';
+  return m + 'м ' + r + 'с';
+}
+
+// ═══════════════════════════════════════════════
+//  ДЕЙСТВИЯ
+// ═══════════════════════════════════════════════
+function roll() {
+  if (gameOver) return;
+  if (handCard) { flashMsg('Сначала поставь юнита'); return; }
+  if (state.points < state.rollCost) { flashMsg('Не хватает очков'); return; }
+
+  state.points -= state.rollCost;
+  state.rollCost += ROLL_STEP;
+
+  const card = CARDS[Math.floor(Math.random() * CARDS.length)];
+  handCard = { cardId: card.id, level: 1 };
+  updateUI();
+}
+
+function sellSelected() {
+  if (!selectedUnit || gameOver) return;
+  const refund = Math.floor(state.rollCost * 0.5);
+  state.points += refund;
+  effects.push({ type: 'text', x: selectedUnit.col + 0.5, y: selectedUnit.row + 0.5, text: '+' + refund, color: '#ffd700', ttl: 0.9, maxTtl: 0.9 });
+  units = units.filter(u => u !== selectedUnit);
+  selectedUnit = null;
+  updateUI();
+}
+
+function placeUnit(col, row) {
+  if (!handCard) return false;
+  const existing = unitAt(col, row);
+
+  if (!existing) {
+    units.push({ cardId: handCard.cardId, level: handCard.level, col, row, cooldown: 0 });
+    handCard = null;
+    updateUI();
+    return true;
+  }
+
+  if (existing.cardId === handCard.cardId && existing.level === handCard.level && existing.level < MAX_MERGE_LEVEL) {
+    existing.level++;
+    existing.cooldown = 0;
+    handCard = null;
+    effects.push({ type: 'text', x: col + 0.5, y: row + 0.5, text: 'MERGED!', color: '#a855f7', ttl: 1.0, maxTtl: 1.0 });
+    updateUI();
+    return true;
+  }
+
+  flashMsg('Клетка занята');
+  return false;
+}
+
+function moveUnit(unit, col, row) {
+  if (gameOver) return;
+  if (unitAt(col, row)) { flashMsg('Клетка занята'); return; }
+  unit.col = col;
+  unit.row = row;
+  effects.push({ type: 'text', x: col + 0.5, y: row + 0.5, text: '↔', color: '#60a5fa', ttl: 0.6, maxTtl: 0.6 });
+  selectedUnit = null;
+  updateUI();
+}
+
+function flashMsg(text) {
+  effects.push({ type: 'text', x: 4, y: 4, text, color: '#f87171', ttl: 1.2, maxTtl: 1.2 });
+}
+
+function spawnMob() {
+  const cfg = getWaveConfig(state.wave);
+  mobs.push({
+    id: Math.random(),
+    hp: cfg.mobHp,
+    maxHp: cfg.mobHp,
+    progress: 0,
+    speed: MOB_SPEED,
+    hitFlash: 0,
+  });
+}
+// ─── Баффы от Ритма ───
+function applySupportBuffs() {
+  // Сброс прошлых баффов
+  for (const u of units) {
+    u.speedBuff = 1.0;
+    u.rhythmSource = null;
+  }
+  // Каждый Ритм бафает всех в радиусе
+  for (const rhythm of units) {
+    if (rhythm.cardId !== 'rhythm') continue;
+    const radius = rhythm.level >= 2 ? 2.5 : 1.5;
+    const rx = rhythm.col + 0.5;
+    const ry = rhythm.row + 0.5;
+    for (const u of units) {
+      if (u === rhythm || u.cardId === 'rhythm') continue;
+      const dx = (u.col + 0.5) - rx;
+      const dy = (u.row + 0.5) - ry;
+      if (Math.hypot(dx, dy) <= radius) {
+        // Берём максимум (не стакаем)
+        if (1.15 > u.speedBuff) {
+          u.speedBuff = 1.15;
+          u.rhythmSource = rhythm;
+        }
+      }
+    }
+  }
+}
+
+// ─── Ударная волна (Ритм III) ───
+function spawnShockwave(x, y) {
+  const shockDmg = 5;
+  const shockRadius = 1.5;
+  for (const mob of mobs) {
+    if (mob.hp <= 0) continue;
+    const p = mobPos(mob);
+    if (Math.hypot(p.x - x, p.y - y) <= shockRadius) {
+      mob.hp -= shockDmg;
+      mob.hitFlash = 0.15;
+    }
+  }
+  effects.push({ type: 'shockwave', x, y, ttl: 0.45, maxTtl: 0.45 });
+}
+
+// ─── Счётчик ударов Ритма III ───
+function countRhythmHit(unit, hitX, hitY) {
+  const src = unit.rhythmSource;
+  if (!src || src.level < 3) return;
+  src.hitCounter = (src.hitCounter || 0) + 1;
+  if (src.hitCounter >= 10) {
+    src.hitCounter = 0;
+    spawnShockwave(hitX, hitY);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  ИГРОВОЙ ЦИКЛ
+// ═══════════════════════════════════════════════
+function tick(now) {
+  requestAnimationFrame(tick);
+  if (!lastTime) lastTime = now;
+  const dt = Math.min(0.05, (now - lastTime) / 1000);
+  lastTime = now;
+
+  if (!gameOver) {
+    state.timeSurvived = (now - state.startTime) / 1000;
+
+    // ─── Пассивный доход ───
+    const incomeRate = getPassiveIncome(state.wave);
+    state.incomeAccum += incomeRate * dt;
+    if (state.incomeAccum >= 1) {
+      const whole = Math.floor(state.incomeAccum);
+      state.points += whole;
+      state.incomeTotal += whole;
+      state.incomeAccum -= whole;
+    }
+
+    // Всплывающий индикатор дохода раз в 5 секунд
+    state.incomePopTimer = (state.incomePopTimer || 0) + dt;
+    if (state.incomePopTimer >= 5) {
+      const earned = Math.round(incomeRate * 5);
+      state.incomePopTimer = 0;
+      effects.push({
+        type: 'text',
+        x: 0.5, y: 0.5,
+        text: '+' + earned,
+        color: '#4ade80',
+        ttl: 1.0, maxTtl: 1.0,
+      });
+    }
+
+    const cfg = getWaveConfig(state.wave);
+
+    // Спавн мобов текущей волны
+    if (state.mobsSpawned < state.mobsTotalInWave && now >= state.nextSpawnAt) {
+      spawnMob();
+      state.mobsSpawned++;
+      state.nextSpawnAt = now + cfg.spawnInterval;
+    }
+
+    // Новая волна по таймеру ИЛИ после зачистки
+    if (now >= state.nextWaveAt) {
+      state.wave++;
+      const nextCfg = getWaveConfig(state.wave);
+      state.mobsSpawned = 0;
+      state.mobsTotalInWave = nextCfg.count;
+      state.nextSpawnAt = now;
+      state.nextWaveAt = now + WAVE_INTERVAL_MS;
+      state.waveClearPending = false; // ← сброс флага
+      // Сброс счётчиков волны
+      for (const u of units) {
+        if (u.bonusDamage) u.bonusDamage = 0;
+        if (u.hitCounter) u.hitCounter = 0;
+      }
+    }
+
+    // Баффы от Ритма — пересчёт каждый кадр
+    applySupportBuffs();
+
+    // Движение мобов (с учётом замедления и заморозки)
+    for (const mob of mobs) {
+      let spd = mob.speed;
+      if (mob.freezeUntil && mob.freezeUntil > now) spd = 0;
+      else if (mob.slowUntil && mob.slowUntil > now) spd *= (mob.slowFactor || 0.5);
+      mob.progress += spd * dt;
+      if (mob.hitFlash > 0) mob.hitFlash -= dt;
+    }
+
+    // Лужи льда — замедляют тех, кто стоит внутри
+    for (const mob of mobs) {
+      if (mob.hp <= 0) continue;
+      const mp = mobPos(mob);
+      for (const pd of state.puddles) {
+        if (now < pd.until && Math.hypot(mp.x - pd.x, mp.y - pd.y) <= pd.radius) {
+          if (!mob.freezeUntil || mob.freezeUntil < now) {
+            mob.slowUntil = Math.max(mob.slowUntil || 0, now + 300);
+            mob.slowFactor = Math.min(mob.slowFactor || 1, 0.4);
+          }
+          break;
+        }
+      }
+    }
+    state.puddles = state.puddles.filter(pd => now < pd.until);
+
+    // Огненные зоны — урон мобам внутри
+    for (const fz of state.fireZones) {
+      if (now > fz.until) continue;
+      for (const mob of mobs) {
+        if (mob.hp <= 0) continue;
+        const p = mobPos(mob);
+        if (Math.hypot(p.x - fz.x, p.y - fz.y) <= fz.radius) {
+          mob.hp -= fz.damage * dt;
+          mob.hitFlash = Math.max(mob.hitFlash || 0, 0.05);
+        }
+      }
+    }
+    state.fireZones = state.fireZones.filter(fz => now < fz.until);
+
+    // Атака юнитов
+    for (const unit of units) {
+      unit.cooldown -= dt;
+      if (unit.cooldown > 0) continue;
+
+      // Юнит в воздухе — не атакует и не тикает кулдаун
+      if (unit.beingDragged) {
+        unit.cooldown = 0;   // при отпускании начнёт атаковать сразу
+        continue;
+      }
+
+      const card = cardById(unit.cardId);
+      if (!card) continue;
+
+      // Ритм не атакует
+      if (card.attackType === 'support') continue;
+
+      // ─── Линейная атака (Шип) ───
+      if (card.attackType === 'line') {
+        const directions = unit.level >= 2 ? EIGHT_DIRS : FOUR_DIRS;
+        const dmgMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.5 : 2;
+        const damage = card.damage * dmgMul;
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+
+        let hitAny = false;
+        for (const dir of directions) {
+          for (const mob of mobs) {
+            if (mob.hp <= 0) continue;
+            const p = mobPos(mob);
+            const dx = p.x - ux;
+            const dy = p.y - uy;
+            const proj = dx * dir.x + dy * dir.y;
+            if (proj <= 0) continue;
+            const perp = Math.abs(dx * dir.y - dy * dir.x);
+            if (perp > 0.5) continue;
+            if (proj > card.range) continue;
+
+            mob.hp -= damage;
+            mob.hitFlash = 0.15;
+            hitAny = true;
+            effects.push({
+              type: 'line',
+              from: { x: ux, y: uy },
+              to: { x: ux + dir.x * card.range, y: uy + dir.y * card.range },
+              ttl: 0.12, maxTtl: 0.12,
+            });
+          }
+        }
+
+        if (hitAny) {
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, ux, uy);
+        }
+        continue;
+      }
+
+      // ─── Снайперская атака (Ромб) ───
+      if (card.attackType === 'sniper') {
+        let target = null, maxDist = 0;
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+
+        for (const mob of mobs) {
+          if (mob.hp <= 0) continue;
+          const p = mobPos(mob);
+          const dist = Math.hypot(p.x - ux, p.y - uy);
+          if (dist <= card.range && dist > maxDist) {
+            maxDist = dist;
+            target = mob;
+          }
+        }
+
+        if (target) {
+          const baseMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.5 : 2;
+          const distBonus = 1 + 0.1 * maxDist;
+          let dmg = card.damage * baseMul * distBonus;
+
+          if (unit.level >= 3) {
+            unit.shotCount = (unit.shotCount || 0) + 1;
+            if (unit.shotCount % 3 === 0) dmg *= 2;
+          }
+
+          target.hp -= dmg;
+          target.hitFlash = 0.15;
+
+          const tp = mobPos(target);
+          effects.push({
+            type: 'line',
+            from: { x: ux, y: uy },
+            to: tp,
+            ttl: 0.15, maxTtl: 0.15,
+          });
+
+          // II уровень: пробитие
+          if (unit.level >= 2) {
+            const dirx = tp.x - ux;
+            const diry = tp.y - uy;
+            const len = Math.hypot(dirx, diry) || 1;
+            const nx = dirx / len;
+            const ny = diry / len;
+
+            let second = null, secondDist = Infinity;
+            for (const mob of mobs) {
+              if (mob === target || mob.hp <= 0) continue;
+              const p = mobPos(mob);
+              const dx = p.x - ux;
+              const dy = p.y - uy;
+              const proj = dx * nx + dy * ny;
+              if (proj <= len) continue;
+              const perp = Math.abs(dx * ny - dy * nx);
+              if (perp > 1.0) continue;
+              if (proj < secondDist) {
+                secondDist = proj;
+                second = mob;
+              }
+            }
+            if (second) {
+              second.hp -= dmg * 0.5;
+              second.hitFlash = 0.15;
+              const sp = mobPos(second);
+              effects.push({
+                type: 'line',
+                from: tp,
+                to: sp,
+                ttl: 0.1, maxTtl: 0.1,
+              });
+            }
+          }
+
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, tp.x, tp.y);
+        }
+        continue;
+      }
+
+      // ─── Атака Бума (катапульта) ───
+      if (card.attackType === 'catapult') {
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+        const blastRadius = 1.5;
+
+        // Ищем лучший кластер: точку, вокруг которой больше всего мобов
+        let bestTarget = null, bestScore = 0;
+        for (const mob of mobs) {
+          if (mob.hp <= 0) continue;
+          const p = mobPos(mob);
+          const dist = Math.hypot(p.x - ux, p.y - uy);
+          if (dist < 2.0 || dist > card.range) continue; // минимум 2 клетки
+
+          let score = 0;
+          for (const other of mobs) {
+            if (other.hp <= 0) continue;
+            const op = mobPos(other);
+            if (Math.hypot(op.x - p.x, op.y - p.y) <= blastRadius) score++;
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            bestTarget = { x: p.x, y: p.y };
+          }
+        }
+
+        if (bestTarget) {
+          const dmg = card.damage * (1 + 0.5 * (unit.level - 1));
+
+          // Основной взрыв
+          for (const mob of mobs) {
+            if (mob.hp <= 0) continue;
+            const p = mobPos(mob);
+            if (Math.hypot(p.x - bestTarget.x, p.y - bestTarget.y) <= blastRadius) {
+              mob.hp -= dmg;
+              mob.hitFlash = 0.15;
+              mob.lastHitBy = unit;
+            }
+          }
+          effects.push({ type: 'explosion', x: bestTarget.x, y: bestTarget.y, ttl: 0.45, maxTtl: 0.45 });
+
+          // II уровень: второй снаряд
+          if (unit.level >= 2) {
+            let secondTarget = null, secondScore = 0;
+            for (const mob of mobs) {
+              if (mob.hp <= 0) continue;
+              const p = mobPos(mob);
+              const dist = Math.hypot(p.x - ux, p.y - uy);
+              if (dist < 2.0 || dist > card.range) continue;
+              if (Math.hypot(p.x - bestTarget.x, p.y - bestTarget.y) < blastRadius * 2) continue;
+
+              let score = 0;
+              for (const other of mobs) {
+                if (other.hp <= 0) continue;
+                const op = mobPos(other);
+                if (Math.hypot(op.x - p.x, op.y - p.y) <= blastRadius) score++;
+              }
+              if (score > secondScore) {
+                secondScore = score;
+                secondTarget = { x: p.x, y: p.y };
+              }
+            }
+            if (secondTarget) {
+              for (const mob of mobs) {
+                if (mob.hp <= 0) continue;
+                const p = mobPos(mob);
+                if (Math.hypot(p.x - secondTarget.x, p.y - secondTarget.y) <= blastRadius) {
+                  mob.hp -= dmg;
+                  mob.hitFlash = 0.15;
+                  mob.lastHitBy = unit;
+                }
+              }
+              effects.push({ type: 'explosion', x: secondTarget.x, y: secondTarget.y, ttl: 0.45, maxTtl: 0.45 });
+            }
+          }
+
+          // III уровень: огненная зона после взрыва
+          if (unit.level >= 3) {
+            state.fireZones.push({
+              x: bestTarget.x, y: bestTarget.y,
+              radius: 1.5,
+              damage: 3,
+              bornAt: now,
+              until: now + 4000,
+            });
+          }
+
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, bestTarget.x, bestTarget.y);
+        }
+        continue;
+      }
+
+      // ─── Ледяная атака (Айсберг) — только по одной цели ───
+      if (card.attackType === 'ice') {
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+        const dmg = card.damage * (1 + 0.5 * (unit.level - 1));
+
+        // Ищем ближайшего моба в радиусе
+        let target = null, minDist = Infinity;
+        for (const mob of mobs) {
+          if (mob.hp <= 0) continue;
+          if (mob.freezeUntil && mob.freezeUntil > now) continue; // уже замороженного не бьём
+          const p = mobPos(mob);
+          const dist = Math.hypot(p.x - ux, p.y - uy);
+          if (dist <= card.range && dist < minDist) {
+            minDist = dist;
+            target = mob;
+          }
+        }
+
+        if (target) {
+          target.hp -= dmg;
+          target.hitFlash = 0.15;
+          target.slowUntil = now + 2000;
+          target.slowFactor = 0.5;
+          target.lastHitBy = unit;
+
+          const tp = mobPos(target);
+          effects.push({
+            type: 'line',
+            from: { x: ux, y: uy },
+            to: tp,
+            ttl: 0.12, maxTtl: 0.12,
+          });
+
+          // Каждый 5-й удар — заморозка цели
+          unit.freezeCounter = (unit.freezeCounter || 0) + 1;
+          if (unit.freezeCounter >= 5) {
+            unit.freezeCounter = 0;
+            target.freezeUntil = now + 1500;
+
+            // II+: цепная заморозка
+            if (unit.level >= 2) {
+              const cp = mobPos(target);
+              for (const other of mobs) {
+                if (other === target || other.hp <= 0) continue;
+                const op = mobPos(other);
+                if (Math.hypot(op.x - cp.x, op.y - cp.y) <= 1.5) {
+                  other.freezeUntil = now + 1500;
+                  break;
+                }
+              }
+            }
+          }
+
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, ux, uy);
+        }
+        continue;
+      }
+
+      // ─── Атака Мясника (по всем мобам рядом) ───
+      if (card.attackType === 'butcher') {
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+        const baseDmg = card.damage * (1 + 0.5 * (unit.level - 1)) + (unit.bonusDamage || 0);
+        let hitAny = false;
+
+        for (const mob of mobs) {
+          if (mob.hp <= 0) continue;
+          const p = mobPos(mob);
+          const dist = Math.hypot(p.x - ux, p.y - uy);
+          if (dist > card.range) continue;
+
+          mob.hp -= baseDmg;
+          mob.hitFlash = 0.15;
+          mob.lastHitBy = unit;
+          hitAny = true;
+
+          effects.push({
+            type: 'line',
+            from: { x: ux, y: uy },
+            to: p,
+            ttl: 0.12, maxTtl: 0.12,
+          });
+        }
+
+        if (hitAny) {
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, ux, uy);
+        }
+        continue;
+      }
+      // ─── Круговая атака (все остальные) ───
+      let target = null, minDist = Infinity;
+      for (const mob of mobs) {
+        const p = mobPos(mob);
+        const dist = Math.hypot(p.x - (unit.col + 0.5), p.y - (unit.row + 0.5));
+        if (dist <= card.range && dist < minDist) { minDist = dist; target = mob; }
+      }
+
+      if (target) {
+        const dmg = card.damage * (1 + 0.5 * (unit.level - 1));
+        target.hp -= dmg;
+        target.hitFlash = 0.15;
+        unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+        const p = mobPos(target);
+        effects.push({ type: 'line', from: { x: unit.col + 0.5, y: unit.row + 0.5 }, to: p, ttl: 0.12, maxTtl: 0.12 });
+        countRhythmHit(unit, p.x, p.y);
+      }
+    }
+
+    // Смерть мобов
+    const dead = mobs.filter(m => m.hp <= 0);
+    for (const m of dead) {
+      const p = mobPos(m);
+      const killer = m.lastHitBy;
+      
+      // Айсберг III: замороженный при смерти оставляет лужу
+      const hasIce3 = units.some(u => u.cardId === 'iceberg' && u.level >= 3);
+      if (hasIce3 && m.freezeUntil && m.freezeUntil > now) {
+        state.puddles.push({
+          x: p.x, y: p.y,
+          radius: 1.2,
+          bornAt: now,
+          until: now + 4000,
+        });
+      }
+
+      // ─── Бонусы Мясника ───
+      if (killer && killer.cardId === 'butcher') {
+        // +1 к урону
+        killer.bonusDamage = (killer.bonusDamage || 0) + 1;
+        effects.push({
+          type: 'text', x: p.x, y: p.y - 0.5,
+          text: '+1⚔', color: '#ff6b6b', ttl: 0.8, maxTtl: 0.8
+        });
+
+        // Взрыв крови (уровень II+)
+        if (killer.level >= 2) {
+          const explosionDmg = 3;
+          for (const other of mobs) {
+            if (other === m || other.hp <= 0) continue;
+            const op = mobPos(other);
+            const d = Math.hypot(op.x - p.x, op.y - p.y);
+            if (d <= 1.5) {
+              other.hp -= explosionDmg;
+              other.hitFlash = 0.15;
+            }
+          }
+          // Визуальный взрыв
+          effects.push({ type: 'blood', x: p.x, y: p.y, ttl: 0.35, maxTtl: 0.35 });
+        }
+      }
+
+      // Награда очками (Мясник III — +1 за убийство)
+      let reward = cfg.reward;
+      if (killer && killer.cardId === 'butcher' && killer.level >= 3) reward += 1;
+
+      state.points += reward;
+      state.kills++;
+
+      effects.push({ type: 'text', x: p.x, y: p.y, text: '+' + reward, color: '#4ade80', ttl: 0.7, maxTtl: 0.7 });
+    }
+    mobs = mobs.filter(m => m.hp > 0);
+
+    // Если волна зачищена — следующая через 3 секунды
+    if (state.mobsSpawned >= state.mobsTotalInWave && mobs.length === 0) {
+      if (!state.waveClearPending) {
+        state.waveClearPending = true;
+        state.nextWaveAt = Math.min(state.nextWaveAt, now + 3000);
+      }
+    }
+
+    // Поражение
+    if (mobs.length >= MAX_MOBS) {
+      endGame();
+    }
+
+    // Эффекты
+    for (const e of effects) e.ttl -= dt;
+    effects = effects.filter(e => e.ttl > 0);
+
+    updateUI(now);
+  }
+
+  render(now);
+}
+
+function endGame() {
+  if (gameOver) return;
+  gameOver = true;
+  document.getElementById('endDesc').textContent = 'Мобов стало слишком много';
+  document.getElementById('endScore').innerHTML =
+    `<div>⏱ ${fmtTime(state.timeSurvived)}</div>
+     <div style="font-size:18px;color:#a855f7;margin-top:6px;">Волна ${state.wave}</div>
+     <div style="font-size:16px;color:#94a3b8;margin-top:4px;">${state.kills} убийств</div>`;
+  document.getElementById('endOverlay').classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+//  РЕНДЕР
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+function render(now) {
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Дорожка
+  ctx.fillStyle = '#1e293b';
+  for (const cell of PATH) ctx.fillRect(cell.x * CELL, cell.y * CELL, CELL, CELL);
+
+  // Поле
+  ctx.fillStyle = '#0f1e3a';
+  ctx.fillRect(FIELD_MIN * CELL, FIELD_MIN * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL);
+
+  // Сетка
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= COLS; i++) {
+    ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
+  }
+  for (let i = 0; i <= ROWS; i++) {
+    ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(COLS * CELL, i * CELL); ctx.stroke();
+  }
+
+  // Портал
+  const portal = PATH[0];
+  const px = portal.x * CELL + CELL / 2;
+  const py = portal.y * CELL + CELL / 2;
+  const pulse = 0.7 + 0.3 * Math.sin(now / 300);
+  const grad = ctx.createRadialGradient(px, py, 5, px, py, 30);
+  grad.addColorStop(0, `rgba(168, 85, 247, ${pulse})`);
+  grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(portal.x * CELL, portal.y * CELL, CELL, CELL);
+  ctx.font = '28px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🌌', px, py);
+
+  // Радиус выделенного
+  if (selectedUnit) {
+    const card = cardById(selectedUnit.cardId);
+    const cx = selectedUnit.col * CELL + CELL / 2;
+    const cy = selectedUnit.row * CELL + CELL / 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, card.range * CELL, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(168, 85, 247, 0.15)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(168, 85, 247, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Лужи льда
+  for (const pd of state.puddles) {
+    const age = (performance.now() - pd.bornAt) / 4000;
+    const alpha = Math.max(0, 1 - age);
+    ctx.beginPath();
+    ctx.arc(pd.x * CELL, pd.y * CELL, pd.radius * CELL, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(147, 197, 253, ${0.25 * alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(191, 219, 254, ${0.7 * alpha})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Огненные зоны
+  for (const fz of state.fireZones) {
+    const age = (performance.now() - fz.bornAt) / 4000;
+    const alpha = Math.max(0, 1 - age);
+    ctx.beginPath();
+    ctx.arc(fz.x * CELL, fz.y * CELL, fz.radius * CELL, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 100, 0, ${0.25 * alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255, 200, 50, ${0.7 * alpha})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Юниты
+  for (const unit of units) {
+    // Летящего не рисуем на клетке — его рисует отдельный блок ниже
+    if (unit.beingDragged) continue;
+
+    const card = cardById(unit.cardId);
+    const idx = CARDS.indexOf(card);
+    const cx = unit.col * CELL + CELL / 2;
+    const cy = unit.row * CELL + CELL / 2;
+    const isSel = selectedUnit === unit;
+
+    const sprite = SPRITES[card.id];
+    if (sprite) {
+      const size = CELL * 0.95;
+      ctx.drawImage(sprite, cx - size / 2, cy - size / 2, size, size);
+    } else {
+
+      // Фолбэк: кружок + эмодзи
+      ctx.beginPath();
+      ctx.arc(cx, cy, CELL * 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = CARD_COLORS[idx % CARD_COLORS.length] + '99';
+      ctx.fill();
+      ctx.font = '26px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(card.emoji, cx, cy);
+    }
+    if (isSel) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, CELL * 0.55, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+    // Ритм — пульсирующий радиус баффа
+    if (unit.cardId === 'rhythm') {
+      const radius = unit.level >= 2 ? 2.5 : 1.5;
+      const pulse = 0.5 + 0.5 * Math.sin(now / 400);
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * CELL, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(251, 191, 36, ${0.2 + 0.15 * pulse})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = `rgba(251, 191, 36, ${0.04 + 0.03 * pulse})`;
+      ctx.fill();
+    }
+
+    // Индикатор баффа у союзника
+    if (unit.speedBuff > 1 && unit.cardId !== 'rhythm') {
+      ctx.beginPath();
+      ctx.arc(cx + 18, cy - 18, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    if (unit.level > 1) {
+      ctx.beginPath();
+      ctx.arc(cx + 18, cy + 18, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd700';
+      ctx.fill();
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(unit.level), cx + 18, cy + 19);
+    }
+    // Бейдж накопленного урона (Мясник)
+    if (unit.cardId === 'butcher' && unit.bonusDamage > 0) {
+      ctx.beginPath();
+      ctx.arc(cx - 18, cy + 18, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fill();
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('+' + unit.bonusDamage, cx - 18, cy + 19);
+    }
+  }
+
+  // Мобы
+  for (const mob of mobs) {
+    const p = mobPos(mob);
+    const cx = p.x * CELL;
+    const cy = p.y * CELL;
+    ctx.beginPath();
+    ctx.arc(cx, cy, CELL * 0.32, 0, Math.PI * 2);
+    ctx.fillStyle = mob.hitFlash > 0 ? '#fff' : MOB_COLOR;
+    ctx.fill();
+    ctx.font = '20px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(MOB_EMOJI, cx, cy);
+
+    const hpPct = Math.max(0, mob.hp / mob.maxHp);
+    const barW = CELL * 0.6;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(cx - barW / 2, cy - CELL * 0.45, barW, 3);
+    ctx.fillStyle = hpPct > 0.5 ? '#4ade80' : hpPct > 0.25 ? '#fbbf24' : '#f87171';
+    ctx.fillRect(cx - barW / 2, cy - CELL * 0.45, barW * hpPct, 3);
+    // Индикатор замедления/заморозки
+    if (mob.freezeUntil && mob.freezeUntil > performance.now()) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, CELL * 0.42, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(147, 197, 253, 0.4)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(191, 219, 254, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else if (mob.slowUntil && mob.slowUntil > performance.now()) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, CELL * 0.38, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(147, 197, 253, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // Эффекты
+  for (const e of effects) {
+    const alpha = e.ttl / e.maxTtl;
+    if (e.type === 'line') {
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(e.from.x * CELL, e.from.y * CELL);
+      ctx.lineTo(e.to.x * CELL, e.to.y * CELL);
+      ctx.stroke();
+    } else if (e.type === 'text') {
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = e.color;
+      ctx.globalAlpha = alpha;
+      ctx.fillText(e.text, e.x * CELL, e.y * CELL - (1 - alpha) * 20);
+      ctx.globalAlpha = 1;
+    } else if (e.type === 'shockwave') {
+      const progress = 1 - e.ttl / e.maxTtl;
+      const r = progress * CELL * 1.8;
+      ctx.beginPath();
+      ctx.arc(e.x * CELL, e.y * CELL, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(251, 191, 36, ${alpha})`;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(e.x * CELL, e.y * CELL, r * 0.6, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else if (e.type === 'explosion') {
+      const progress = 1 - e.ttl / e.maxTtl;
+      const r = progress * CELL * 1.5;
+      const grad = ctx.createRadialGradient(e.x * CELL, e.y * CELL, 0, e.x * CELL, e.y * CELL, r);
+      grad.addColorStop(0, `rgba(255, 230, 100, ${alpha})`);
+      grad.addColorStop(0.4, `rgba(255, 140, 0, ${alpha * 0.8})`);
+      grad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(e.x * CELL, e.y * CELL, r, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (e.type === 'blood') {
+    } else if (e.type === 'blood') {
+      // Кровавый взрыв — красный круг с затуханием
+      ctx.beginPath();
+      ctx.arc(e.x * CELL, e.y * CELL, (1 - e.ttl / e.maxTtl) * CELL * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220, 38, 38, ${alpha * 0.5})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(220, 38, 38, ${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // Перетаскиваемый юнит
+  if (isDragging && dragCandidate) {
+    const card = cardById(dragCandidate.cardId);
+    const sprite = SPRITES[card.id];
+
+    // Подсветка целевой клетки (если пустая и в поле)
+    const tcol = Math.floor(dragCurrentX / CELL);
+    const trow = Math.floor(dragCurrentY / CELL);
+    if (inField(tcol, trow) && !unitAt(tcol, trow)) {
+      ctx.fillStyle = 'rgba(74, 222, 128, 0.25)';
+      ctx.fillRect(tcol * CELL, trow * CELL, CELL, CELL);
+      ctx.strokeStyle = 'rgba(74, 222, 128, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(tcol * CELL + 1, trow * CELL + 1, CELL - 2, CELL - 2);
+    }
+
+    // Полупрозрачный юнит следует за курсором
+    ctx.globalAlpha = 0.75;
+    if (sprite) {
+      const size = CELL * 0.95;
+      ctx.drawImage(sprite, dragCurrentX - size / 2, dragCurrentY - size / 2, size, size);
+    } else {
+      ctx.font = '30px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(card.emoji, dragCurrentX, dragCurrentY);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Подсказка в руке
+  if (handCard) {
+    const card = cardById(handCard.cardId);
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText('Кликни по клетке: ' + card.emoji, canvas.width - 8, 16);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════
+function updateUI(now) {
+  document.getElementById('statPoints').textContent = Math.floor(state.points);
+  document.getElementById('statWave').textContent = state.wave;
+  document.getElementById('statTime').textContent = fmtTime(state.timeSurvived);
+  document.getElementById('statMobs').textContent = `${mobs.length} / ${MAX_MOBS}`;
+
+  // Пассивный доход рядом с очками
+  const incomeRate = getPassiveIncome(state.wave);
+  const pointsEl = document.getElementById('statPoints');
+  pointsEl.textContent = Math.floor(state.points);
+  pointsEl.title = `+${incomeRate.toFixed(1)}/сек`;
+  document.getElementById('statIncome').textContent = `+${incomeRate.toFixed(1)}/с`;
+
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.textContent = `🎲 БРОСИТЬ (${state.rollCost})`;
+  rollBtn.disabled = gameOver || state.points < state.rollCost || !!handCard;
+
+  const sellBtn = document.getElementById('sellBtn');
+  sellBtn.disabled = !selectedUnit || gameOver;
+
+  document.getElementById('handEmoji').textContent = handCard ? cardById(handCard.cardId).emoji : '—';
+
+  const banner = document.getElementById('waveBanner');
+  if (gameOver) {
+    banner.textContent = '';
+    banner.classList.add('hidden');
+  } else if (now) {
+    const remain = Math.max(0, (state.nextWaveAt - now) / 1000);
+    const spawnedRemain = Math.max(0, state.mobsTotalInWave - state.mobsSpawned);
+    if (state.waveClearPending && mobs.length === 0 && spawnedRemain === 0) {
+      banner.textContent = `✅ Волна ${state.wave} зачищена! Следующая через ${remain.toFixed(1)}с`;
+    } else {
+      const queue = spawnedRemain > 0 ? ` (+${spawnedRemain})` : '';
+      banner.textContent = `⚔️ Волна ${state.wave} · до следующей: ${remain.toFixed(1)}с · на дорожке: ${mobs.length}${queue}`;
+    }
+    banner.classList.remove('hidden');
+  }
+}
+
+function renderDeck() {
+  const deck = document.getElementById('deck');
+  deck.innerHTML = CARDS.map((c, i) => {
+    const stats = c.attackType === 'support'
+      ? `<div class="stat-line">🛡 поддержка</div><div class="stat-line">🎯${c.range}</div><div class="stat-line">+15%⚡</div>`
+      : `<div class="stat-line">⚔${c.damage}</div><div class="stat-line">🎯${c.range}</div><div class="stat-line">⚡${c.attackSpeed}</div>`;
+    return `
+      <div class="deck-card" style="border-color:${CARD_COLORS[i % CARD_COLORS.length]}88">
+        <div class="emoji">${c.emoji}</div>
+        <div class="name">${c.name}</div>
+        ${stats}
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  ВВОД
+// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  ПЕРЕТАСКИВАНИЕ ЮНИТОВ (drag-and-drop)
+// ═══════════════════════════════════════════════
+let dragCandidate = null;   // юнит, которого возможно тащим
+let dragStartX = 0, dragStartY = 0;
+let dragCurrentX = 0, dragCurrentY = 0;
+let isDragging = false;
+let suppressClick = false;
+const DRAG_THRESHOLD = 3;   // почти мгновенный захват
+
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width),
+    y: (e.clientY - rect.top) * (canvas.height / rect.height),
+  };
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (gameOver) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+  const { x, y } = getCanvasCoords(e);
+  const col = Math.floor(x / CELL);
+  const row = Math.floor(y / CELL);
+  if (!inField(col, row)) return;
+  if (handCard) return; // если в руке юнит — он ставится кликом, не тащим
+
+  const u = unitAt(col, row);
+  if (!u) return;
+
+  dragCandidate = u;
+  dragStartX = x;
+  dragStartY = y;
+  dragCurrentX = x;
+  dragCurrentY = y;
+  isDragging = false;
+  u.beingDragged = true;
+  canvas.setPointerCapture(e.pointerId);   // ← жёсткий захват указателя
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (!dragCandidate) return;
+  const { x, y } = getCanvasCoords(e);
+  dragCurrentX = x;
+  dragCurrentY = y;
+
+  if (!isDragging) {
+    const dx = x - dragStartX;
+    const dy = y - dragStartY;
+    if (Math.hypot(dx, dy) > DRAG_THRESHOLD) isDragging = true;
+  }
+});
+
+document.addEventListener('pointerup', (e) => {
+  if (!dragCandidate) return;
+
+  // Снимаем флаг «в воздухе»
+  dragCandidate.beingDragged = false;
+
+  if (isDragging) {
+    const { x, y } = getCanvasCoords(e);
+    const col = Math.floor(x / CELL);
+    const row = Math.floor(y / CELL);
+    const u = dragCandidate;
+
+    if (inField(col, row) && !unitAt(col, row) && (u.col !== col || u.row !== row)) {
+      // Перетащили в пустую клетку → перемещаем
+      moveUnit(u, col, row);
+    } else if (u.col === col && u.row === row) {
+      // Отпустили на той же клетке → просто выделяем
+      selectedUnit = u;
+      updateUI();
+    }
+    // Отпустили на занятой или вне поля → ничего, юнит остаётся на месте
+
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 50);
+  }
+
+  dragCandidate = null;
+  isDragging = false;
+});
+
+// Страховка: если pointerup потерялся, сбросить флаг при потере фокуса
+window.addEventListener('blur', () => {
+  if (dragCandidate) {
+    dragCandidate.beingDragged = false;
+    dragCandidate = null;
+    isDragging = false;
+  }
+});
+
+canvas.addEventListener('click', (e) => {
+  if (gameOver) return;
+  if (suppressClick) return; // был drag — не обрабатываем клик
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const col = Math.floor(x / CELL);
+  const row = Math.floor(y / CELL);
+
+  if (!inField(col, row)) return;
+
+  const targetUnit = unitAt(col, row);
+
+  if (handCard) {
+    placeUnit(col, row);
+    return;
+  }
+
+  if (targetUnit) {
+    selectedUnit = (selectedUnit === targetUnit) ? null : targetUnit;
+    updateUI();
+    return;
+  }
+
+  if (selectedUnit) {
+    moveUnit(selectedUnit, col, row);
+    return;
+  }
+});
+
+document.getElementById('rollBtn').addEventListener('click', roll);
+document.getElementById('sellBtn').addEventListener('click', sellSelected);
+document.getElementById('restartBtn').addEventListener('click', () => newGame());
+
+// ═══════════════════════════════════════════════
+//  СТАРТ
+// ═══════════════════════════════════════════════
+loadSprites();
+renderDeck();
+newGame();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Осада — Boxes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    overflow: hidden;
+  }
+  .shell {
+    display: flex; flex-direction: column;
+    height: 100dvh; max-width: 480px; margin: 0 auto;
+    padding: 12px; gap: 10px;
+  }
+
+  /* ═══ HEADER ═══ */
+  .header {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px; flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 22px; font-weight: 900; letter-spacing: 3px;
+    background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ═══ CONTENT ═══ */
+  .content {
+    flex: 1; min-height: 0;
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 20px 16px;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .content-placeholder {
+    text-align: center; color: #64748b;
+    font-size: 14px; line-height: 1.6;
+  }
+  .content-placeholder .icon { font-size: 56px; display: block; margin-bottom: 14px; }
+  .content-placeholder b { color: #cbd5e1; font-size: 18px; display: block; margin-bottom: 6px; }
+
+  /* ═══ PLAY BUTTON ═══ */
+  .play-btn {
+    flex-shrink: 0; padding: 18px;
+    background: linear-gradient(135deg, #ffd700, #ff9500);
+    color: #1a1a2e; border: none; border-radius: 12px;
+    font-size: 20px; font-weight: 900; letter-spacing: 3px;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .play-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255, 215, 0, 0.6); }
+  .play-btn:active { transform: translateY(0); }
+
+  /* ═══ TABS (нижняя панель) ═══ */
+  .tabs {
+    flex-shrink: 0; display: grid;
+    grid-template-columns: repeat(4, 1fr); gap: 6px;
+  }
+  .tab {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 10px 4px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 10px; color: #94a3b8;
+    font-size: 10px; font-weight: 900; letter-spacing: 0.5px;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .tab .tab-icon { font-size: 20px; line-height: 1; }
+  .tab:hover { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(124,58,237,0.15));
+    border-color: #a855f7; color: #c084fc;
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+  }
+  .tab.exit-tab { color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); }
+  .tab.exit-tab:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.5); }
+  .tab.battle-tab { color: #ef4444; border-color: rgba(239, 68, 68, 0.25); }
+  .tab.battle-tab:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.6); }
+  .tab.battle-tab.active {
+    background: linear-gradient(135deg, rgba(239,68,68,0.25), rgba(220,38,38,0.15));
+    border-color: #ef4444; color: #f87171;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+  }
+
+  @media (max-width: 400px) {
+    .header-title { font-size: 18px; letter-spacing: 2px; }
+    .play-btn { font-size: 17px; padding: 15px; }
+    .tab { padding: 8px 2px; font-size: 9px; }
+    .tab .tab-icon { font-size: 18px; }
+    .content-placeholder .icon { font-size: 44px; }
+    .content-placeholder b { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="header">
+    <div class="header-title">⚔️ ОСАДА</div>
+  </div>
+
+  <div class="content" id="content">
+    <div class="content-placeholder" id="contentPlaceholder">
+      <span class="icon">⚔️</span>
+      <b>Готов к бою?</b>
+      Колода из 8 карт, бесконечные волны. Продержись как можно дольше.
+    </div>
+  </div>
+
+  <button class="play-btn" id="playBtn">ИГРАТЬ</button>
+
+  <div class="tabs">
+    <button class="tab exit-tab" data-tab="boxes">
+      <span class="tab-icon">📦</span><span>ВОКС</span>
+    </button>
+    <button class="tab" data-tab="deck">
+      <span class="tab-icon">🃏</span><span>КОЛОДА</span>
+    </button>
+    <button class="tab battle-tab active" data-tab="battle">
+      <span class="tab-icon">⚔️</span><span>В БОЙ</span>
+    </button>
+    <button class="tab" data-tab="market">
+      <span class="tab-icon">🏪</span><span>РЫНОК</span>
+    </button>
+  </div>
+
+</div>
+
+<script>
+const TAB_CONTENT = {
+  battle: {
+    icon: '⚔️',
+    title: 'Готов к бою?',
+    desc: 'Колода из 8 карт, бесконечные волны. Продержись как можно дольше.',
+  },
+  deck: {
+    icon: '🃏',
+    title: 'Колода',
+    desc: 'Тут будет сборка 8 карт для боя',
+  },
+  market: {
+    icon: '🏪',
+    title: 'Рынок',
+    desc: 'Тут будет покупка карт и апгрейды',
+  },
+};
+
+function switchTab(id) {
+  // ВОКС — возврат в основную игру
+  if (id === 'boxes') {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const t = TAB_CONTENT[id];
+  if (!t) return;
+
+  document.getElementById('contentPlaceholder').innerHTML =
+    `<span class="icon">${t.icon}</span><b>${t.title}</b>${t.desc}`;
+
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === id);
+  });
+}
+
+document.querySelectorAll('.tab').forEach(el => {
+  el.addEventListener('click', () => switchTab(el.dataset.tab));
+});
+
+// Кнопка ИГРАТЬ — запуск матча
+document.getElementById('playBtn').addEventListener('click', () => {
+  window.location.href = 'siege-match.html';
+});
+</script>
+
+</body>
+</html>
