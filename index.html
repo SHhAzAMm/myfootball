@@ -1770,6 +1770,57 @@
             .quest-reward { font-size: 10px; }
             .quest-btn { padding: 6px 10px; font-size: 10px; }
         }
+
+        /* ═══ НИЖНЯЯ ПАНЕЛЬ ═══ */
+        .bottom-tabs {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 100;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+            background: rgba(15, 20, 40, 0.95);
+            border-top: 2px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .bottom-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 8px 4px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #94a3b8;
+            font-size: 10px; font-weight: 900; letter-spacing: 0.5px;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .bottom-tab .bt-icon { font-size: 20px; line-height: 1; }
+        .bottom-tab:hover { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+        .bottom-tab.active {
+            background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(217,119,6,0.15));
+            border-color: #fbbf24; color: #fbbf24;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.35);
+        }
+        .bottom-tab.battle-tab { color: #ef4444; border-color: rgba(239, 68, 68, 0.25); }
+        .bottom-tab.battle-tab:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #f87171;
+        }
+
+        /* Освобождаем место под панель снизу */
+        body { padding-bottom: 90px; }
+
+        @media (max-width: 600px) {
+            .bottom-tab { padding: 6px 2px; font-size: 9px; }
+            .bottom-tab .bt-icon { font-size: 18px; }
+            .bottom-tabs { padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
+            body { padding-bottom: 80px; }
+        }
+
     </style>
 </head>
 <body>
@@ -2201,6 +2252,20 @@
             <div class="reveal-count-badge" id="revealCountBadge" style="display:none;"></div>
             <button class="reveal-close" id="revealClose">Забрать</button>
         </div>
+    </div>
+    <div class="bottom-tabs">
+        <button class="bottom-tab active" data-tab="boxes">
+            <span class="bt-icon">📦</span><span>ВОКС</span>
+        </button>
+        <button class="bottom-tab" data-tab="deck">
+            <span class="bt-icon">🃏</span><span>КОЛОДА</span>
+        </button>
+        <button class="bottom-tab battle-tab" data-tab="battle">
+            <span class="bt-icon">⚔️</span><span>В БОЙ</span>
+        </button>
+        <button class="bottom-tab" data-tab="market">
+            <span class="bt-icon">🏪</span><span>РЫНОК</span>
+        </button>
     </div>
 
     <script>
@@ -4397,6 +4462,21 @@
         document.getElementById('questOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'questOverlay') closeQuestPanel();
         });
+
+        // ═══ НИЖНЯЯ ПАНЕЛЬ ═══
+        document.querySelectorAll('.bottom-tab').forEach(el => {
+            el.addEventListener('click', () => {
+                const id = el.dataset.tab;
+                if (id === 'boxes') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+                if (id === 'deck')   { window.location.href = 'siege.html?tab=deck';   return; }
+                if (id === 'battle') { window.location.href = 'siege.html';             return; }
+                if (id === 'market') { window.location.href = 'siege.html?tab=market'; return; }
+            });
+        });
+        
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');

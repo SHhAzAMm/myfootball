@@ -19,16 +19,16 @@
     padding: 12px; gap: 10px;
   }
 
-  /* ═══ HEADER ═══ */
+  /* ═══ HEADER (РЕЖИМ) ═══ */
   .header {
     display: flex; align-items: center; justify-content: center;
-    padding: 12px 14px;
+    padding: 14px;
     background: rgba(255,255,255,0.06);
     border: 2px solid rgba(255,255,255,0.1);
     border-radius: 12px; flex-shrink: 0;
   }
   .header-title {
-    font-size: 22px; font-weight: 900; letter-spacing: 3px;
+    font-size: 20px; font-weight: 900; letter-spacing: 4px;
     background: linear-gradient(90deg, #ffd700, #ff6b6b, #a855f7);
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -64,7 +64,7 @@
   .play-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255, 215, 0, 0.6); }
   .play-btn:active { transform: translateY(0); }
 
-  /* ═══ TABS (нижняя панель) ═══ */
+  /* ═══ TABS ═══ */
   .tabs {
     flex-shrink: 0; display: grid;
     grid-template-columns: repeat(4, 1fr); gap: 6px;
@@ -88,7 +88,7 @@
   .tab.exit-tab { color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); }
   .tab.exit-tab:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.5); }
   .tab.battle-tab { color: #ef4444; border-color: rgba(239, 68, 68, 0.25); }
-  .tab.battle-tab:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.6); }
+  .tab.battle-tab:hover { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.6); color: #f87171; }
   .tab.battle-tab.active {
     background: linear-gradient(135deg, rgba(239,68,68,0.25), rgba(220,38,38,0.15));
     border-color: #ef4444; color: #f87171;
@@ -96,7 +96,7 @@
   }
 
   @media (max-width: 400px) {
-    .header-title { font-size: 18px; letter-spacing: 2px; }
+    .header-title { font-size: 16px; letter-spacing: 3px; }
     .play-btn { font-size: 17px; padding: 15px; }
     .tab { padding: 8px 2px; font-size: 9px; }
     .tab .tab-icon { font-size: 18px; }
@@ -108,17 +108,12 @@
 <body>
 
 <div class="shell">
-
   <div class="header">
     <div class="header-title">⚔️ ОСАДА</div>
   </div>
 
   <div class="content" id="content">
-    <div class="content-placeholder" id="contentPlaceholder">
-      <span class="icon">⚔️</span>
-      <b>Готов к бою?</b>
-      Колода из 8 карт, бесконечные волны. Продержись как можно дольше.
-    </div>
+    <div class="content-placeholder" id="contentPlaceholder"></div>
   </div>
 
   <button class="play-btn" id="playBtn">ИГРАТЬ</button>
@@ -137,7 +132,6 @@
       <span class="tab-icon">🏪</span><span>РЫНОК</span>
     </button>
   </div>
-
 </div>
 
 <script>
@@ -147,44 +141,46 @@ const TAB_CONTENT = {
     title: 'Готов к бою?',
     desc: 'Колода из 8 карт, бесконечные волны. Продержись как можно дольше.',
   },
-  deck: {
-    icon: '🃏',
-    title: 'Колода',
-    desc: 'Тут будет сборка 8 карт для боя',
-  },
-  market: {
-    icon: '🏪',
-    title: 'Рынок',
-    desc: 'Тут будет покупка карт и апгрейды',
-  },
+  deck:   { icon: '🃏', title: 'Колода',  desc: 'Тут будет сборка 8 карт' },
+  market: { icon: '🏪', title: 'Рынок',   desc: 'Тут будет покупка карт и апгрейды' },
 };
 
-function switchTab(id) {
-  // ВОКС — возврат в основную игру
-  if (id === 'boxes') {
-    window.location.href = 'index.html';
-    return;
-  }
+const params = new URLSearchParams(location.search);
+let activeTab = params.get('tab') || 'battle';
+if (!TAB_CONTENT[activeTab]) activeTab = 'battle';
 
+function renderTab(id) {
   const t = TAB_CONTENT[id];
   if (!t) return;
-
   document.getElementById('contentPlaceholder').innerHTML =
     `<span class="icon">${t.icon}</span><b>${t.title}</b>${t.desc}`;
-
   document.querySelectorAll('.tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === id);
   });
 }
 
 document.querySelectorAll('.tab').forEach(el => {
-  el.addEventListener('click', () => switchTab(el.dataset.tab));
+  el.addEventListener('click', () => {
+    const id = el.dataset.tab;
+
+    if (id === 'boxes') {
+      window.location.href = 'index.html';
+      return;
+    }
+    // battle / deck / market — переключение контента на месте
+    activeTab = id;
+    renderTab(id);
+    history.replaceState(null, '', id === 'battle' ? '' : '?tab=' + id);
+  });
 });
 
 // Кнопка ИГРАТЬ — запуск матча
 document.getElementById('playBtn').addEventListener('click', () => {
   window.location.href = 'siege-match.html';
 });
+
+// Стартовая отрисовка
+renderTab(activeTab);
 </script>
 
 </body>
