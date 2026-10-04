@@ -133,6 +133,14 @@
     color: #cbd5e1;
   }
   .deck-card .emoji { font-size: 22px; line-height: 1; margin-bottom: 2px; }
+  .deck-card-sprite {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+    margin: 0 auto 4px;
+  }
   .deck-card .name { font-weight: 900; margin-bottom: 2px; }
   .deck-card .stat-line { color: #94a3b8; font-size: 9px; line-height: 1.2; }
 
@@ -1451,7 +1459,8 @@ function renderDeck() {
       : `<div class="stat-line">⚔${c.damage}</div><div class="stat-line">🎯${c.range}</div><div class="stat-line">⚡${c.attackSpeed}</div>`;
     return `
       <div class="deck-card" style="border-color:${CARD_COLORS[i % CARD_COLORS.length]}88">
-        <div class="emoji">${c.emoji}</div>
+        <img class="deck-card-sprite" src="units/${c.id}.png" alt="${c.name}"
+             onerror="this.outerHTML='<div class=\\'emoji\\'>${c.emoji}</div>'">
         <div class="name">${c.name}</div>
         ${stats}
       </div>
