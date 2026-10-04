@@ -484,6 +484,7 @@ document.getElementById('cardBtn').addEventListener('click', () => {
   closeCardModal();
   renderDeckSlots();
   renderCharGrid();
+  renderTab(activeTab);   // ← обновить кнопку ИГРАТЬ
 });
 
 // ═══════════════════════════════════════════════
@@ -522,8 +523,19 @@ function renderTab(id) {
     el.classList.toggle('active', el.dataset.tab === id);
   });
 
-  document.getElementById('playBtn').style.display =
-    (id === 'battle') ? 'block' : 'none';
+  const playBtn = document.getElementById('playBtn');
+  const filled = siegeDeck.filter(x => x !== null).length;
+
+  // Текст/состояние кнопки обновляем всегда
+  playBtn.disabled = filled === 0;
+  playBtn.textContent = filled === 0
+    ? 'СНАЧАЛА СОБЕРИ КОЛОДУ'
+    : (filled < DECK_SIZE ? `ИГРАТЬ (${filled}/${DECK_SIZE})` : 'ИГРАТЬ');
+  playBtn.style.opacity = filled === 0 ? '0.4' : '1';
+  playBtn.style.cursor = filled === 0 ? 'not-allowed' : 'pointer';
+
+  // Показываем кнопку только на табе "В БОЙ"
+  playBtn.style.display = (id === 'battle') ? 'block' : 'none';
 }
 
 document.querySelectorAll('.tab').forEach(el => {

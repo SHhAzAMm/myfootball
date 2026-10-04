@@ -118,7 +118,7 @@
 
   .deck {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
     gap: 6px;
     width: 100%;
     max-width: 560px;
@@ -266,9 +266,8 @@ const EIGHT_DIRS = [
   { x: 0.707, y: 0.707 },
 ];
 
-// Карты (заглушки)
-// id → units/{id}.png подхватывается автоматически
-const CARDS = [
+// Все возможные карты — справочник статов
+const ALL_CARDS = [
   { id: 'spike',    emoji: '🟩', name: 'Шип',      damage: 6,  range: 6.0, attackSpeed: 1.5, attackType: 'line' },
   { id: 'rhombus',  emoji: '🔷', name: 'Ромб',     damage: 3,  range: 6.0, attackSpeed: 1.0, attackType: 'sniper' },
   { id: 'rhythm',   emoji: '🟨', name: 'Ритм',     damage: 0,  range: 1.5, attackSpeed: 0,   attackType: 'support' },
@@ -278,6 +277,36 @@ const CARDS = [
   { id: 'assassin', emoji: '🗡️', name: 'Ассасин',   damage: 18, range: 1.5, attackSpeed: 2.0 },
   { id: 'butcher',  emoji: '🟥', name: 'Мясник',    damage: 5,  range: 1.8, attackSpeed: 1.2, attackType: 'butcher' },
 ];
+
+// ─── Собираем CARDS из колоды игрока (localStorage) ───
+let deckIds = [];
+try {
+  deckIds = JSON.parse(localStorage.getItem('siege_deck_v1') || '[]');
+  if (!Array.isArray(deckIds)) deckIds = [];
+} catch (e) { deckIds = []; }
+
+// Убираем null, дубликаты; оставляем только те, что есть в справочнике
+const seen = new Set();
+deckIds = deckIds.filter(id => {
+  if (!id) return false;
+  if (seen.has(id)) return false;
+  if (!ALL_CARDS.find(c => c.id === id)) return false;
+  seen.add(id);
+  return true;
+});
+
+// Строим массив карт для матча
+const CARDS = deckIds
+  .map(id => ALL_CARDS.find(c => c.id === id))
+  .filter(Boolean);
+
+// Если колода пустая — возврат в меню (защита от прямого захода)
+if (CARDS.length === 0) {
+  alert('Сначала собери колоду');
+  window.location.href = 'siege.html';
+  // стоп дальнейший код через throw — простой способ
+  throw new Error('Empty deck');
+}
 
 const CARD_COLORS = ['#ff6b6b','#60a5fa','#fbbf24','#4ade80','#a855f7','#22d3ee','#f472b6','#94a3b8'];
 
@@ -1318,7 +1347,6 @@ function render(now) {
       ctx.beginPath();
       ctx.arc(e.x * CELL, e.y * CELL, r, 0, Math.PI * 2);
       ctx.fill();
-    } else if (e.type === 'blood') {
     } else if (e.type === 'blood') {
       // Кровавый взрыв — красный круг с затуханием
       ctx.beginPath();
