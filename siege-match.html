@@ -281,7 +281,7 @@ const ALL_CARDS = [
   { id: 'rhythm',   emoji: '🟨', name: 'Ритм',     damage: 0,  range: 1.5, attackSpeed: 0,   attackType: 'support' },
   { id: 'iceberg',  emoji: '🧊', name: 'Айсберг',  damage: 5,  range: 2.5, attackSpeed: 0.9, attackType: 'ice' },
   { id: 'boom',     emoji: '💥', name: 'Бум',      damage: 25, range: 5.0, attackSpeed: 0.3, attackType: 'catapult' },
-  { id: 'thunder',  emoji: '⚡', name: 'Гром',      damage: 12, range: 2.5, attackSpeed: 0.5 },
+  { id: 'tesla',    emoji: '🟪', name: 'Дуга',      damage: 12, range: 3.5, attackSpeed: 0.7, attackType: 'chain' },
   { id: 'assassin', emoji: '🗡️', name: 'Ассасин',   damage: 18, range: 1.5, attackSpeed: 2.0 },
   { id: 'butcher',  emoji: '🟥', name: 'Мясник',    damage: 5,  range: 1.8, attackSpeed: 1.2, attackType: 'butcher' },
 ];
@@ -813,6 +813,78 @@ function tick(now) {
         continue;
       }
 
+      // ─── Цепная молния (Дуга) ───
+      if (card.attackType === 'chain') {
+        const ux = unit.col + 0.5;
+        const uy = unit.row + 0.5;
+
+        // Ищем ближайшего моба в радиусе стрельбы
+        let firstTarget = null, firstDist = Infinity;
+        for (const mob of mobs) {
+          if (mob.hp <= 0) continue;
+          const p = mobPos(mob);
+          const dist = Math.hypot(p.x - ux, p.y - uy);
+          if (dist <= card.range && dist < firstDist) {
+            firstDist = dist;
+            firstTarget = mob;
+          }
+        }
+
+        if (firstTarget) {
+          const baseDmg = card.damage * (1 + 0.5 * (unit.level - 1));
+          const maxTargets = unit.level >= 2 ? 5 : 3;
+          const jumpRadius = 2.0;
+          const dmgFalloff = 0.8;   // −20% за прыжок
+
+          const hitSet = new Set();
+          let current = firstTarget;
+          let currentDmg = baseDmg;
+          let prevPos = { x: ux, y: uy };
+
+          for (let i = 0; i < maxTargets && current; i++) {
+            hitSet.add(current);
+            const cp = mobPos(current);
+            current.hp -= currentDmg;
+            current.hitFlash = 0.15;
+            current.lastHitBy = unit;
+
+            // Визуал: дуга от предыдущей точки к текущей
+            effects.push({
+              type: 'lightning',
+              from: { x: prevPos.x, y: prevPos.y },
+              to: { x: cp.x, y: cp.y },
+              ttl: 0.18, maxTtl: 0.18,
+            });
+
+            // III уровень: 25% шанс оглушить
+            if (unit.level >= 3 && Math.random() < 0.25) {
+              current.freezeUntil = Math.max(current.freezeUntil || 0, now + 1000);
+            }
+
+            // Ищем следующую цель: ближайший моб в радиусе прыжка, ещё не битый
+            prevPos = cp;
+            currentDmg *= dmgFalloff;
+
+            let next = null, nextDist = Infinity;
+            for (const mob of mobs) {
+              if (mob.hp <= 0) continue;
+              if (hitSet.has(mob)) continue;
+              const mp = mobPos(mob);
+              const d = Math.hypot(mp.x - cp.x, mp.y - cp.y);
+              if (d <= jumpRadius && d < nextDist) {
+                nextDist = d;
+                next = mob;
+              }
+            }
+            current = next;
+          }
+
+          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          countRhythmHit(unit, ux, uy);
+        }
+        continue;
+      }
+
       // ─── Атака Бума (катапульта) ───
       if (card.attackType === 'catapult') {
         const ux = unit.col + 0.5;
@@ -1322,6 +1394,30 @@ function render(now) {
       ctx.beginPath();
       ctx.moveTo(e.from.x * CELL, e.from.y * CELL);
       ctx.lineTo(e.to.x * CELL, e.to.y * CELL);
+      ctx.stroke();
+    } else if (e.type === 'lightning') {
+      // Зигзагообразная молния между двумя точками
+      const x1 = e.from.x * CELL;
+      const y1 = e.from.y * CELL;
+      const x2 = e.to.x * CELL;
+      const y2 = e.to.y * CELL;
+      const segments = 6;
+      ctx.strokeStyle = `rgba(200, 160, 255, ${alpha})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      for (let i = 1; i < segments; i++) {
+        const t = i / segments;
+        const px = x1 + (x2 - x1) * t;
+        const py = y1 + (y2 - y1) * t;
+        const offset = (Math.random() - 0.5) * 12;
+        ctx.lineTo(px + offset, py + offset);
+      }
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      // Внутренняя яркая линия
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+      ctx.lineWidth = 1;
       ctx.stroke();
     } else if (e.type === 'text') {
       ctx.font = 'bold 16px sans-serif';
