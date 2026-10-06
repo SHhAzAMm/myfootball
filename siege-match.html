@@ -185,7 +185,7 @@
 <body>
 
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-  <button onclick="window.location.href='siege.html'" style="padding:8px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:8px; font-size:13px; font-weight:900; cursor:pointer; font-family:inherit;">← МЕНЮ</button>
+  <button id="exitBtn" style="padding:8px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:8px; font-size:13px; font-weight:900; cursor:pointer; font-family:inherit;">← МЕНЮ</button>
   <h1>⚔️ ОСАДА</h1>
 </div>
 
@@ -217,12 +217,14 @@
   ⚗️ Поставь двух одинаковых на одну клетку — сработает мерж.
 </div>
 
-<div class="overlay" id="endOverlay">
-  <div class="modal" id="endModal">
-    <h2 id="endTitle">💀 Поражение</h2>
-    <p id="endDesc">Поле переполнено мобами</p>
-    <div class="big" id="endScore">0</div>
-    <button id="restartBtn">ИГРАТЬ СНОВА</button>
+<div class="overlay" id="exitOverlay">
+  <div class="modal" id="exitModal">
+    <h2 id="exitTitle">🚪 Покинуть бой?</h2>
+    <p id="exitDesc">Текущий матч будет засчитан как поражение</p>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+      <button id="exitConfirmBtn" style="background:linear-gradient(135deg,#ef4444,#dc2626); box-shadow:0 6px 20px rgba(239,68,68,0.5);">ДА, ВЫЙТИ</button>
+      <button id="exitCancelBtn" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); box-shadow:none;">ОТМЕНА</button>
+    </div>
   </div>
 </div>
 
@@ -1727,6 +1729,41 @@ canvas.addEventListener('click', (e) => {
 document.getElementById('rollBtn').addEventListener('click', roll);
 document.getElementById('sellBtn').addEventListener('click', sellSelected);
 document.getElementById('restartBtn').addEventListener('click', () => newGame());
+// ═══ ПОДТВЕРЖДЕНИЕ ВЫХОДА ═══
+document.getElementById('exitBtn').addEventListener('click', () => {
+  if (gameOver) {
+    // Матч уже закончен — сразу выходим
+    window.location.href = 'siege.html';
+    return;
+  }
+  document.getElementById('exitOverlay').classList.add('active');
+});
+
+document.getElementById('exitCancelBtn').addEventListener('click', () => {
+  document.getElementById('exitOverlay').classList.remove('active');
+});
+
+document.getElementById('exitConfirmBtn').addEventListener('click', () => {
+  document.getElementById('exitOverlay').classList.remove('active');
+
+  // Засчитываем поражение — та же логика что при смерти
+  // (награды за 10+ минут выдаются в endGame)
+  if (!gameOver) {
+    endGame();
+  }
+
+  // Даём мгновение увидеть оверлей награды, потом возвращаемся в меню
+  setTimeout(() => {
+    window.location.href = 'siege.html';
+  }, 1800);
+});
+
+// Закрытие по клику вне модалки
+document.getElementById('exitOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'exitOverlay') {
+    document.getElementById('exitOverlay').classList.remove('active');
+  }
+});
 
 // ═══════════════════════════════════════════════
 //  СТАРТ
