@@ -471,6 +471,16 @@ if (_endOverlay) _endOverlay.classList.remove('active');
 // ═══════════════════════════════════════════════
 const SPRITES = {};
 
+// ─── Фон арены ───
+const BG_IMG = new Image();
+let BG_READY = false;
+BG_IMG.onload = () => {
+  BG_READY = true;
+  console.log('✓ Фон арены загружен');
+};
+BG_IMG.onerror = () => console.warn('✗ Нет фона: assets/bg.png');
+BG_IMG.src = 'assets/bg.png';
+
 function loadSprites() {
   for (const card of CARDS) {
     const path = card.sprite || `units/${card.id}.png`;
@@ -1436,41 +1446,45 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 function render(now) {
-  ctx.fillStyle = '#0a0a1a';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // ─── Фон ───
+  if (BG_READY) {
+    // Рисуем карту на весь canvas 480×480
+    ctx.drawImage(BG_IMG, 0, 0, canvas.width, canvas.height);
+  } else {
+    // Фолбэк: старый стиль
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Дорожка
-  ctx.fillStyle = '#1e293b';
-  for (const cell of PATH) ctx.fillRect(cell.x * CELL, cell.y * CELL, CELL, CELL);
+    ctx.fillStyle = '#1e293b';
+    for (const cell of PATH) ctx.fillRect(cell.x * CELL, cell.y * CELL, CELL, CELL);
 
-  // Поле
-  ctx.fillStyle = '#0f1e3a';
-  ctx.fillRect(FIELD_MIN * CELL, FIELD_MIN * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL);
+    ctx.fillStyle = '#0f1e3a';
+    ctx.fillRect(FIELD_MIN * CELL, FIELD_MIN * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL);
 
-  // Сетка
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= COLS; i++) {
-    ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= COLS; i++) {
+      ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
+    }
+    for (let i = 0; i <= ROWS; i++) {
+      ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(COLS * CELL, i * CELL); ctx.stroke();
+    }
   }
-  for (let i = 0; i <= ROWS; i++) {
-    ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(COLS * CELL, i * CELL); ctx.stroke();
-  }
 
-  // Портал
-  const portal = PATH[0];
-  const px = portal.x * CELL + CELL / 2;
-  const py = portal.y * CELL + CELL / 2;
-  const pulse = 0.7 + 0.3 * Math.sin(now / 300);
-  const grad = ctx.createRadialGradient(px, py, 5, px, py, 30);
-  grad.addColorStop(0, `rgba(168, 85, 247, ${pulse})`);
-  grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(portal.x * CELL, portal.y * CELL, CELL, CELL);
-  ctx.font = '28px serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('🌌', px, py);
+  // Портал (только пульсация, без эмодзи — он есть на карте)
+  if (BG_READY) {
+    const portal = PATH[0];
+    const px = portal.x * CELL + CELL / 2;
+    const py = portal.y * CELL + CELL / 2;
+    const pulse = 0.5 + 0.4 * Math.sin(now / 300);
+    const grad = ctx.createRadialGradient(px, py, 3, px, py, 35);
+    grad.addColorStop(0, `rgba(120, 200, 255, ${pulse})`);
+    grad.addColorStop(1, 'rgba(120, 200, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(px, py, 35, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Радиус выделенного
   if (selectedUnit) {
