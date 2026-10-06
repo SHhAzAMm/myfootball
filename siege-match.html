@@ -626,6 +626,46 @@ function moveUnit(unit, col, row) {
   updateUI();
 }
 
+// ─── Мерж перетаскиванием ───
+function tryDragMerge(sourceUnit, targetUnit) {
+  if (gameOver) return;
+
+  // Тот же тип и уровень?
+  const sameType  = sourceUnit.cardId === targetUnit.cardId;
+  const sameLevel = sourceUnit.level === targetUnit.level;
+  const canMerge  = targetUnit.level < MAX_MERGE_LEVEL;
+
+  if (!sameType || !sameLevel || !canMerge) {
+    // Нельзя — лёгкая вспышка "нельзя" над целью
+    effects.push({
+      type: 'text',
+      x: targetUnit.col + 0.5,
+      y: targetUnit.row + 0.5,
+      text: '✕',
+      color: '#f87171',
+      ttl: 0.6, maxTtl: 0.6,
+    });
+    return;
+  }
+
+  // Мерж: цель получает +1 уровень, источник удаляется
+  targetUnit.level++;
+  targetUnit.cooldown = 0;
+  units = units.filter(u => u !== sourceUnit);
+  selectedUnit = null;
+
+  effects.push({
+    type: 'text',
+    x: targetUnit.col + 0.5,
+    y: targetUnit.row + 0.5,
+    text: 'MERGED!',
+    color: '#a855f7',
+    ttl: 1.0, maxTtl: 1.0,
+  });
+
+  updateUI();
+}
+
 function flashMsg(text) {
   effects.push({ type: 'text', x: 4, y: 4, text, color: '#f87171', ttl: 1.2, maxTtl: 1.2 });
 }
@@ -1920,15 +1960,22 @@ document.addEventListener('pointerup', (e) => {
     const row = Math.floor(y / CELL);
     const u = dragCandidate;
 
-    if (inField(col, row) && !unitAt(col, row) && (u.col !== col || u.row !== row)) {
-      // Перетащили в пустую клетку → перемещаем
+    const targetUnit = unitAt(col, row);
+
+    // Случай 1: тащим на пустую клетку → перемещаем
+    if (inField(col, row) && !targetUnit && (u.col !== col || u.row !== row)) {
       moveUnit(u, col, row);
-    } else if (u.col === col && u.row === row) {
-      // Отпустили на той же клетке → просто выделяем
+    }
+    // Случай 2: тащим на СВОЮ же клетку → выделяем
+    else if (u.col === col && u.row === row) {
       selectedUnit = u;
       updateUI();
     }
-    // Отпустили на занятой или вне поля → ничего, юнит остаётся на месте
+    // Случай 3: тащим на ДРУГОГО юнита → пробуем мерж
+    else if (inField(col, row) && targetUnit && targetUnit !== u) {
+      tryDragMerge(u, targetUnit);
+    }
+    // Иначе — ничего (вне поля или что-то странное)
 
     suppressClick = true;
     setTimeout(() => { suppressClick = false; }, 50);
