@@ -1617,10 +1617,14 @@ function render(now) {
     }
 
     const hpPct = Math.max(0, mob.hp / mob.maxHp);
-    const barW = CELL * 0.7 * (t.size || 0.9);
+    const barW = Math.min(CELL * 0.9, CELL * 0.7 * (t.size || 0.9));
     const barH = 5;
-    const barX = cx - barW / 2;
+    let barX = cx - barW / 2;
     const barY = cy - CELL * 0.55 * (t.size || 0.9);
+
+    // Не даём бару вылезти за canvas
+    if (barX < 2) barX = 2;
+    if (barX + barW > canvas.width - 2) barX = canvas.width - 2 - barW;
 
     // Тёмная подложка
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
