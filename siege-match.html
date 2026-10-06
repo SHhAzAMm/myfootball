@@ -1294,7 +1294,6 @@ function tick(now) {
       state.kills++;
 
       effects.push({ type: 'text', x: p.x, y: p.y, text: '+' + reward, color: '#4ade80', ttl: 0.7, maxTtl: 0.7 });
-    }
       // ─── Профит: счётчик убийств рядом ───
       for (const u of units) {
         if (u.cardId !== 'profit') continue;
@@ -1313,6 +1312,7 @@ function tick(now) {
           }
         }
       }
+    }                                       // ← ЭТА СКОБКА ЗАКРЫВАЕТ for (const m of dead)
 
     mobs = mobs.filter(m => m.hp > 0);
 
