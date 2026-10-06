@@ -1596,13 +1596,10 @@ function render(now) {
     if (sprite) {
       const size = CELL * (t.size || 0.6);
       if (mob.hitFlash > 0) {
-        // Белая вспышка при ударе
         ctx.save();
-        ctx.globalAlpha = 0.85;
+        ctx.filter = 'brightness(3) saturate(0)';   // ← белый силуэт по форме
         ctx.drawImage(sprite, cx - size/2, cy - size/2, size, size);
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillRect(cx - size/2, cy - size/2, size, size);
+        ctx.filter = 'none';
         ctx.restore();
       } else {
         ctx.drawImage(sprite, cx - size/2, cy - size/2, size, size);
@@ -1620,12 +1617,28 @@ function render(now) {
     }
 
     const hpPct = Math.max(0, mob.hp / mob.maxHp);
-    const barW = CELL * 0.6 * (t.size || 0.9);
-    const barY = cy - CELL * 0.45 * (t.size || 0.9);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(cx - barW / 2, barY, barW, 3);
-    ctx.fillRect(cx - barW / 2, barY, barW * hpPct, 3);
-    ctx.fillRect(cx - barW / 2, cy - CELL * 0.45, barW * hpPct, 3);
+    const barW = CELL * 0.7 * (t.size || 0.9);
+    const barH = 5;
+    const barX = cx - barW / 2;
+    const barY = cy - CELL * 0.55 * (t.size || 0.9);
+
+    // Тёмная подложка
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
+
+    // Внутренняя тёмная полоса
+    ctx.fillStyle = 'rgba(30,30,50,0.9)';
+    ctx.fillRect(barX, barY, barW, barH);
+
+    // Цветная полоса HP
+    ctx.fillStyle = hpPct > 0.5 ? '#4ade80' : hpPct > 0.25 ? '#fbbf24' : '#f87171';
+    ctx.fillRect(barX, barY, barW * hpPct, barH);
+
+    // Тонкая рамка
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
+    
     // Индикатор замедления/заморозки
     if (mob.freezeUntil && mob.freezeUntil > performance.now()) {
       ctx.beginPath();
