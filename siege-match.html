@@ -1730,40 +1730,34 @@ document.getElementById('rollBtn').addEventListener('click', roll);
 document.getElementById('sellBtn').addEventListener('click', sellSelected);
 document.getElementById('restartBtn').addEventListener('click', () => newGame());
 // ═══ ПОДТВЕРЖДЕНИЕ ВЫХОДА ═══
-document.getElementById('exitBtn').addEventListener('click', () => {
-  if (gameOver) {
-    // Матч уже закончен — сразу выходим
-    window.location.href = 'siege.html';
-    return;
-  }
-  document.getElementById('exitOverlay').classList.add('active');
-});
+const _exitBtn = document.getElementById('exitBtn');
+const _exitCancel = document.getElementById('exitCancelBtn');
+const _exitConfirm = document.getElementById('exitConfirmBtn');
+const _exitOverlay = document.getElementById('exitOverlay');
 
-document.getElementById('exitCancelBtn').addEventListener('click', () => {
-  document.getElementById('exitOverlay').classList.remove('active');
-});
-
-document.getElementById('exitConfirmBtn').addEventListener('click', () => {
-  document.getElementById('exitOverlay').classList.remove('active');
-
-  // Засчитываем поражение — та же логика что при смерти
-  // (награды за 10+ минут выдаются в endGame)
-  if (!gameOver) {
-    endGame();
-  }
-
-  // Даём мгновение увидеть оверлей награды, потом возвращаемся в меню
-  setTimeout(() => {
-    window.location.href = 'siege.html';
-  }, 1800);
-});
-
-// Закрытие по клику вне модалки
-document.getElementById('exitOverlay').addEventListener('click', (e) => {
-  if (e.target.id === 'exitOverlay') {
-    document.getElementById('exitOverlay').classList.remove('active');
-  }
-});
+if (_exitBtn) {
+  _exitBtn.addEventListener('click', () => {
+    if (gameOver) { window.location.href = 'siege.html'; return; }
+    if (_exitOverlay) _exitOverlay.classList.add('active');
+  });
+}
+if (_exitCancel) {
+  _exitCancel.addEventListener('click', () => {
+    if (_exitOverlay) _exitOverlay.classList.remove('active');
+  });
+}
+if (_exitConfirm) {
+  _exitConfirm.addEventListener('click', () => {
+    if (_exitOverlay) _exitOverlay.classList.remove('active');
+    if (!gameOver) endGame();
+    setTimeout(() => { window.location.href = 'siege.html'; }, 1800);
+  });
+}
+if (_exitOverlay) {
+  _exitOverlay.addEventListener('click', (e) => {
+    if (e.target.id === 'exitOverlay') _exitOverlay.classList.remove('active');
+  });
+}
 
 // ═══════════════════════════════════════════════
 //  СТАРТ
