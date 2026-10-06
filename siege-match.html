@@ -367,7 +367,8 @@ function newGame() {
   const nowMs = performance.now();
   state.nextSpawnAt = nowMs + FIRST_SPAWN_DELAY_MS;
   state.nextWaveAt  = nowMs + WAVE_INTERVAL_MS;
-  document.getElementById('endOverlay').classList.remove('active');
+const _endOverlay = document.getElementById('endOverlay');
+if (_endOverlay) _endOverlay.classList.remove('active');
   updateUI();
 }
 
@@ -1210,7 +1211,8 @@ function endGame() {
      <div style="font-size:18px;color:#a855f7;margin-top:6px;">Волна ${state.wave}</div>
      <div style="font-size:16px;color:#94a3b8;margin-top:4px;">${state.kills} убийств</div>
      ${rewardHTML}`;
-  document.getElementById('endOverlay').classList.add('active');
+const _endOverlay = document.getElementById('endOverlay');
+if (_endOverlay) _endOverlay.classList.add('active');
 }
 
 // ═══════════════════════════════════════════════
@@ -1728,7 +1730,8 @@ canvas.addEventListener('click', (e) => {
 
 document.getElementById('rollBtn').addEventListener('click', roll);
 document.getElementById('sellBtn').addEventListener('click', sellSelected);
-document.getElementById('restartBtn').addEventListener('click', () => newGame());
+const _restartBtn = document.getElementById('restartBtn');
+if (_restartBtn) _restartBtn.addEventListener('click', () => newGame());
 // ═══ ПОДТВЕРЖДЕНИЕ ВЫХОДА ═══
 const _exitBtn = document.getElementById('exitBtn');
 const _exitCancel = document.getElementById('exitCancelBtn');
