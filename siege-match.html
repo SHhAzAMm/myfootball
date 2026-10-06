@@ -1620,11 +1620,20 @@ function render(now) {
     const barW = Math.min(CELL * 0.9, CELL * 0.7 * (t.size || 0.9));
     const barH = 5;
     let barX = cx - barW / 2;
-    const barY = cy - CELL * 0.55 * (t.size || 0.9);
 
-    // Не даём бару вылезти за canvas
+    // Смарт-позиция: если моб в верхнем ряду — бар снизу, иначе сверху
+    let barY;
+    if (cy < CELL * 1.2) {
+      barY = cy + CELL * 0.42 * (t.size || 0.9);   // снизу
+    } else {
+      barY = cy - CELL * 0.55 * (t.size || 0.9);   // сверху
+    }
+
+    // Клампинг по всем краям canvas
     if (barX < 2) barX = 2;
     if (barX + barW > canvas.width - 2) barX = canvas.width - 2 - barW;
+    if (barY < 2) barY = 2;
+    if (barY + barH > canvas.height - 2) barY = canvas.height - 2 - barH;
 
     // Тёмная подложка
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
