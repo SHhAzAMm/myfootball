@@ -228,6 +228,15 @@
   </div>
 </div>
 
+<div class="overlay" id="endOverlay">
+  <div class="modal" id="endModal">
+    <h2 id="endTitle">💀 Поражение</h2>
+    <p id="endDesc">Поле переполнено мобами</p>
+    <div class="big" id="endScore">0</div>
+    <button id="restartBtn">ИГРАТЬ СНОВА</button>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════
 //  КОНФИГ
@@ -360,6 +369,10 @@ function newGame() {
   effects = [];
   state.puddles = [];
   state.fireZones = [];
+  selectedUnit = null;
+  handCard = null;
+  gameOver = false;
+
   selectedUnit = null;
   handCard = null;
   gameOver = false;
