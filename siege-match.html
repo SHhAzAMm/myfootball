@@ -293,7 +293,7 @@ const ALL_CARDS = [
   { id: 'iceberg',  emoji: '🧊', name: 'Айсберг',  damage: 5,  range: 2.5, attackSpeed: 0.9, attackType: 'ice' },
   { id: 'boom',     emoji: '💥', name: 'Бум',      damage: 25, range: 5.0, attackSpeed: 0.3, attackType: 'catapult' },
   { id: 'tesla',    emoji: '🟪', name: 'Дуга',      damage: 12, range: 3.5, attackSpeed: 0.7, attackType: 'chain' },
-  { id: 'assassin', emoji: '🗡️', name: 'Ассасин',   damage: 18, range: 1.5, attackSpeed: 2.0 },
+  { id: 'profit', emoji: '🟫', name: 'Профит', damage: 0, range: 2.0, attackSpeed: 0, attackType: 'profit' },
   { id: 'butcher',  emoji: '🟥', name: 'Мясник',    damage: 5,  range: 1.8, attackSpeed: 1.2, attackType: 'butcher' },
 ];
 
@@ -367,6 +367,7 @@ function newGame() {
   units = [];
   mobs = [];
   effects = [];
+  state.profitKillCounters = {}; // user_id → счётчик убийств
   state.puddles = [];
   state.fireZones = [];
   selectedUnit = null;
@@ -440,6 +441,14 @@ function cardById(id) { return CARDS.find(c => c.id === id); }
 function unitAt(col, row) { return units.find(u => u.col === col && u.row === row); }
 function inField(col, row) {
   return col >= FIELD_MIN && col <= FIELD_MAX && row >= FIELD_MIN && row <= FIELD_MAX;
+}
+
+function isInCorner(unit) {
+  const corners = [
+    { c: 1, r: 1 }, { c: 1, r: 6 },
+    { c: 6, r: 1 }, { c: 6, r: 6 },
+  ];
+  return corners.some(c => c.c === unit.col && c.r === unit.row);
 }
 
 function mobPos(mob) {
@@ -645,6 +654,16 @@ function tick(now) {
       state.nextWaveAt = now + WAVE_INTERVAL_MS;
       state.waveClearPending = false; // ← сброс флага
       // Сброс счётчиков волны
+      // ─── Профит в углу: +1 очко за волну ───
+      for (const u of units) {
+        if (u.cardId === 'profit' && isInCorner(u)) {
+          state.points += 1;
+          effects.push({
+            type: 'text', x: u.col + 0.5, y: u.row + 0.5,
+            text: '+1🪙', color: '#fbbf24', ttl: 1.0, maxTtl: 1.0,
+          });
+        }
+      }
       for (const u of units) {
         if (u.bonusDamage) u.bonusDamage = 0;
         if (u.hitCounter) u.hitCounter = 0;
@@ -709,6 +728,8 @@ function tick(now) {
 
       // Ритм не атакует
       if (card.attackType === 'support') continue;
+      // Профит не атакует
+      if (card.attackType === 'profit') continue;
 
       // ─── Линейная атака (Шип) ───
       if (card.attackType === 'line') {
@@ -1157,6 +1178,25 @@ function tick(now) {
 
       effects.push({ type: 'text', x: p.x, y: p.y, text: '+' + reward, color: '#4ade80', ttl: 0.7, maxTtl: 0.7 });
     }
+      // ─── Профит: счётчик убийств рядом ───
+      for (const u of units) {
+        if (u.cardId !== 'profit') continue;
+        const ux = u.col + 0.5;
+        const uy = u.row + 0.5;
+        if (Math.hypot(p.x - ux, p.y - uy) <= 2.0) {
+          u.killsNear = (u.killsNear || 0) + 1;
+          // Каждые 10 убийств → +1 очко
+          if (u.killsNear >= 10) {
+            u.killsNear -= 10;
+            state.points += 1;
+            effects.push({
+              type: 'text', x: ux, y: uy - 0.5,
+              text: '+1🪙', color: '#fbbf24', ttl: 0.9, maxTtl: 0.9,
+            });
+          }
+        }
+      }
+
     mobs = mobs.filter(m => m.hp > 0);
 
     // Если волна зачищена — следующая через 3 секунды
@@ -1362,6 +1402,23 @@ function render(now) {
       ctx.fillStyle = `rgba(251, 191, 36, ${0.04 + 0.03 * pulse})`;
       ctx.fill();
     }
+    // Профит — радиус действия + подсветка углового бонуса
+    if (unit.cardId === 'profit') {
+      const radius = 2.0;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * CELL, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Если в углу — золотая подсветка клетки
+      if (isInCorner(unit)) {
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
+        ctx.fillRect(unit.col * CELL, unit.row * CELL, CELL, CELL);
+      }
+    }
 
     // Индикатор баффа у союзника
     if (unit.speedBuff > 1 && unit.cardId !== 'rhythm') {
@@ -1396,6 +1453,18 @@ function render(now) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('+' + unit.bonusDamage, cx - 18, cy + 19);
+    }
+    // Бейдж убийств рядом (Профит)
+    if (unit.cardId === 'profit' && (unit.killsNear || 0) > 0) {
+      ctx.beginPath();
+      ctx.arc(cx - 18, cy + 18, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fill();
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(unit.killsNear + '/10', cx - 18, cy + 19);
     }
   }
 
