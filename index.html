@@ -253,6 +253,99 @@
             font-size: 15px; font-weight: 700; cursor: pointer;
             transition: all 0.15s; font-family: inherit;
         }
+        /* ═══ ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ КАТЕГОРИЙ ═══ */
+        .cat-scroll-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cat-scroll {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            padding: 4px 2px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;    /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge legacy */
+        }
+        .cat-scroll::-webkit-scrollbar { display: none; }
+
+        /* Отступы-«якоря» по краям, чтобы первая/последняя кнопка не прилипала */
+        .cat-scroll::before,
+        .cat-scroll::after {
+            content: '';
+            flex: 0 0 4px;
+        }
+
+        /* Кнопки ‹ › — видны только на ПК, скрыты на тач-устройствах */
+        .cat-scroll-btn {
+            flex-shrink: 0;
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            color: #cbd5e1;
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+            padding: 0;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .cat-scroll-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cat-scroll-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            transform: scale(1.08);
+        }
+        .cat-scroll-btn:active { transform: scale(0.94); }
+
+        /* На тач-устройствах стрелки не нужны — свайп и так работает */
+        @media (hover: none) and (pointer: coarse) {
+            .cat-scroll-btn { display: none; }
+        }
+
+        /* ─── Стили самих табов (переиспользуем .cat-tab, добавив свойства) ─── */
+        .cat-scroll .cat-tab {
+            flex: 0 0 auto;   /* важно: не сжиматься, не растягиваться */
+            white-space: nowrap;
+            scroll-snap-align: start;
+            min-width: 130px;
+        }
+        .cat-scroll {
+            scroll-snap-type: x proximity;
+        }
+
+        /* Индикатор что есть скролл — градиент справа */
+        .cat-scroll-wrap::after {
+            content: '';
+            position: absolute;
+            top: 4px; bottom: 4px;
+            right: 38px;
+            width: 32px;
+            background: linear-gradient(to right, transparent, rgba(10, 20, 45, 0.9));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .cat-scroll-wrap.has-overflow::after {
+            opacity: 1;
+        }
         .cat-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .cat-tab.active {
             background: linear-gradient(135deg, #ffd700, #ff9500);
@@ -1902,7 +1995,11 @@
             <p>Открывай боксы — собирай коллекцию</p>
         </div>
 
-        <div class="category-tabs" id="categoryTabs"></div>
+        <div class="cat-scroll-wrap">
+         <button class="cat-scroll-btn left" id="catScrollLeft" aria-label="Влево">‹</button>
+         <div class="cat-scroll" id="categoryTabs"></div>
+         <button class="cat-scroll-btn right" id="catScrollRight" aria-label="Вправо">›</button>
+       </div>
 
         <div class="stats">
             <div class="stat">
@@ -3816,6 +3913,10 @@
             container.querySelectorAll('.cat-tab').forEach(btn => {
                 btn.addEventListener('click', () => switchCategory(btn.dataset.cat));
             });
+            // После отрисовки обновляем состояние стрелок
+            if (typeof window._updateCatArrows === 'function') {
+                setTimeout(window._updateCatArrows, 30);
+            }
         }
 
         function renderStats() {
@@ -3891,6 +3992,7 @@
             if (cat === currentCategory) return;
             currentCategory = cat;
             renderAll();
+            scrollActiveTabIntoView();
         }
 
         // ═══ ОБРАБОТЧИКИ ═══
@@ -4476,11 +4578,60 @@
                 if (id === 'market') { window.location.href = 'siege.html?tab=market'; return; }
             });
         });
+
+        // ═══ ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ КАТЕГОРИЙ ═══
+        function setupCategoryScroll() {
+            const scroller = document.getElementById('categoryTabs');
+            const wrap     = document.querySelector('.cat-scroll-wrap');
+            const btnL     = document.getElementById('catScrollLeft');
+            const btnR     = document.getElementById('catScrollRight');
+            if (!scroller || !wrap) return;
+
+            const updateArrows = () => {
+                const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+                const hasOverflow = maxScroll > 4;
+                wrap.classList.toggle('has-overflow', hasOverflow);
+                btnL.classList.toggle('visible', hasOverflow && scroller.scrollLeft > 4);
+                btnR.classList.toggle('visible', hasOverflow && scroller.scrollLeft < maxScroll - 4);
+            };
+
+            btnL.addEventListener('click', () => {
+                scroller.scrollBy({ left: -180, behavior: 'smooth' });
+            });
+            btnR.addEventListener('click', () => {
+                scroller.scrollBy({ left: 180, behavior: 'smooth' });
+            });
+
+            scroller.addEventListener('scroll', updateArrows);
+            window.addEventListener('resize', updateArrows);
+
+            // Проверяем через микро-задержку, после того как контент отрисован
+            setTimeout(updateArrows, 50);
+            // И ещё раз через 300мс — если шрифты догружаются и меняют ширину
+            setTimeout(updateArrows, 300);
+
+            // Экспортируем обновлялку, чтобы вызывать после renderTabs()
+            window._updateCatArrows = updateArrows;
+        }
+
+        // Автоматическое центрирование активного таба
+        function scrollActiveTabIntoView() {
+            const scroller = document.getElementById('categoryTabs');
+            const active = scroller && scroller.querySelector('.cat-tab.active');
+            if (!scroller || !active) return;
+            const sRect = scroller.getBoundingClientRect();
+            const aRect = active.getBoundingClientRect();
+            if (aRect.left < sRect.left || aRect.right > sRect.right) {
+                active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
         
         // ═══ СТАРТ ═══
         loadState();
         const savedUserId = localStorage.getItem('boxes_user_id');
         const savedEmail = localStorage.getItem('boxes_user_email');
+        setupCategoryScroll();
+
         if (savedUserId) {
             currentUserId = savedUserId;
             currentUserEmail = savedEmail || '';
@@ -4489,6 +4640,7 @@
                 renderAll();
                 refreshAchFab();
                 refreshQuestFab();
+                if (typeof window._updateCatArrows === 'function') window._updateCatArrows();
             });
         } else {
             showAuthScreen();
