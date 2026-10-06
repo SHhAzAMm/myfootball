@@ -1620,10 +1620,11 @@ function render(now) {
     }
 
     const hpPct = Math.max(0, mob.hp / mob.maxHp);
-    const barW = CELL * 0.6;
+    const barW = CELL * 0.6 * (t.size || 0.9);
+    const barY = cy - CELL * 0.45 * (t.size || 0.9);
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(cx - barW / 2, cy - CELL * 0.45, barW, 3);
-    ctx.fillStyle = hpPct > 0.5 ? '#4ade80' : hpPct > 0.25 ? '#fbbf24' : '#f87171';
+    ctx.fillRect(cx - barW / 2, barY, barW, 3);
+    ctx.fillRect(cx - barW / 2, barY, barW * hpPct, 3);
     ctx.fillRect(cx - barW / 2, cy - CELL * 0.45, barW * hpPct, 3);
     // Индикатор замедления/заморозки
     if (mob.freezeUntil && mob.freezeUntil > performance.now()) {
