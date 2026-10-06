@@ -1151,29 +1151,97 @@ function tick(now) {
       }
     }
 
+
     // Поражение
     if (mobs.length >= MAX_MOBS) {
       endGame();
     }
+
+    // Начисляем осколки Осады в localStorage
+    const PROG_KEY = 'siege_progress_v1';
+    let prog = { unlocked: ['spike', 'rhombus'], shards: 0 };
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROG_KEY) || 'null');
+      if (saved) prog = { ...prog, ...saved };
+    } catch (e) {}
+    prog.shards = (prog.shards || 0) + shards;
+    localStorage.setItem(PROG_KEY, JSON.stringify(prog));
+
+    rewardHTML = `
+      <div style="margin:16px 0;padding:14px;background:rgba(168,85,247,0.1);border:2px solid #a855f7;border-radius:12px;">
+        <div style="font-size:10px;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:6px;">🎁 НАГРАДА ЗА ВЫЖИВАНИЕ</div>
+        <div style="font-size:22px;font-weight:900;color:#a855f7;">+${shards} 💎</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Осколки Осады — трать в Рынке</div>
+      </div>
+    `;
+  } else {
+    const remainMin = Math.ceil((REWARD_MIN_TIME - state.timeSurvived) / 60);
+    rewardHTML = `
+      <div style="margin:16px 0;padding:12px;background:rgba(148,163,184,0.06);border:2px dashed rgba(148,163,184,0.25);border-radius:10px;font-size:12px;color:#94a3b8;">
+        🔒 Продержись ещё <b style="color:#fff;">${remainMin} мин.</b> для награды
+      </div>
+    `;
+  }
+
+  document.getElementById('endScore').innerHTML =
+    `<div>⏱ ${fmtTime(state.timeSurvived)}</div>
+     <div style="font-size:18px;color:#a855f7;margin-top:6px;">Волна ${state.wave}</div>
+     <div style="font-size:16px;color:#94a3b8;margin-top:4px;">${state.kills} убийств</div>
+     ${rewardHTML}`;
+  document.getElementById('endOverlay').classList.add('active');
+}
+    
 
     // Эффекты
     for (const e of effects) e.ttl -= dt;
     effects = effects.filter(e => e.ttl > 0);
 
     updateUI(now);
-  }
+  
 
   render(now);
-}
 
 function endGame() {
   if (gameOver) return;
   gameOver = true;
-  document.getElementById('endDesc').textContent = 'Мобов стало слишком много';
+
+  const REWARD_MIN_TIME = 600; // 10 минут
+  let rewardHTML = '';
+
+  if (state.timeSurvived >= REWARD_MIN_TIME) {
+    const minutes = Math.floor(state.timeSurvived / 60);
+    const shards  = 3 + Math.floor(minutes / 5);
+
+    const PROG_KEY = 'siege_progress_v1';
+    let prog = { unlocked: ['spike', 'rhombus'], shards: 0 };
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROG_KEY) || 'null');
+      if (saved) prog = { ...prog, ...saved };
+    } catch (e) {}
+    prog.shards = (prog.shards || 0) + shards;
+    localStorage.setItem(PROG_KEY, JSON.stringify(prog));
+
+    rewardHTML = `
+      <div style="margin:16px 0;padding:14px;background:rgba(168,85,247,0.1);border:2px solid #a855f7;border-radius:12px;">
+        <div style="font-size:10px;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:6px;">🎁 НАГРАДА ЗА ВЫЖИВАНИЕ</div>
+        <div style="font-size:22px;font-weight:900;color:#a855f7;">+${shards} 💎</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Осколки Осады — трать в Рынке</div>
+      </div>
+    `;
+  } else {
+    const remainMin = Math.ceil((REWARD_MIN_TIME - state.timeSurvived) / 60);
+    rewardHTML = `
+      <div style="margin:16px 0;padding:12px;background:rgba(148,163,184,0.06);border:2px dashed rgba(148,163,184,0.25);border-radius:10px;font-size:12px;color:#94a3b8;">
+        🔒 Продержись ещё <b style="color:#fff;">${remainMin} мин.</b> для награды
+      </div>
+    `;
+  }
+
   document.getElementById('endScore').innerHTML =
     `<div>⏱ ${fmtTime(state.timeSurvived)}</div>
      <div style="font-size:18px;color:#a855f7;margin-top:6px;">Волна ${state.wave}</div>
-     <div style="font-size:16px;color:#94a3b8;margin-top:4px;">${state.kills} убийств</div>`;
+     <div style="font-size:16px;color:#94a3b8;margin-top:4px;">${state.kills} убийств</div>
+     ${rewardHTML}`;
   document.getElementById('endOverlay').classList.add('active');
 }
 

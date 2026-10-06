@@ -250,6 +250,142 @@
     .card-modal-name { font-size: 22px; }
     .card-modal { padding: 28px 20px 20px; }
   }
+
+  /* ═══ РЫНОК ═══ */
+  .market-card {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; width: 100%;
+  }
+  .market-icon { font-size: 72px; margin-bottom: 14px; }
+  .market-title {
+    font-size: 22px; font-weight: 900; margin-bottom: 10px;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .market-desc {
+    font-size: 13px; color: #94a3b8; line-height: 1.6;
+    margin-bottom: 20px; max-width: 320px;
+  }
+  .market-cost {
+    background: rgba(168,85,247,0.08);
+    border: 2px solid rgba(168,85,247,0.35);
+    border-radius: 12px;
+    padding: 12px 24px;
+    margin-bottom: 18px;
+  }
+  .market-cost-label {
+    font-size: 10px; color: #94a3b8;
+    letter-spacing: 3px; margin-bottom: 4px;
+  }
+  .market-cost-value {
+    font-size: 24px; font-weight: 900; color: #a855f7;
+  }
+  .market-spin-btn {
+    padding: 16px 44px;
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    color: #fff; border: none; border-radius: 12px;
+    font-size: 17px; font-weight: 900; letter-spacing: 2px;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.5);
+    transition: all 0.15s;
+  }
+  .market-spin-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.15); }
+  .market-balance {
+    margin-top: 18px; font-size: 12px; color: #94a3b8;
+  }
+  .market-balance b { color: #c084fc; }
+
+  /* ═══ РУЛЕТКА ═══ */
+  .roulette-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .roulette-modal {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 20px;
+    padding: 28px 20px;
+    max-width: 520px; width: 100%;
+    border: 3px solid #a855f7;
+    box-shadow: 0 0 80px rgba(168,85,247,0.5);
+    text-align: center;
+  }
+  .roulette-title {
+    font-size: 16px; font-weight: 900;
+    letter-spacing: 3px; color: #c084fc;
+    margin-bottom: 20px;
+  }
+  .roulette-window {
+    position: relative;
+    width: 100%; height: 120px;
+    background: rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .roulette-pointer {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 4px;
+    background: linear-gradient(to bottom, #ffd700, #ff9500);
+    z-index: 10;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+  }
+  .roulette-pointer::before,
+  .roulette-pointer::after {
+    content: '';
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+  .roulette-pointer::before {
+    top: -2px;
+    border-top: 12px solid #ffd700;
+  }
+  .roulette-pointer::after {
+    bottom: -2px;
+    border-bottom: 12px solid #ffd700;
+  }
+  .roulette-strip {
+    display: flex;
+    height: 100%;
+    will-change: transform;
+  }
+  .roulette-item {
+    flex: 0 0 100px;
+    width: 100px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  .roulette-item img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+  .roulette-item .r-emoji { font-size: 44px; }
+  .roulette-item.rarity-common    { background: rgba(148,163,184,0.06); }
+  .roulette-item.rarity-rare      { background: rgba(59,130,246,0.10); }
+  .roulette-item.rarity-epic      { background: rgba(168,85,247,0.12); }
+  .roulette-item.rarity-legendary { background: rgba(245,158,11,0.12); }
+  .roulette-item.rarity-mythical  { background: rgba(239,68,68,0.12); }
+
+  .roulette-result {
+    font-size: 15px; color: #cbd5e1;
+    min-height: 24px;
+    opacity: 0; transition: opacity 0.3s;
+    line-height: 1.4;
+  }
+  
 </style>
 </head>
 <body>
@@ -291,30 +427,50 @@
 // ═══════════════════════════════════════════════
 const SIEGE_CARDS = [
   { id: 'spike',    emoji: '🟩', name: 'Шип',      rarity: 'common',    rarityName: 'Обычный',
-    desc: 'Бьёт по линиям вверх/вниз/влево/вправо. Попадает по всем мобам на линии до края поля.',
-    unlocked: true },
+    desc: 'Бьёт по линиям вверх/вниз/влево/вправо. Попадает по всем мобам на линии до края поля.' },
   { id: 'rhombus',  emoji: '🔷', name: 'Ромб',     rarity: 'common',    rarityName: 'Обычный',
-    desc: 'Снайпер. Стреляет в самого дальнего моба. Чем дальше цель — тем сильнее удар.',
-    unlocked: true },
+    desc: 'Снайпер. Стреляет в самого дальнего моба. Чем дальше цель — тем сильнее удар.' },
   { id: 'rhythm',   emoji: '🟨', name: 'Ритм',     rarity: 'rare',      rarityName: 'Редкий',
-    desc: 'Не атакует. Соседние юниты получают +15% к скорости атаки.',
-    unlocked: false },
+    desc: 'Не атакует. Соседние юниты получают +15% к скорости атаки.' },
   { id: 'iceberg',  emoji: '🧊', name: 'Айсберг',  rarity: 'rare',      rarityName: 'Редкий',
-    desc: 'Атака по одной цели с замедлением. Каждый 5-й удар замораживает на 1.5 сек.',
-    unlocked: false },
+    desc: 'Атака по одной цели с замедлением. Каждый 5-й удар замораживает на 1.5 сек.' },
   { id: 'boom',     emoji: '💥', name: 'Бум',      rarity: 'epic',      rarityName: 'Эпический',
-    desc: 'Катапульта. Большой урон по скоплению мобов, долгая перезарядка.',
-    unlocked: false },
+    desc: 'Катапульта. Большой урон по скоплению мобов, долгая перезарядка.' },
   { id: 'tesla',    emoji: '🟪', name: 'Дуга',     rarity: 'epic',      rarityName: 'Эпический',
-    desc: 'Молния прыгает между мобами, урон падает на 20% за каждый прыжок. Каждый прыжок может оглушить.',
-    unlocked: false },
+    desc: 'Молния прыгает между мобами, урон падает на 20% за каждый прыжок.' },
   { id: 'assassin', emoji: '🗡️', name: 'Ассасин',  rarity: 'legendary', rarityName: 'Легендарный',
-    desc: 'Быстрые атаки, высокий урон по одной цели.',
-    unlocked: false },
+    desc: 'Быстрые атаки, высокий урон по одной цели.' },
   { id: 'butcher',  emoji: '🟥', name: 'Мясник',   rarity: 'legendary', rarityName: 'Легендарный',
-    desc: 'Рубит всех мобов рядом. За каждое убийство получает +1 урона до конца волны.',
-    unlocked: false },
+    desc: 'Рубит всех мобов рядом. За каждое убийство получает +1 урона до конца волны.' },
 ];
+
+// ─── Прогресс Осады (localStorage) ───
+const SIEGE_PROGRESS_KEY = 'siege_progress_v1';
+
+let siegeProgress = {
+  unlocked: ['spike', 'rhombus'],   // стартовые карты
+  shards: 0,                        // осколки Осады
+};
+
+try {
+  const saved = JSON.parse(localStorage.getItem(SIEGE_PROGRESS_KEY) || 'null');
+  if (saved && typeof saved === 'object') {
+    if (Array.isArray(saved.unlocked)) siegeProgress.unlocked = saved.unlocked;
+    if (typeof saved.shards === 'number') siegeProgress.shards = saved.shards;
+  }
+} catch (e) {}
+
+// Страховка: стартовые карты всегда разблокированы
+if (!siegeProgress.unlocked.includes('spike'))  siegeProgress.unlocked.push('spike');
+if (!siegeProgress.unlocked.includes('rhombus')) siegeProgress.unlocked.push('rhombus');
+
+function saveSiegeProgress() {
+  localStorage.setItem(SIEGE_PROGRESS_KEY, JSON.stringify(siegeProgress));
+}
+
+function isCardUnlocked(id) {
+  return siegeProgress.unlocked.includes(id);
+}
 
 const DECK_SIZE = 8;
 
@@ -349,6 +505,146 @@ function renderDeckTab() {
   renderCharGrid();
 }
 
+// ═══════════════════════════════════════════════
+//  РЫНОК — премиум-бокс
+// ═══════════════════════════════════════════════
+const PREMIUM_COST = 10;   // осколков Осады за прокрут
+
+function renderMarketTab() {
+  const c = document.getElementById('content');
+  c.classList.remove('center-content');
+  c.innerHTML = `
+    <div class="market-card">
+      <div class="market-icon">🎰</div>
+      <div class="market-title">Премиум-бокс</div>
+      <div class="market-desc">
+        Крути рулетку — получай персонажей для колоды.<br>
+        Все карты выпадают с равным шансом.
+      </div>
+
+      <div class="market-cost">
+        <div class="market-cost-label">СТОИМОСТЬ</div>
+        <div class="market-cost-value">${PREMIUM_COST} 💎</div>
+      </div>
+
+      <button class="market-spin-btn" id="premiumSpinBtn">КРУТИТЬ</button>
+
+      <div class="market-balance">
+        У тебя: <b id="premiumBalance">${siegeProgress.shards}</b> 💎
+      </div>
+    </div>
+  `;
+
+  updatePremiumButton();
+  document.getElementById('premiumSpinBtn').addEventListener('click', spinPremium);
+}
+
+function updatePremiumButton() {
+  const btn = document.getElementById('premiumSpinBtn');
+  const bal = document.getElementById('premiumBalance');
+  if (!btn || !bal) return;
+  bal.textContent = siegeProgress.shards;
+  const canAfford = siegeProgress.shards >= PREMIUM_COST;
+  btn.disabled = !canAfford;
+  btn.style.opacity = canAfford ? '1' : '0.4';
+  btn.style.cursor = canAfford ? 'pointer' : 'not-allowed';
+}
+
+async function spinPremium() {
+  if (siegeProgress.shards < PREMIUM_COST) return;
+
+  // Списываем
+  siegeProgress.shards -= PREMIUM_COST;
+  saveSiegeProgress();
+  updatePremiumButton();
+
+  // Выбираем карту
+  const card = SIEGE_CARDS[Math.floor(Math.random() * SIEGE_CARDS.length)];
+  const wasLocked = !isCardUnlocked(card.id);
+
+  // Показываем рулетку
+  showRoulette(card, wasLocked, () => {
+    if (wasLocked) {
+      siegeProgress.unlocked.push(card.id);
+      saveSiegeProgress();
+    } else {
+      // Дубликат — компенсация
+      siegeProgress.shards += 5;
+      saveSiegeProgress();
+    }
+    renderCharGrid();      // обновить сетку карт
+    renderMarketTab();     // обновить баланс
+  });
+}
+
+function showRoulette(winCard, wasLocked, onDone) {
+  // Модалка поверх всего
+  const overlay = document.createElement('div');
+  overlay.className = 'roulette-overlay';
+  overlay.innerHTML = `
+    <div class="roulette-modal">
+      <div class="roulette-title">🎰 КРУТИМ...</div>
+      <div class="roulette-window">
+        <div class="roulette-pointer"></div>
+        <div class="roulette-strip" id="rouletteStrip"></div>
+      </div>
+      <div class="roulette-result" id="rouletteResult"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const strip = overlay.querySelector('#rouletteStrip');
+  const ITEM_W = 100;
+  const TOTAL = 40;
+  const WIN_INDEX = 33;   // сюда встанет победитель
+
+  // Заполняем ленту
+  for (let i = 0; i < TOTAL; i++) {
+    const c = i === WIN_INDEX
+      ? winCard
+      : SIEGE_CARDS[Math.floor(Math.random() * SIEGE_CARDS.length)];
+    const el = document.createElement('div');
+    el.className = 'roulette-item rarity-' + c.rarity;
+    el.innerHTML = `<img src="units/${c.id}.png" alt="${c.name}"
+      onerror="this.outerHTML='<span class=\\'r-emoji\\'>${c.emoji}</span>'">`;
+    strip.appendChild(el);
+  }
+
+  // Сдвиг: центрируем WIN_INDEX в окне
+  const windowEl = overlay.querySelector('.roulette-window');
+  const winW = windowEl.clientWidth;
+  const targetX = -(WIN_INDEX * ITEM_W + ITEM_W / 2 - winW / 2);
+  const jitter = (Math.random() - 0.5) * 40;   // лёгкий сдвиг, чтобы не всегда центр
+
+  requestAnimationFrame(() => {
+    strip.style.transition = 'transform 4s cubic-bezier(0.15, 0.7, 0.2, 1)';
+    strip.style.transform  = `translateX(${targetX + jitter}px)`;
+  });
+
+  setTimeout(() => {
+    overlay.querySelector('.roulette-title').textContent = wasLocked ? '🎉 НОВАЯ КАРТА!' : '🃏 Дубликат';
+    const resultEl = overlay.querySelector('#rouletteResult');
+    resultEl.innerHTML = wasLocked
+      ? `<b style="color:#4ade80;">${winCard.name}</b> разблокирован!`
+      : `<b style="color:#fbbf24;">${winCard.name}</b> уже был — +5 💎 компенсация`;
+    resultEl.style.opacity = '1';
+
+    // Клик закрывает и вызывает колбэк
+    overlay.addEventListener('click', () => {
+      overlay.remove();
+      onDone();
+    }, { once: true });
+
+    // Или авто-закрытие через 3 секунды
+    setTimeout(() => {
+      if (overlay.parentNode) {
+        overlay.remove();
+        onDone();
+      }
+    }, 3000);
+  }, 4200);
+}
+
 function renderDeckSlots() {
   const grid = document.getElementById('deckGrid');
   grid.innerHTML = siegeDeck.map((id, i) => {
@@ -375,7 +671,7 @@ function renderCharGrid() {
   const grid = document.getElementById('charGrid');
   grid.innerHTML = SIEGE_CARDS.map(card => {
     const inDeck = siegeDeck.includes(card.id);
-    const locked = !card.unlocked;
+    const locked = !isCardUnlocked(card.id);      // ← из прогресса
     const cls = 'char-cell' + (inDeck ? ' in-deck' : '') + (locked ? ' locked' : '');
     const badge = inDeck ? `<div class="in-deck-badge">В КОЛОДЕ</div>` : '';
     const lock = locked ? `<div class="lock-overlay">🔒</div>` : '';
@@ -389,10 +685,10 @@ function renderCharGrid() {
 
   grid.querySelectorAll('.char-cell').forEach(cell => {
     cell.addEventListener('click', () => {
-      const card = cardById(cell.dataset.id);
-      if (!card) return;
-      if (!card.unlocked) { openCardModal(card.id, false, true); return; } // показать что закрыта
-      openCardModal(card.id, false);
+      const c = SIEGE_CARDS.find(x => x.id === cell.dataset.id);
+      if (!c) return;
+      if (!isCardUnlocked(c.id)) { openCardModal(c.id, false, true); return; }
+      openCardModal(c.id, false);
     });
   });
 }
@@ -410,7 +706,7 @@ function openCardModal(cardId, fromDeck, locked = false) {
 
   modalCardId = cardId;
   modalFromDeck = fromDeck;
-  modalLocked = locked || !card.unlocked;
+  modalLocked = locked || !isCardUnlocked(card.id);
 
   const modal = document.getElementById('cardModal');
   modal.className = 'card-modal ' + card.rarity;
@@ -497,7 +793,7 @@ const TAB_CONTENT = {
     desc: 'Колода из 8 карт, бесконечные волны. Продержись как можно дольше.',
   },
   deck:   { render: renderDeckTab },
-  market: { icon: '🏪', title: 'Рынок', desc: 'Тут будет покупка карт и апгрейды' },
+  market: { render: renderMarketTab },
 };
 
 const params = new URLSearchParams(location.search);
