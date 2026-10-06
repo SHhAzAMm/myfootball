@@ -1450,6 +1450,21 @@ function render(now) {
   if (BG_READY) {
     // Рисуем карту на весь canvas 480×480
     ctx.drawImage(BG_IMG, 0, 0, canvas.width, canvas.height);
+  // Визуальная сетка 8×8 поверх карты
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= COLS; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * CELL, 0);
+    ctx.lineTo(i * CELL, ROWS * CELL);
+    ctx.stroke();
+  }
+  for (let i = 0; i <= ROWS; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, i * CELL);
+    ctx.lineTo(COLS * CELL, i * CELL);
+    ctx.stroke();
+  }
   } else {
     // Фолбэк: старый стиль
     ctx.fillStyle = '#0a0a1a';
