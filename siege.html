@@ -296,6 +296,16 @@
   }
   .market-balance b { color: #c084fc; }
 
+  /* Иконка купона */
+  .coupon-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    vertical-align: -4px;
+    display: inline-block;
+  }
+
   /* ═══ РУЛЕТКА ═══ */
   .roulette-overlay {
     position: fixed; inset: 0;
@@ -524,13 +534,13 @@ function renderMarketTab() {
 
       <div class="market-cost">
         <div class="market-cost-label">СТОИМОСТЬ</div>
-        <div class="market-cost-value">${PREMIUM_COST} 💎</div>
+        <div class="market-cost-value">${PREMIUM_COST} <img src="units/ticket.png" class="coupon-icon" alt="🎟️"></div>
       </div>
 
       <button class="market-spin-btn" id="premiumSpinBtn">КРУТИТЬ</button>
 
       <div class="market-balance">
-        У тебя: <b id="premiumBalance">${siegeProgress.shards}</b> 💎
+        У тебя: <b id="premiumBalance">${siegeProgress.shards}</b> <img src="units/ticket.png" class="coupon-icon" alt="🎟️">
       </div>
     </div>
   `;
@@ -626,7 +636,7 @@ function showRoulette(winCard, wasLocked, onDone) {
     const resultEl = overlay.querySelector('#rouletteResult');
     resultEl.innerHTML = wasLocked
       ? `<b style="color:#4ade80;">${winCard.name}</b> разблокирован!`
-      : `<b style="color:#fbbf24;">${winCard.name}</b> уже был — +5 💎 компенсация`;
+      : `<b style="color:#fbbf24;">${winCard.name}</b> уже был — +5 <img src="units/ticket.png" class="coupon-icon" style="vertical-align:-3px;"> компенсация`;
     resultEl.style.opacity = '1';
 
     // Клик закрывает и вызывает колбэк

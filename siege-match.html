@@ -1206,8 +1206,11 @@ function endGame() {
     rewardHTML = `
       <div style="margin:16px 0;padding:14px;background:rgba(168,85,247,0.1);border:2px solid #a855f7;border-radius:12px;">
         <div style="font-size:10px;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:6px;">🎁 НАГРАДА ЗА ВЫЖИВАНИЕ</div>
-        <div style="font-size:22px;font-weight:900;color:#a855f7;">+${shards} 💎</div>
-        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Осколки Осады — трать в Рынке</div>
+        <div style="font-size:22px;font-weight:900;color:#a855f7;display:flex;align-items:center;justify-content:center;gap:6px;">
+          +${shards}
+          <img src="units/ticket.png" style="width:22px;height:22px;image-rendering:pixelated;" alt="🎟️" onerror="this.replaceWith('🎟️')">
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Купоны — трать в Рынке</div>
       </div>
     `;
   } else {
