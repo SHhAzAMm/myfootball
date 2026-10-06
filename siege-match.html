@@ -1461,14 +1461,17 @@ function render(now) {
     ctx.fillStyle = '#0f1e3a';
     ctx.fillRect(FIELD_MIN * CELL, FIELD_MIN * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL, (FIELD_MAX - FIELD_MIN + 1) * CELL);
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= COLS; i++) {
-      ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
-    }
-    for (let i = 0; i <= ROWS; i++) {
-      ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(COLS * CELL, i * CELL); ctx.stroke();
-    }
+    // Сетку не рисуем — её даёт карта
+    // (если хочешь лёгкие линии — раскомментируй ниже)
+    // ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    // ctx.lineWidth = 1;
+    // for (let i = 0; i <= COLS; i++) { ... }
+
+  // Подсветка поля юнитов (6×6) поверх карты
+  ctx.fillStyle = 'rgba(120, 180, 255, 0.06)';
+  ctx.fillRect(FIELD_MIN * CELL, FIELD_MIN * CELL,
+               (FIELD_MAX - FIELD_MIN + 1) * CELL,
+               (FIELD_MAX - FIELD_MIN + 1) * CELL);
   }
 
   // Портал (только пульсация, без эмодзи — он есть на карте)
