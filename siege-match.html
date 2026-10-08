@@ -285,6 +285,50 @@ const MOB_TYPES = {
     sprite: 'mobs/boss.png',
     size: 1.4,
   },
+
+  // ─── Новые мобы (после 10-й волны) — УСИЛЕННЫЕ ×2 ───
+  shell: {
+    icon: '🛡️', name: 'Панцирь',
+    hp: 40, speedMul: 0.9, reward: 6,
+    color: '#94a3b8',
+    sprite: 'mobs/shell.png',
+    size: 0.95,
+    shieldHp: 6,              // было 3 → 6
+    shieldRegenMs: 3000,      // было 5000 → 3000
+    shieldSlow: 0.85,         // было 0.9 → жёстче
+  },
+  jumper: {
+    icon: '🟢', name: 'Прыгун',
+    hp: 16, speedMul: 1.5, reward: 7,
+    color: '#4ade80',
+    sprite: 'mobs/jumper.png',
+    size: 0.9,
+    jumpEveryMs: 3000,        // было 4000 → 3000
+    jumpDistance: 2,
+    jumpSelfDamage: 0.05,     // было 0.1 → 0.05
+  },
+  screamer: {
+    icon: '🔴', name: 'Ревун',
+    hp: 80, speedMul: 0.6, reward: 12,
+    color: '#ef4444',
+    sprite: 'mobs/screamer.png',
+    size: 1.0,
+    screamEveryMs: 5000,      // было 6000 → 5000
+    screamRadius: 2.5,        // было 2 → 2.5
+    screamDebuff: 0.65,       // было 0.8 → −35% скорости атаки
+    screamDebuffMs: 3000,
+    screamFreezeMs: 1000,
+  },
+  dealer: {
+    icon: '🟣', name: 'Делец',
+    hp: 360, speedMul: 0.4, reward: 60,
+    color: '#a855f7',
+    sprite: 'mobs/dealer.png',
+    size: 1.4,
+    splitCount: 4,            // было 3 → 4
+    splitHpMul: 0.8,          // было 0.5 → 0.8
+    splitBeforeProgress: 0.5,
+  },
 };
 
 function getWaveConfig(wave) {
@@ -293,17 +337,17 @@ function getWaveConfig(wave) {
   const hpMul = 1 + (wave - 1) * 0.15;  // ХП растёт на 15% за волну (вместо +3 к фиксированному)
 
   if (isBossWave) {
-    // Боссовая волна: 1 босс + немного мелких
+    const useDealer = wave >= 10 && (wave / 5) % 2 === 0;
     return {
       wave,
       isBoss: true,
-      // Состав: 1 босс, 30% обычных от базового count
-      composition: [
-        { type: 'boss',    count: 1 },
-        { type: 'warrior', count: Math.floor(baseCount * 0.3) },
-      ],
+      composition: useDealer
+        ? [{ type: 'dealer',   count: 1 },
+           { type: 'warrior',  count: Math.floor(baseCount * 0.4) }]
+        : [{ type: 'boss',     count: 1 },
+           { type: 'warrior',  count: Math.floor(baseCount * 0.4) }],
       hpMul,
-      spawnInterval: 1200,
+      spawnInterval: 1000,
     };
   }
 
@@ -321,18 +365,29 @@ function getWaveConfig(wave) {
   let warriorChance = 1.0;
   let swiftChance = 0;
   let golemChance = 0;
+  let shellChance = 0;
+  let jumperChance = 0;
+  let screamerChance = 0;
 
-  if (wave >= 3) { warriorChance = 0.6; swiftChance = 0.4; golemChance = 0; }
-  if (wave >= 6) { warriorChance = 0.5; swiftChance = 0.3; golemChance = 0.2; }
-  if (wave >= 11) { warriorChance = 0.4; swiftChance = 0.35; golemChance = 0.25; }
+  if (wave >= 3)  { warriorChance = 0.6; swiftChance = 0.4; }
+  if (wave >= 6)  { warriorChance = 0.5; swiftChance = 0.3; golemChance = 0.2; }
+  if (wave >= 11) { warriorChance = 0.35; swiftChance = 0.25; golemChance = 0.15; shellChance = 0.10; jumperChance = 0.10; screamerChance = 0.05; }
+  if (wave >= 16) { warriorChance = 0.25; swiftChance = 0.20; golemChance = 0.15; shellChance = 0.18; jumperChance = 0.14; screamerChance = 0.08; }
+  if (wave >= 21) { warriorChance = 0.18; swiftChance = 0.15; golemChance = 0.15; shellChance = 0.22; jumperChance = 0.18; screamerChance = 0.12; }
 
-  const warriorN = Math.max(1, Math.round(totalCount * warriorChance));
-  const swiftN   = Math.round(totalCount * swiftChance);
-  const golemN   = Math.max(0, totalCount - warriorN - swiftN);
+  const warriorN  = Math.max(1, Math.round(totalCount * warriorChance));
+  const swiftN    = Math.round(totalCount * swiftChance);
+  const shellN    = Math.round(totalCount * shellChance);
+  const jumperN   = Math.round(totalCount * jumperChance);
+  const screamerN = Math.round(totalCount * screamerChance);
+  const golemN    = Math.max(0, totalCount - warriorN - swiftN - shellN - jumperN - screamerN);
 
-  if (warriorN > 0) comp.push({ type: 'warrior', count: warriorN });
-  if (swiftN > 0)   comp.push({ type: 'swift',   count: swiftN });
-  if (golemN > 0)   comp.push({ type: 'golem',   count: golemN });
+  if (warriorN > 0)  comp.push({ type: 'warrior',  count: warriorN });
+  if (swiftN > 0)    comp.push({ type: 'swift',    count: swiftN });
+  if (shellN > 0)    comp.push({ type: 'shell',    count: shellN });
+  if (jumperN > 0)   comp.push({ type: 'jumper',   count: jumperN });
+  if (screamerN > 0) comp.push({ type: 'screamer', count: screamerN });
+  if (golemN > 0)    comp.push({ type: 'golem',    count: golemN });
 
   return {
     wave,
@@ -685,7 +740,7 @@ function spawnMob(typeId) {
   const t = MOB_TYPES[typeId] || MOB_TYPES.warrior;
 
   const hp = Math.round(t.hp * cfg.hpMul);
-  mobs.push({
+  const mob = {
     id: Math.random(),
     type: typeId || 'warrior',
     hp,
@@ -694,7 +749,28 @@ function spawnMob(typeId) {
     speed: MOB_SPEED * t.speedMul,
     reward: t.reward,
     hitFlash: 0,
-  });
+    spawnTime: performance.now(),
+  };
+
+  // Панцирь: щит
+  if (typeId === 'shell') {
+    mob.shield = t.shieldHp;
+    mob.shieldLastHit = 0;
+    mob.shieldSlowStacks = 0;
+  }
+
+  // Прыгун: таймер прыжков
+  if (typeId === 'jumper') {
+    mob.nextJumpAt = performance.now() + t.jumpEveryMs;
+  }
+
+  // Ревун: таймер рёва
+  if (typeId === 'screamer') {
+    mob.nextScreamAt = performance.now() + t.screamEveryMs;
+    mob.freezeUntil = 0;
+  }
+
+  mobs.push(mob);
 }
 
 function pickMobTypeFromComposition(composition, alreadySpawned) {
