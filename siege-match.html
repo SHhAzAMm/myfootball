@@ -368,25 +368,41 @@ function getWaveConfig(wave) {
   let shellChance = 0;
   let jumperChance = 0;
   let screamerChance = 0;
+  let dealerChance = 0;
 
   if (wave >= 3)  { warriorChance = 0.6; swiftChance = 0.4; }
   if (wave >= 6)  { warriorChance = 0.5; swiftChance = 0.3; golemChance = 0.2; }
   if (wave >= 11) { warriorChance = 0.35; swiftChance = 0.25; golemChance = 0.15; shellChance = 0.10; jumperChance = 0.10; screamerChance = 0.05; }
   if (wave >= 16) { warriorChance = 0.25; swiftChance = 0.20; golemChance = 0.15; shellChance = 0.18; jumperChance = 0.14; screamerChance = 0.08; }
   if (wave >= 21) { warriorChance = 0.18; swiftChance = 0.15; golemChance = 0.15; shellChance = 0.22; jumperChance = 0.18; screamerChance = 0.12; }
+  if (wave >= 25) { dealerChance = 0.04; }
+
+  // Нормализуем шансы, чтобы сумма была ровно 1
+  const chanceSum = warriorChance + swiftChance + golemChance + shellChance + jumperChance + screamerChance;
+  if (chanceSum > 0) {
+    warriorChance /= chanceSum;
+    swiftChance   /= chanceSum;
+    golemChance   /= chanceSum;
+    shellChance   /= chanceSum;
+    jumperChance  /= chanceSum;
+    screamerChance/= chanceSum;
+  }
 
   const warriorN  = Math.max(1, Math.round(totalCount * warriorChance));
   const swiftN    = Math.round(totalCount * swiftChance);
   const shellN    = Math.round(totalCount * shellChance);
   const jumperN   = Math.round(totalCount * jumperChance);
   const screamerN = Math.round(totalCount * screamerChance);
-  const golemN    = Math.max(0, totalCount - warriorN - swiftN - shellN - jumperN - screamerN);
+  const dealerN   = Math.round(totalCount * dealerChance);
+  const assigned  = warriorN + swiftN + shellN + jumperN + screamerN + dealerN;
+  const golemN    = Math.max(0, totalCount - assigned);
 
   if (warriorN > 0)  comp.push({ type: 'warrior',  count: warriorN });
   if (swiftN > 0)    comp.push({ type: 'swift',    count: swiftN });
   if (shellN > 0)    comp.push({ type: 'shell',    count: shellN });
   if (jumperN > 0)   comp.push({ type: 'jumper',   count: jumperN });
   if (screamerN > 0) comp.push({ type: 'screamer', count: screamerN });
+  if (dealerN > 0)   comp.push({ type: 'dealer',   count: dealerN });
   if (golemN > 0)    comp.push({ type: 'golem',    count: golemN });
 
   return {
@@ -752,19 +768,14 @@ function spawnMob(typeId) {
     spawnTime: performance.now(),
   };
 
-  // Панцирь: щит
   if (typeId === 'shell') {
     mob.shield = t.shieldHp;
     mob.shieldLastHit = 0;
     mob.shieldSlowStacks = 0;
   }
-
-  // Прыгун: таймер прыжков
   if (typeId === 'jumper') {
     mob.nextJumpAt = performance.now() + t.jumpEveryMs;
   }
-
-  // Ревун: таймер рёва
   if (typeId === 'screamer') {
     mob.nextScreamAt = performance.now() + t.screamEveryMs;
     mob.freezeUntil = 0;
@@ -819,8 +830,7 @@ function spawnShockwave(x, y) {
     if (mob.hp <= 0) continue;
     const p = mobPos(mob);
     if (Math.hypot(p.x - x, p.y - y) <= shockRadius) {
-      mob.hp -= shockDmg;
-      mob.hitFlash = 0.15;
+      damageMob(mob, shockDmg, null);
     }
   }
   effects.push({ type: 'shockwave', x, y, ttl: 0.45, maxTtl: 0.45 });
@@ -835,6 +845,26 @@ function countRhythmHit(unit, hitX, hitY) {
     src.hitCounter = 0;
     spawnShockwave(hitX, hitY);
   }
+}
+
+// ═══════════════════════════════════════════════
+//  УРОН ПО МОБУ (с учётом щита Панциря)
+// ═══════════════════════════════════════════════
+function damageMob(mob, dmg, sourceUnit) {
+  if (!mob || mob.hp <= 0) return;
+
+  // ─── Панцирь: щит поглощает удары ───
+  if (mob.type === 'shell' && mob.shield > 0) {
+    mob.shield -= 1;
+    mob.shieldLastHit = performance.now();
+    mob.shieldSlowStacks = (mob.shieldSlowStacks || 0) + 1;
+    mob.hitFlash = 0.15;
+    return; // урон НЕ проходит в HP
+  }
+
+  mob.hp -= dmg;
+  mob.hitFlash = 0.15;
+  if (sourceUnit) mob.lastHitBy = sourceUnit;
 }
 
 // ═══════════════════════════════════════════════
@@ -916,11 +946,61 @@ function tick(now) {
     // Баффы от Ритма — пересчёт каждый кадр
     applySupportBuffs();
 
-    // Движение мобов (с учётом замедления и заморозки)
+    // Движение мобов + способности
     for (const mob of mobs) {
+      const t = MOB_TYPES[mob.type] || MOB_TYPES.warrior;
+
+      // ─── Панцирь: реген щита ───
+      if (mob.type === 'shell') {
+        if (mob.shield < t.shieldHp && mob.shieldLastHit > 0 && now - mob.shieldLastHit > t.shieldRegenMs) {
+          mob.shield = t.shieldHp;
+          mob.shieldSlowStacks = 0;
+          mob.shieldLastHit = 0;
+        }
+      }
+
+      // ─── Прыгун: прыжок вперёд ───
+      if (mob.type === 'jumper' && mob.nextJumpAt && now >= mob.nextJumpAt) {
+        const oldPos = mobPos(mob);
+        mob.progress += t.jumpDistance;
+        const newPos = mobPos(mob);
+        mob.hp -= mob.maxHp * t.jumpSelfDamage;
+        if (mob.hp < 1) mob.hp = 1;
+        mob.nextJumpAt = now + t.jumpEveryMs;
+        // Визуальная дуга прыжка
+        effects.push({
+          type: 'jump',
+          from: oldPos,
+          to: newPos,
+          ttl: 0.4, maxTtl: 0.4,
+        });
+      }
+
+      // ─── Ревун: рёв по юнитам ───
+      if (mob.type === 'screamer' && mob.nextScreamAt && now >= mob.nextScreamAt) {
+        mob.freezeUntil = now + t.screamFreezeMs;
+        mob.nextScreamAt = now + t.screamEveryMs;
+
+        const mp = mobPos(mob);
+        for (const u of units) {
+          const ux = u.col + 0.5;
+          const uy = u.row + 0.5;
+          if (Math.hypot(mp.x - ux, mp.y - uy) <= t.screamRadius) {
+            u.attackDebuffUntil = now + t.screamDebuffMs;
+            u.attackDebuffFactor = t.screamDebuff;
+          }
+        }
+        effects.push({ type: 'shockwave', x: mp.x, y: mp.y, ttl: 0.5, maxTtl: 0.5 });
+      }
+
       let spd = mob.speed;
       if (mob.freezeUntil && mob.freezeUntil > now) spd = 0;
       else if (mob.slowUntil && mob.slowUntil > now) spd *= (mob.slowFactor || 0.5);
+
+      if (mob.type === 'shell' && mob.shieldSlowStacks > 0) {
+        spd *= Math.pow(t.shieldSlow, mob.shieldSlowStacks);
+      }
+
       mob.progress += spd * dt;
       if (mob.hitFlash > 0) mob.hitFlash -= dt;
     }
@@ -948,6 +1028,7 @@ function tick(now) {
         if (mob.hp <= 0) continue;
         const p = mobPos(mob);
         if (Math.hypot(p.x - fz.x, p.y - fz.y) <= fz.radius) {
+          // Огонь — DoT, обходит щит Панциря (иначе щит сгорит за 1 кадр)
           mob.hp -= fz.damage * dt;
           mob.hitFlash = Math.max(mob.hitFlash || 0, 0.05);
         }
@@ -959,6 +1040,14 @@ function tick(now) {
     for (const unit of units) {
       unit.cooldown -= dt;
       if (unit.cooldown > 0) continue;
+
+      // Скорость атаки с учётом дебаффа от Ревуна
+      let attackSpeedMul = (unit.speedBuff || 1);
+      if (unit.attackDebuffUntil && unit.attackDebuffUntil > now) {
+        attackSpeedMul *= (unit.attackDebuffFactor || 1);
+      }
+      // Запоминаем в переменную, чтобы использовать ниже
+      const effectiveAtkSpeed = attackSpeedMul;
 
       // Юнит в воздухе — не атакует и не тикает кулдаун
       if (unit.beingDragged) {
@@ -995,8 +1084,7 @@ function tick(now) {
             if (perp > 0.5) continue;
             if (proj > card.range) continue;
 
-            mob.hp -= damage;
-            mob.hitFlash = 0.15;
+            damageMob(mob, damage, unit);
             hitAny = true;
             effects.push({
               type: 'line',
@@ -1008,7 +1096,7 @@ function tick(now) {
         }
 
         if (hitAny) {
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, ux, uy);
         }
         continue;
@@ -1040,8 +1128,7 @@ function tick(now) {
             if (unit.shotCount % 3 === 0) dmg *= 2;
           }
 
-          target.hp -= dmg;
-          target.hitFlash = 0.15;
+          damageMob(target, dmg, unit);
 
           const tp = mobPos(target);
           effects.push({
@@ -1075,8 +1162,7 @@ function tick(now) {
               }
             }
             if (second) {
-              second.hp -= dmg * 0.5;
-              second.hitFlash = 0.15;
+              damageMob(second, dmg * 0.5, unit);
               const sp = mobPos(second);
               effects.push({
                 type: 'line',
@@ -1124,9 +1210,7 @@ function tick(now) {
           for (let i = 0; i < maxTargets && current; i++) {
             hitSet.add(current);
             const cp = mobPos(current);
-            current.hp -= currentDmg;
-            current.hitFlash = 0.15;
-            current.lastHitBy = unit;
+            damageMob(current, currentDmg, unit);
 
             // Визуал: дуга от предыдущей точки к текущей
             effects.push({
@@ -1199,9 +1283,7 @@ function tick(now) {
             if (mob.hp <= 0) continue;
             const p = mobPos(mob);
             if (Math.hypot(p.x - bestTarget.x, p.y - bestTarget.y) <= blastRadius) {
-              mob.hp -= dmg;
-              mob.hitFlash = 0.15;
-              mob.lastHitBy = unit;
+              damageMob(mob, dmg, unit);
             }
           }
           effects.push({ type: 'explosion', x: bestTarget.x, y: bestTarget.y, ttl: 0.45, maxTtl: 0.45 });
@@ -1232,9 +1314,7 @@ function tick(now) {
                 if (mob.hp <= 0) continue;
                 const p = mobPos(mob);
                 if (Math.hypot(p.x - secondTarget.x, p.y - secondTarget.y) <= blastRadius) {
-                  mob.hp -= dmg;
-                  mob.hitFlash = 0.15;
-                  mob.lastHitBy = unit;
+                  damageMob(mob, dmg, unit);
                 }
               }
               effects.push({ type: 'explosion', x: secondTarget.x, y: secondTarget.y, ttl: 0.45, maxTtl: 0.45 });
@@ -1278,8 +1358,7 @@ function tick(now) {
         }
 
         if (target) {
-          target.hp -= dmg;
-          target.hitFlash = 0.15;
+          damageMob(target, dmg, unit);
           target.slowUntil = now + 2000;
           target.slowFactor = 0.5;
           target.lastHitBy = unit;
@@ -1331,9 +1410,7 @@ function tick(now) {
           const dist = Math.hypot(p.x - ux, p.y - uy);
           if (dist > card.range) continue;
 
-          mob.hp -= baseDmg;
-          mob.hitFlash = 0.15;
-          mob.lastHitBy = unit;
+          damageMob(mob, baseDmg, unit);
           hitAny = true;
 
           effects.push({
@@ -1360,8 +1437,7 @@ function tick(now) {
 
       if (target) {
         const dmg = card.damage * (1 + 0.5 * (unit.level - 1));
-        target.hp -= dmg;
-        target.hitFlash = 0.15;
+        damageMob(target, dmg, unit);
         unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
         const p = mobPos(target);
         effects.push({ type: 'line', from: { x: unit.col + 0.5, y: unit.row + 0.5 }, to: p, ttl: 0.12, maxTtl: 0.12 });
@@ -1374,6 +1450,27 @@ function tick(now) {
     for (const m of dead) {
       const p = mobPos(m);
       const killer = m.lastHitBy;
+
+      // ─── Делец: раскол на 4 моба ───
+      if (m.type === 'dealer') {
+        const t = MOB_TYPES.dealer;
+        const progressNormalized = (m.progress % PATH_LEN) / PATH_LEN;
+        if (progressNormalized > t.splitBeforeProgress) {
+          const splitHp = Math.round(MOB_TYPES.warrior.hp * (getWaveConfig(state.wave).hpMul) * t.splitHpMul);
+          for (let i = 0; i < t.splitCount; i++) {
+            mobs.push({
+              id: Math.random(),
+              type: 'warrior',
+              hp: splitHp,
+              maxHp: splitHp,
+              progress: m.progress + (i - 1) * 0.3,
+              speed: MOB_SPEED * MOB_TYPES.warrior.speedMul,
+              reward: MOB_TYPES.warrior.reward,
+              hitFlash: 0,
+            });
+          }
+        }
+      }
       
       // Айсберг III: замороженный при смерти оставляет лужу
       const hasIce3 = units.some(u => u.cardId === 'iceberg' && u.level >= 3);
@@ -1403,8 +1500,7 @@ function tick(now) {
             const op = mobPos(other);
             const d = Math.hypot(op.x - p.x, op.y - p.y);
             if (d <= 1.5) {
-              other.hp -= explosionDmg;
-              other.hitFlash = 0.15;
+              damageMob(other, explosionDmg, killer);
             }
           }
           // Визуальный взрыв
@@ -1799,7 +1895,26 @@ function render(now) {
     ctx.strokeStyle = 'rgba(255,255,255,0.25)';
     ctx.lineWidth = 1;
     ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
-    
+
+    // ─── Индикатор щита Панциря ───
+    if (mob.type === 'shell' && mob.shield > 0) {
+      const shieldBarY = barY + barH + 3;
+      const shieldPct = mob.shield / MOB_TYPES.shell.shieldHp;
+
+      // Полоска щита
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
+      ctx.fillRect(barX - 1, shieldBarY - 1, barW + 2, 5);
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillRect(barX, shieldBarY, barW * shieldPct, 3);
+
+      // Голубое кольцо вокруг спрайта
+      ctx.beginPath();
+      ctx.arc(cx, cy, CELL * 0.42, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(96, 165, 250, ${0.35 + 0.4 * shieldPct})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
     // Индикатор замедления/заморозки
     if (mob.freezeUntil && mob.freezeUntil > performance.now()) {
       ctx.beginPath();
@@ -1862,6 +1977,25 @@ function render(now) {
       ctx.globalAlpha = alpha;
       ctx.fillText(e.text, e.x * CELL, e.y * CELL - (1 - alpha) * 20);
       ctx.globalAlpha = 1;
+    } else if (e.type === 'jump') {
+      // Пунктирная дуга прыжка
+      const progress = 1 - e.ttl / e.maxTtl;
+      const mx = (e.from.x + e.to.x) / 2;
+      const my = (e.from.y + e.to.y) / 2 - 0.8;  // дуга вверх
+      ctx.strokeStyle = `rgba(74, 222, 128, ${alpha})`;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(e.from.x * CELL, e.from.y * CELL);
+      ctx.quadraticCurveTo(mx * CELL, my * CELL, e.to.x * CELL, e.to.y * CELL);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Точка приземления
+      ctx.beginPath();
+      ctx.arc(e.to.x * CELL, e.to.y * CELL, 8 * (1 - progress) + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(74, 222, 128, ${alpha * 0.8})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
     } else if (e.type === 'shockwave') {
       const progress = 1 - e.ttl / e.maxTtl;
       const r = progress * CELL * 1.8;
