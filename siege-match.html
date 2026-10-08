@@ -325,9 +325,32 @@ const MOB_TYPES = {
     color: '#a855f7',
     sprite: 'mobs/dealer.png',
     size: 1.4,
-    splitCount: 4,            // было 3 → 4
-    splitHpMul: 0.8,          // было 0.5 → 0.8
-    splitBeforeProgress: 0.5,
+    splitCount: 3,            // 3 мини-босса
+    splitHpMul: 0.35,         // каждый мини-босс = 35% HP Дельца
+    splitBeforeProgress: 0.0, // делится всегда
+  },
+
+  // ─── Мини-боссы (спавнятся при смерти Дельца) ───
+  dealer_left: {
+    icon: '🟪', name: 'Мини-босс L',
+    hp: 130, speedMul: 0.55, reward: 25,
+    color: '#a855f7',
+    sprite: 'mobs/dealerl.png',
+    size: 1.15,
+  },
+  dealer_right: {
+    icon: '🟪', name: 'Мини-босс R',
+    hp: 130, speedMul: 0.55, reward: 25,
+    color: '#a855f7',
+    sprite: 'mobs/dealerr.png',
+    size: 1.15,
+  },
+  dealer_center: {
+    icon: '🟪', name: 'Мини-босс C',
+    hp: 160, speedMul: 0.5, reward: 35,
+    color: '#c084fc',
+    sprite: 'mobs/dealerc.png',
+    size: 1.25,
   },
 };
 
@@ -774,7 +797,8 @@ function spawnMob(typeId) {
     mob.shieldSlowStacks = 0;
   }
   if (typeId === 'jumper') {
-    mob.nextJumpAt = performance.now() + t.jumpEveryMs;
+    // Первый прыжок — сразу при выходе (через 150 мс, чтобы не сливалось со спавном)
+    mob.nextJumpAt = performance.now() + 150;
   }
   if (typeId === 'screamer') {
     mob.nextScreamAt = performance.now() + t.screamEveryMs;
@@ -1173,7 +1197,7 @@ function tick(now) {
             }
           }
 
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, tp.x, tp.y);
         }
         continue;
@@ -1243,7 +1267,7 @@ function tick(now) {
             current = next;
           }
 
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, ux, uy);
         }
         continue;
@@ -1332,7 +1356,7 @@ function tick(now) {
             });
           }
 
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, bestTarget.x, bestTarget.y);
         }
         continue;
@@ -1391,7 +1415,7 @@ function tick(now) {
             }
           }
 
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, ux, uy);
         }
         continue;
@@ -1422,7 +1446,7 @@ function tick(now) {
         }
 
         if (hitAny) {
-          unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+          unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
           countRhythmHit(unit, ux, uy);
         }
         continue;
@@ -1438,7 +1462,7 @@ function tick(now) {
       if (target) {
         const dmg = card.damage * (1 + 0.5 * (unit.level - 1));
         damageMob(target, dmg, unit);
-        unit.cooldown = 1 / (card.attackSpeed * (unit.speedBuff || 1));
+        unit.cooldown = 1 / (card.attackSpeed * effectiveAtkSpeed);
         const p = mobPos(target);
         effects.push({ type: 'line', from: { x: unit.col + 0.5, y: unit.row + 0.5 }, to: p, ttl: 0.12, maxTtl: 0.12 });
         countRhythmHit(unit, p.x, p.y);
@@ -1451,46 +1475,49 @@ function tick(now) {
       const p = mobPos(m);
       const killer = m.lastHitBy;
 
-      // ─── Делец: раскол на 4 моба ───
+      // ─── Делец: раскол на 3 мини-босса ───
       if (m.type === 'dealer') {
         const t = MOB_TYPES.dealer;
-        if (true) {
-          const splitHp = Math.round(MOB_TYPES.warrior.hp * (getWaveConfig(state.wave).hpMul) * t.splitHpMul);
-          const splitPos = mobPos(m);
+        const splitPos = mobPos(m);
+        const hpMul = getWaveConfig(state.wave).hpMul;
+        const childTypes = ['dealer_left', 'dealer_center', 'dealer_right'];
 
-          for (let i = 0; i < t.splitCount; i++) {
-            mobs.push({
-              id: Math.random(),
-              type: 'warrior',
-              hp: splitHp,
-              maxHp: splitHp,
-              progress: m.progress + (i - 1.5) * 0.8,
-              speed: MOB_SPEED * MOB_TYPES.warrior.speedMul,
-              reward: MOB_TYPES.warrior.reward,
-              hitFlash: 0,
-            });
-          }
+        for (let i = 0; i < childTypes.length; i++) {
+          const childType = childTypes[i];
+          const childCfg = MOB_TYPES[childType];
+          const childHp = Math.round(childCfg.hp * hpMul * t.splitHpMul * 3);
 
-          effects.push({
-            type: 'explosion',
-            x: splitPos.x,
-            y: splitPos.y,
-            ttl: 0.5,
-            maxTtl: 0.5,
-          });
-
-          effects.push({
-            type: 'text',
-            x: splitPos.x,
-            y: splitPos.y - 0.5,
-            text: '💥 РАСКОЛ!',
-            color: '#a855f7',
-            ttl: 1.0,
-            maxTtl: 1.0,
+          mobs.push({
+            id: Math.random(),
+            type: childType,
+            hp: childHp,
+            maxHp: childHp,
+            progress: m.progress + (i - 1) * 0.8,
+            speed: MOB_SPEED * childCfg.speedMul,
+            reward: childCfg.reward,
+            hitFlash: 0,
+            spawnTime: performance.now(),
           });
         }
+
+        effects.push({
+          type: 'explosion',
+          x: splitPos.x,
+          y: splitPos.y,
+          ttl: 0.5,
+          maxTtl: 0.5,
+        });
+
+        effects.push({
+          type: 'text',
+          x: splitPos.x,
+          y: splitPos.y - 0.5,
+          text: '💥 РАСКОЛ ×3',
+          color: '#a855f7',
+          ttl: 1.2,
+          maxTtl: 1.2,
+        });
       }
-      
       // Айсберг III: замороженный при смерти оставляет лужу
       const hasIce3 = units.some(u => u.cardId === 'iceberg' && u.level >= 3);
       if (hasIce3 && m.freezeUntil && m.freezeUntil > now) {
