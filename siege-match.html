@@ -245,14 +245,14 @@ const CELL = 60;
 const COLS = 8, ROWS = 8;
 const FIELD_MIN = 1, FIELD_MAX = 6;
 
-const START_POINTS = 100;
-const ROLL_BASE_COST = 50;
-const ROLL_STEP = 6;
+const START_POINTS = 120;
+const ROLL_BASE_COST = 40;
+const ROLL_STEP = 5;
 const MAX_MOBS = 40;
 const MAX_MERGE_LEVEL = 3;
 
-const WAVE_INTERVAL_MS = 20000;
-const FIRST_SPAWN_DELAY_MS = 1500;
+const WAVE_INTERVAL_MS = 12000;   // было 20000 — волны в 1.7× чаще
+const FIRST_SPAWN_DELAY_MS = 800; // было 1500 — первый моб быстрее
 
 // ─── Бесконечные волны ───
 // ─── Типы мобов ───
@@ -357,7 +357,7 @@ const MOB_TYPES = {
 function getWaveConfig(wave) {
   const isBossWave = (wave % 5 === 0);
   const baseCount = 3 + Math.floor(wave * 0.8);
-  const hpMul = 1 + (wave - 1) * 0.15;  // ХП растёт на 15% за волну (вместо +3 к фиксированному)
+  const hpMul = 1 + (wave - 1) * 0.22;  // было 0.15 — теперь мобы крепче
 
   if (isBossWave) {
     const useDealer = wave >= 10 && (wave / 5) % 2 === 0;
@@ -370,7 +370,7 @@ function getWaveConfig(wave) {
         : [{ type: 'boss',     count: 1 },
            { type: 'warrior',  count: Math.floor(baseCount * 0.4) }],
       hpMul,
-      spawnInterval: 1000,
+      spawnInterval: 600,   // было 1000 — боссы спавнятся быстрее
     };
   }
 
@@ -433,7 +433,7 @@ function getWaveConfig(wave) {
     isBoss: false,
     composition: comp,
     hpMul,
-    spawnInterval: Math.max(600, 1500 - (wave - 1) * 60),
+    spawnInterval: Math.max(350, 900 - (wave - 1) * 40),
   };
 }
 
@@ -504,7 +504,7 @@ const CARD_COLORS = ['#ff6b6b','#60a5fa','#fbbf24','#4ade80','#a855f7','#22d3ee'
 
 const MOB_EMOJI  = '👹';
 const MOB_COLOR  = '#ef4444';
-const MOB_SPEED  = 1.2;
+const MOB_SPEED  = 1.45;   // было 1.2 — мобы идут быстрее
 
 // ═══════════════════════════════════════════════
 //  ДОРОЖКА (периметр 8×8, по часовой)
@@ -1090,7 +1090,7 @@ function tick(now) {
       // ─── Линейная атака (Шип) ───
       if (card.attackType === 'line') {
         const directions = unit.level >= 2 ? EIGHT_DIRS : FOUR_DIRS;
-        const dmgMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.5 : 2;
+        const dmgMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.7 : 2.4;
         const damage = card.damage * dmgMul;
         const ux = unit.col + 0.5;
         const uy = unit.row + 0.5;
@@ -1143,7 +1143,7 @@ function tick(now) {
         }
 
         if (target) {
-          const baseMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.5 : 2;
+          const baseMul = unit.level === 1 ? 1 : unit.level === 2 ? 1.7 : 2.4;
           const distBonus = 1 + 0.1 * maxDist;
           let dmg = card.damage * baseMul * distBonus;
 
@@ -1588,7 +1588,7 @@ function tick(now) {
     if (state.mobsSpawned >= state.mobsTotalInWave && mobs.length === 0) {
       if (!state.waveClearPending) {
         state.waveClearPending = true;
-        state.nextWaveAt = Math.min(state.nextWaveAt, now + 3000);
+        state.nextWaveAt = Math.min(state.nextWaveAt, now + 2000);  // было 3000
       }
     }
 
