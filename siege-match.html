@@ -360,7 +360,8 @@ function getWaveConfig(wave) {
   const hpMul = 1 + (wave - 1) * 0.22;  // было 0.15 — теперь мобы крепче
 
   if (isBossWave) {
-    const useDealer = wave >= 10 && (wave / 5) % 2 === 0;
+    // Делец — раз в 20 волн (20, 40, 60...), остальные боссовые — обычный босс
+    const useDealer = wave >= 20 && (wave / 10) % 2 === 0;
     return {
       wave,
       isBoss: true,
@@ -1612,12 +1613,13 @@ function endGame() {
   if (gameOver) return;
   gameOver = true;
 
-  const REWARD_MIN_TIME = 600; // 10 минут
+  const REWARD_STEP_SEC = 120; // 1 купон за каждые 2 минуты (было 300)
+  const REWARD_MIN_SEC  = 120; // минимум 2 минуты, чтобы получить хоть что-то
   let rewardHTML = '';
 
-  if (state.timeSurvived >= REWARD_MIN_TIME) {
-    const minutes = Math.floor(state.timeSurvived / 60);
-    const shards  = 3 + Math.floor(minutes / 5);
+  if (state.timeSurvived >= REWARD_MIN_SEC) {
+    // 1 купон за каждые полные 2 минуты
+    const shards = Math.floor(state.timeSurvived / REWARD_STEP_SEC);
 
     const PROG_KEY = 'siege_progress_v1';
     let prog = { unlocked: ['spike', 'rhombus'], shards: 0 };
@@ -1635,14 +1637,17 @@ function endGame() {
           +${shards}
           <img src="units/ticket.png" style="width:22px;height:22px;image-rendering:pixelated;" alt="🎟️" onerror="this.replaceWith('🎟️')">
         </div>
-        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Купоны — трать в Рынке</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">1 купон = 2 минуты выживания · трать в Рынке</div>
       </div>
     `;
   } else {
-    const remainMin = Math.ceil((REWARD_MIN_TIME - state.timeSurvived) / 60);
+    const remainSec = Math.ceil(REWARD_MIN_SEC - state.timeSurvived);
+    const remainStr = remainSec >= 60
+      ? `${Math.ceil(remainSec / 60)} мин.`
+      : `${remainSec} сек.`;
     rewardHTML = `
       <div style="margin:16px 0;padding:12px;background:rgba(148,163,184,0.06);border:2px dashed rgba(148,163,184,0.25);border-radius:10px;font-size:12px;color:#94a3b8;">
-        🔒 Продержись ещё <b style="color:#fff;">${remainMin} мин.</b> для награды
+        🔒 Продержись ещё <b style="color:#fff;">${remainStr}</b> для первого купона
       </div>
     `;
   }
