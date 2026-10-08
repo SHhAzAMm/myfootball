@@ -1454,21 +1454,40 @@ function tick(now) {
       // ─── Делец: раскол на 4 моба ───
       if (m.type === 'dealer') {
         const t = MOB_TYPES.dealer;
-        const progressNormalized = (m.progress % PATH_LEN) / PATH_LEN;
-        if (progressNormalized > t.splitBeforeProgress) {
+        if (true) {
           const splitHp = Math.round(MOB_TYPES.warrior.hp * (getWaveConfig(state.wave).hpMul) * t.splitHpMul);
+          const splitPos = mobPos(m);
+
           for (let i = 0; i < t.splitCount; i++) {
             mobs.push({
               id: Math.random(),
               type: 'warrior',
               hp: splitHp,
               maxHp: splitHp,
-              progress: m.progress + (i - 1) * 0.3,
+              progress: m.progress + (i - 1.5) * 0.8,
               speed: MOB_SPEED * MOB_TYPES.warrior.speedMul,
               reward: MOB_TYPES.warrior.reward,
               hitFlash: 0,
             });
           }
+
+          effects.push({
+            type: 'explosion',
+            x: splitPos.x,
+            y: splitPos.y,
+            ttl: 0.5,
+            maxTtl: 0.5,
+          });
+
+          effects.push({
+            type: 'text',
+            x: splitPos.x,
+            y: splitPos.y - 0.5,
+            text: '💥 РАСКОЛ!',
+            color: '#a855f7',
+            ttl: 1.0,
+            maxTtl: 1.0,
+          });
         }
       }
       
