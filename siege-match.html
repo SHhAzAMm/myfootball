@@ -469,6 +469,7 @@ const ALL_CARDS = [
   { id: 'tesla',    emoji: '🟪', name: 'Дуга',      damage: 12, range: 3.5, attackSpeed: 0.7, attackType: 'chain' },
   { id: 'profit', emoji: '🟫', name: 'Профит', damage: 0, range: 2.0, attackSpeed: 0, attackType: 'profit' },
   { id: 'butcher',  emoji: '🟥', name: 'Мясник',    damage: 5,  range: 1.8, attackSpeed: 1.2, attackType: 'butcher' },
+  { id: 'necromancer', emoji: '💀', name: 'Костяной Кубик', damage: 5, range: 2.5, attackSpeed: 0.9, attackType: 'necro' },
 ];
 
 // ─── Собираем CARDS из колоды игрока (localStorage) ───
@@ -521,6 +522,24 @@ const PATH_LEN = PATH.length;
 //  СОСТОЯНИЕ
 // ═══════════════════════════════════════════════
 let state, units, mobs, effects, selectedUnit, handCard, lastTime, gameOver;
+let skeletons = [];   // скелеты-юниты (не занимают клетки)
+
+// ─── Параметры скелетов ───
+const SKELETON_DOG = {
+  damage: 4,
+  range: 1.2,
+  attackSpeed: 1.0,
+  moveSpeed: 1.3,
+};
+const SKELETON_GOLEM = {
+  damage: 7,
+  range: 1.5,
+  attackSpeed: 1 / 1.5,   // раз в 1.5 сек
+  moveSpeed: 0.9,
+  ttl: 10,
+};
+const SKELETON_MAX_GOLEMS = 2;
+const SKELETON_DOG_TTL = [5, 8, 8];   // по уровню некромансера I/II/III
 
 function newGame() {
   state = {
@@ -542,6 +561,7 @@ function newGame() {
   units = [];
   mobs = [];
   effects = [];
+  skeletons = [];
   state.profitKillCounters = {}; // user_id → счётчик убийств
   state.puddles = [];
   state.fireZones = [];
@@ -591,6 +611,20 @@ function loadSprites() {
 
 // ═══ Спрайты мобов ═══
 const MOB_SPRITES = {};
+
+// ═══ Спрайты скелетов ═══
+const SKELETON_SPRITES = {};
+function loadSkeletonSprites() {
+  for (const [key, path] of [
+    ['dog',   'units/skeletondog.png'],
+    ['golem', 'units/skeletongolem.png'],
+  ]) {
+    const img = new Image();
+    img.onload  = () => { SKELETON_SPRITES[key] = cleanSprite(img); console.log('✓ Скелет:', key); };
+    img.onerror = () => console.warn('✗ Нет спрайта скелета:', path);
+    img.src = path;
+  }
+}
 
 function loadMobSprites() {
   for (const [typeId, info] of Object.entries(MOB_TYPES)) {
@@ -893,6 +927,134 @@ function damageMob(mob, dmg, sourceUnit) {
 }
 
 // ═══════════════════════════════════════════════
+//  СКЕЛЕТЫ (призыв некромансера)
+// ═══════════════════════════════════════════════
+function countNecromancers() {
+  return units.filter(u => u.cardId === 'necromancer').length;
+}
+
+function maxSkeletonsAllowed() {
+  return Math.max(3, countNecromancers());
+}
+
+function countGolems() {
+  return skeletons.filter(s => s.type === 'golem').length;
+}
+
+function spawnSkeleton(progress, type, ttlSec, ownerId) {
+  skeletons.push({
+    id: Math.random(),
+    type,
+    progress,
+    ttl: ttlSec,
+    maxTtl: ttlSec,
+    cooldown: 0,
+    ownerId: ownerId || 0,
+  });
+}
+
+// Пробуем слить 3 собаки в голема
+function tryMergeSkeletons(now) {
+  const dogs = skeletons.filter(s => s.type === 'dog');
+  if (dogs.length < 3) return;
+  if (countGolems() >= SKELETON_MAX_GOLEMS) return;
+
+  // Берём первые 3 собаки
+  const toMerge = dogs.slice(0, 3);
+  const posProgress = toMerge[0].progress;
+
+  // Удаляем эти 3 собаки
+  const idsToRemove = new Set(toMerge.map(s => s.id));
+  skeletons = skeletons.filter(s => !idsToRemove.has(s.id));
+
+  // Спавним голема
+  spawnSkeleton(posProgress, 'golem', SKELETON_GOLEM.ttl, toMerge[0].ownerId);
+
+  // Визуал
+  const p = mobPosFromProgress(posProgress);
+  effects.push({ type: 'explosion', x: p.x, y: p.y, ttl: 0.5, maxTtl: 0.5 });
+  effects.push({
+    type: 'text', x: p.x, y: p.y - 0.5,
+    text: '🦴 ГОЛЕМ!', color: '#a855f7', ttl: 1.2, maxTtl: 1.2,
+  });
+}
+
+// Позиция по progress (для скелетов — та же формула, что и у мобов)
+function mobPosFromProgress(progress) {
+  const p = ((progress % PATH_LEN) + PATH_LEN) % PATH_LEN;   // нормализуем в 0..PATH_LEN
+  const idx = Math.floor(p) % PATH_LEN;
+  const t = p - Math.floor(p);
+  const a = PATH[idx];
+  const b = PATH[(idx + 1) % PATH_LEN];
+  return {
+    x: a.x + (b.x - a.x) * t + 0.5,
+    y: a.y + (b.y - a.y) * t + 0.5,
+  };
+}
+
+function updateSkeletons(now, dt) {
+  // ─── Пробуем слияние ───
+  tryMergeSkeletons(now);
+
+  for (const sk of skeletons) {
+    sk.ttl -= dt;
+    sk.cooldown -= dt;
+
+    const cfg = sk.type === 'golem' ? SKELETON_GOLEM : SKELETON_DOG;
+
+    // ─── Движение к порталу (progress уменьшается) ───
+    sk.progress -= cfg.moveSpeed * dt;
+    // Не уходим ниже 0 — упираемся у портала
+    if (sk.progress < 0) sk.progress = 0;
+
+    // ─── Атака ───
+    if (sk.cooldown > 0) continue;
+
+    const sp = mobPosFromProgress(sk.progress);
+
+    if (sk.type === 'golem') {
+      // AoE по всем мобам в радиусе
+      let hitAny = false;
+      for (const mob of mobs) {
+        if (mob.hp <= 0) continue;
+        const mp = mobPos(mob);
+        if (Math.hypot(mp.x - sp.x, mp.y - sp.y) <= cfg.range) {
+          damageMob(mob, cfg.damage, null);
+          hitAny = true;
+        }
+      }
+      if (hitAny) {
+        sk.cooldown = 1 / cfg.attackSpeed;
+        effects.push({ type: 'shockwave', x: sp.x, y: sp.y, ttl: 0.4, maxTtl: 0.4 });
+      }
+    } else {
+      // Собака: ближайший моб в радиусе
+      let target = null, minD = Infinity;
+      for (const mob of mobs) {
+        if (mob.hp <= 0) continue;
+        const mp = mobPos(mob);
+        const d = Math.hypot(mp.x - sp.x, mp.y - sp.y);
+        if (d <= cfg.range && d < minD) { minD = d; target = mob; }
+      }
+      if (target) {
+        damageMob(target, cfg.damage, null);
+        sk.cooldown = 1 / cfg.attackSpeed;
+        const mp = mobPos(target);
+        effects.push({
+          type: 'line',
+          from: { x: sp.x, y: sp.y },
+          to: mp,
+          ttl: 0.12, maxTtl: 0.12,
+        });
+      }
+    }
+  }
+
+  // Убираем мёртвых по TTL
+  skeletons = skeletons.filter(sk => sk.ttl > 0);
+}
+
+// ═══════════════════════════════════════════════
 //  ИГРОВОЙ ЦИКЛ
 // ═══════════════════════════════════════════════
 function tick(now) {
@@ -1029,6 +1191,9 @@ function tick(now) {
       mob.progress += spd * dt;
       if (mob.hitFlash > 0) mob.hitFlash -= dt;
     }
+
+    // ─── Скелеты некромансера ───
+    updateSkeletons(now, dt);
 
     // Лужи льда — замедляют тех, кто стоит внутри
     for (const mob of mobs) {
@@ -1581,6 +1746,33 @@ function tick(now) {
           }
         }
       }
+
+      // ─── Некромансер: попытка поднять скелета ───
+      for (const u of units) {
+        if (u.cardId !== 'necromancer') continue;
+        const ux = u.col + 0.5;
+        const uy = u.row + 0.5;
+        // Моб умер в радиусе 3 клеток от некромансера
+        if (Math.hypot(p.x - ux, p.y - uy) > 3.0) continue;
+
+        // Лимит собак
+        const dogCount = skeletons.filter(s => s.type === 'dog').length;
+        if (dogCount >= maxSkeletonsAllowed()) continue;
+
+        // Шанс по уровню
+        const chance = u.level === 1 ? 0.25 : 0.40;
+        if (Math.random() >= chance) continue;
+
+        // Определяем progress для спавна — берём позицию моба
+        const ttlSec = SKELETON_DOG_TTL[Math.min(u.level, 3) - 1];
+        if (!u.id) u.id = Math.random();
+        spawnSkeleton(m.progress, 'dog', ttlSec, u.id);
+
+        effects.push({
+          type: 'text', x: p.x, y: p.y - 0.5,
+          text: '💀 +1', color: '#c084fc', ttl: 0.9, maxTtl: 0.9,
+        });
+      }
     }                                       // ← ЭТА СКОБКА ЗАКРЫВАЕТ for (const m of dead)
 
     mobs = mobs.filter(m => m.hp > 0);
@@ -1986,6 +2178,36 @@ function render(now) {
     }
   }
 
+  // ─── Скелеты (поверх мобов) ───
+  for (const sk of skeletons) {
+    const sp = mobPosFromProgress(sk.progress);
+    const cx = sp.x * CELL;
+    const cy = sp.y * CELL;
+
+    const isGolem = sk.type === 'golem';
+    const size = isGolem ? CELL * 0.9 : CELL * 0.6;
+    const sprite = SKELETON_SPRITES[sk.type];
+
+    if (sprite) {
+      ctx.drawImage(sprite, cx - size / 2, cy - size / 2, size, size);
+    } else {
+      // fallback: фиолетовый кружок
+      ctx.beginPath();
+      ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+      ctx.fillStyle = isGolem ? '#a855f7' : '#c084fc';
+      ctx.fill();
+    }
+
+    // Полоска TTL (время жизни)
+    const ttlPct = Math.max(0, sk.ttl / sk.maxTtl);
+    const barW = isGolem ? 34 : 24;
+    const barY = cy + size / 2 + 2;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(cx - barW / 2 - 1, barY - 1, barW + 2, 4);
+    ctx.fillStyle = isGolem ? '#a855f7' : '#c084fc';
+    ctx.fillRect(cx - barW / 2, barY, barW * ttlPct, 2);
+  }
+
   // Эффекты
   for (const e of effects) {
     const alpha = e.ttl / e.maxTtl;
@@ -2356,6 +2578,7 @@ if (_exitOverlay) {
 // ═══════════════════════════════════════════════
 loadSprites();
 loadMobSprites();
+loadSkeletonSprites();
 renderDeck();
 newGame();
 requestAnimationFrame(tick);
