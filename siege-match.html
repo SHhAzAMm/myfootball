@@ -493,12 +493,12 @@ const CARDS = deckIds
   .map(id => ALL_CARDS.find(c => c.id === id))
   .filter(Boolean);
 
-// Если колода пустая — возврат в меню (защита от прямого захода)
-if (CARDS.length === 0) {
-  alert('Сначала собери колоду');
+// Минимум карт = min(8, сколько открыто)
+const MIN_DECK_REQUIRED = Math.min(8, siegeUnlockedCount);
+if (CARDS.length < MIN_DECK_REQUIRED || CARDS.length === 0) {
+  alert(`Нужно минимум ${MIN_DECK_REQUIRED} карт в колоде`);
   window.location.href = 'siege.html';
-  // стоп дальнейший код через throw — простой способ
-  throw new Error('Empty deck');
+  throw new Error('Not enough cards');
 }
 
 const CARD_COLORS = ['#ff6b6b','#60a5fa','#fbbf24','#4ade80','#a855f7','#22d3ee','#f472b6','#94a3b8'];

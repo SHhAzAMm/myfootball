@@ -497,6 +497,30 @@ function saveDeck() {
   localStorage.setItem('siege_deck_v1', JSON.stringify(siegeDeck));
 }
 
+// Автозаполнение колоды открытыми картами (если слотов свободно и есть что положить)
+function autoFillDeck() {
+  const unlockedIds = SIEGE_CARDS.filter(c => isCardUnlocked(c.id)).map(c => c.id);
+  // Убираем дубликаты из колоды
+  const seen = new Set();
+  for (let i = 0; i < siegeDeck.length; i++) {
+    const id = siegeDeck[i];
+    if (!id) continue;
+    if (seen.has(id) || !unlockedIds.includes(id)) {
+      siegeDeck[i] = null;
+    } else {
+      seen.add(id);
+    }
+  }
+  // Заполняем пустые слоты оставшимися открытыми картами
+  const remaining = unlockedIds.filter(id => !seen.has(id));
+  for (let i = 0; i < siegeDeck.length && remaining.length > 0; i++) {
+    if (siegeDeck[i] === null) {
+      siegeDeck[i] = remaining.shift();
+    }
+  }
+  saveDeck();
+}
+
 function cardById(id) { return SIEGE_CARDS.find(c => c.id === id); }
 
 // ═══════════════════════════════════════════════
@@ -790,7 +814,8 @@ document.getElementById('cardBtn').addEventListener('click', () => {
   closeCardModal();
   renderDeckSlots();
   renderCharGrid();
-  renderTab(activeTab);   // ← обновить кнопку ИГРАТЬ
+  autoFillDeck();
+  renderTab(activeTab);
 });
 
 // ═══════════════════════════════════════════════
@@ -832,13 +857,25 @@ function renderTab(id) {
   const playBtn = document.getElementById('playBtn');
   const filled = siegeDeck.filter(x => x !== null).length;
 
-  // Текст/состояние кнопки обновляем всегда
-  playBtn.disabled = filled === 0;
-  playBtn.textContent = filled === 0
-    ? 'СНАЧАЛА СОБЕРИ КОЛОДУ'
-    : (filled < DECK_SIZE ? `ИГРАТЬ (${filled}/${DECK_SIZE})` : 'ИГРАТЬ');
-  playBtn.style.opacity = filled === 0 ? '0.4' : '1';
-  playBtn.style.cursor = filled === 0 ? 'not-allowed' : 'pointer';
+  // Минимум карт в колоде = min(8, сколько открыто)
+  const unlockedCount = SIEGE_CARDS.filter(c => isCardUnlocked(c.id)).length;
+  const requiredCards = Math.min(DECK_SIZE, unlockedCount);
+  const canPlay = filled >= requiredCards && filled > 0;
+
+  playBtn.disabled = !canPlay;
+
+  if (filled === 0) {
+    playBtn.textContent = 'СНАЧАЛА СОБЕРИ КОЛОДУ';
+  } else if (!canPlay) {
+    playBtn.textContent = `НУЖНО МИНИМУМ ${requiredCards} КАРТ (${filled}/${requiredCards})`;
+  } else if (filled < DECK_SIZE) {
+    playBtn.textContent = `ИГРАТЬ (${filled}/${requiredCards})`;
+  } else {
+    playBtn.textContent = 'ИГРАТЬ';
+  }
+
+  playBtn.style.opacity = canPlay ? '1' : '0.4';
+  playBtn.style.cursor = canPlay ? 'pointer' : 'not-allowed';
 
   // Показываем кнопку только на табе "В БОЙ"
   playBtn.style.display = (id === 'battle') ? 'block' : 'none';
@@ -855,6 +892,15 @@ document.querySelectorAll('.tab').forEach(el => {
 });
 
 document.getElementById('playBtn').addEventListener('click', () => {
+  const filled = siegeDeck.filter(x => x !== null).length;
+  const unlockedCount = SIEGE_CARDS.filter(c => isCardUnlocked(c.id)).length;
+  const requiredCards = Math.min(DECK_SIZE, unlockedCount);
+
+  if (filled < requiredCards || filled === 0) {
+    alert(`Нужно минимум ${requiredCards} карт в колоде`);
+    return;
+  }
+
   window.location.href = 'siege-match.html';
 });
 
