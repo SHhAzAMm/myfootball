@@ -360,8 +360,8 @@ function getWaveConfig(wave) {
   const hpMul = 1 + (wave - 1) * 0.22;  // было 0.15 — теперь мобы крепче
 
   if (isBossWave) {
-    // Делец — раз в 20 волн (20, 40, 60...), остальные боссовые — обычный босс
-    const useDealer = wave >= 20 && (wave / 10) % 2 === 0;
+    // Волна кратна 10 — Делец; остальные боссовые (5, 15, 25...) — обычный Босс
+    const useDealer = (wave % 10 === 0);
     return {
       wave,
       isBoss: true,
@@ -371,7 +371,7 @@ function getWaveConfig(wave) {
         : [{ type: 'boss',     count: 1 },
            { type: 'warrior',  count: Math.floor(baseCount * 0.4) }],
       hpMul,
-      spawnInterval: 600,   // было 1000 — боссы спавнятся быстрее
+      spawnInterval: 600,
     };
   }
 
