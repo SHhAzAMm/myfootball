@@ -494,13 +494,24 @@ const CARDS = deckIds
   .map(id => ALL_CARDS.find(c => c.id === id))
   .filter(Boolean);
 
-// Минимум карт = min(8, сколько открыто)
-const MIN_DECK_REQUIRED = Math.min(8, siegeUnlockedCount);
-if (CARDS.length < MIN_DECK_REQUIRED || CARDS.length === 0) {
+// Минимум = min(8, сколько открыто)
+const MIN_DECK_REQUIRED = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('siege_progress_v1') || 'null');
+    const unlocked = (saved && Array.isArray(saved.unlocked)) ? saved.unlocked : [];
+    // Стартовые всегда доступны
+    const startIds = ['spike', 'rhombus'];
+    const total = new Set([...unlocked, ...startIds]).size;
+    return Math.min(8, total);
+  } catch (e) { return 1; }
+})();
+
+if (CARDS.length === 0 || CARDS.length < MIN_DECK_REQUIRED) {
   alert(`Нужно минимум ${MIN_DECK_REQUIRED} карт в колоде`);
   window.location.href = 'siege.html';
   throw new Error('Not enough cards');
 }
+
 
 const CARD_COLORS = ['#ff6b6b','#60a5fa','#fbbf24','#4ade80','#a855f7','#22d3ee','#f472b6','#94a3b8'];
 
