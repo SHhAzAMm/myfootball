@@ -545,6 +545,60 @@ function renderDeckTab() {
 //  РЫНОК — премиум-бокс
 // ═══════════════════════════════════════════════
 const PREMIUM_COST = 10;   // осколков Осады за прокрут
+const EXCHANGE_COST = 10000;         // 10 000 монет
+const BOXES_PROGRESS_KEY = 'boxes_progress_v6';   // ключ монет из index.html
+
+function getBoxesCoins() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BOXES_PROGRESS_KEY) || '{}');
+    return parseInt(raw.coins) || 0;
+  } catch (e) { return 0; }
+}
+
+function setBoxesCoins(newValue) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BOXES_PROGRESS_KEY) || '{}');
+    raw.coins = Math.max(0, parseInt(newValue) || 0);
+    localStorage.setItem(BOXES_PROGRESS_KEY, JSON.stringify(raw));
+  } catch (e) {}
+}
+
+function updateExchangeButton() {
+  const btn = document.getElementById('exchangeBtn');
+  const balEl = document.getElementById('exchangeBalance');
+  if (!btn || !balEl) return;
+
+  const coins = getBoxesCoins();
+  balEl.textContent = coins.toLocaleString('ru-RU');
+
+  const canAfford = coins >= EXCHANGE_COST;
+  btn.disabled = !canAfford;
+  btn.style.opacity = canAfford ? '1' : '0.4';
+  btn.style.cursor = canAfford ? 'pointer' : 'not-allowed';
+}
+
+function doExchange() {
+  const msg = document.getElementById('exchangeMsg');
+  const coins = getBoxesCoins();
+
+  if (coins < EXCHANGE_COST) {
+    msg.style.color = '#f87171';
+    msg.textContent = `Не хватает ${(EXCHANGE_COST - coins).toLocaleString('ru-RU')} монет`;
+    return;
+  }
+
+  // Списываем монеты, начисляем билет
+  setBoxesCoins(coins - EXCHANGE_COST);
+  siegeProgress.shards += 1;
+  saveSiegeProgress();
+
+  msg.style.color = '#4ade80';
+  msg.textContent = '✓ Обменяно! +1 билет';
+  setTimeout(() => { msg.textContent = ''; }, 2500);
+
+  updateExchangeButton();
+  updatePremiumButton();
+}
 
 function renderMarketTab() {
   const c = document.getElementById('content');
@@ -571,8 +625,26 @@ function renderMarketTab() {
     </div>
   `;
 
+  // ─── Блок обмена: 10 000 монет → 1 билет ───
+  const exchangeHTML = `
+    <div class="market-card" style="margin-top: 22px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.08);">
+      <div style="font-size:11px; color:#94a3b8; letter-spacing:3px; margin-bottom:8px;">ОБМЕН</div>
+      <div style="font-size:18px; font-weight:900; margin-bottom:10px;">
+        10 000 🪙 → 1 <img src="units/ticket.png" class="coupon-icon" alt="🎟️">
+      </div>
+      <button class="market-spin-btn" id="exchangeBtn" style="background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#1a1a2e;">ОБМЕНЯТЬ</button>
+      <div class="market-balance">
+        У тебя: <b id="exchangeBalance">0</b> 🪙
+      </div>
+      <div id="exchangeMsg" style="font-size:11px; color:#94a3b8; margin-top:6px; min-height:16px;"></div>
+    </div>
+  `;
+  document.getElementById('content').insertAdjacentHTML('beforeend', exchangeHTML);
+
   updatePremiumButton();
+  updateExchangeButton();
   document.getElementById('premiumSpinBtn').addEventListener('click', spinPremium);
+  document.getElementById('exchangeBtn').addEventListener('click', doExchange);
 }
 
 function updatePremiumButton() {
