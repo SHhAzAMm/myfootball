@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Осада — прототип</title>
   <style>
     * {
@@ -24,6 +24,7 @@
       align-items: center;
       padding: 16px;
       gap: 12px;
+      overflow-x: hidden;   /* ← убираем боковую прокрутку */
     }
 
     h1 {
@@ -93,6 +94,11 @@
       display: block;
       touch-action: none;
       cursor: pointer;
+      /* Подстраиваемся под ширину экрана */
+      width: calc(100vw - 32px);
+      max-width: 480px;
+      height: auto;
+      aspect-ratio: 1 / 1;
     }
 
     .controls {
