@@ -354,8 +354,8 @@
     const MAX_MOBS = 40;
     const MAX_MERGE_LEVEL = 3;
 
-    const WAVE_INTERVAL_MS = 12000;   // было 20000 — волны в 1.7× чаще
-    const FIRST_SPAWN_DELAY_MS = 800; // было 1500 — первый моб быстрее
+    const WAVE_INTERVAL_MS = 15000;   // компромисс: 12 → 15
+    const FIRST_SPAWN_DELAY_MS = 1200; // компромисс: 800 → 1200
 
     // ─── Бесконечные волны ───
     // ─── Типы мобов ───
@@ -460,7 +460,7 @@
     function getWaveConfig(wave) {
       const isBossWave = (wave % 5 === 0);
       const baseCount = 3 + Math.floor(wave * 0.8);
-      const hpMul = 1 + (wave - 1) * 0.22;  // было 0.15 — теперь мобы крепче
+      const hpMul = 1 + (wave - 1) * 0.18;  // среднее между 0.15 и 0.22
 
       if (isBossWave) {
         // Волна кратна 10 — Делец; остальные боссовые (5, 15, 25...) — обычный Босс
@@ -537,7 +537,7 @@
         isBoss: false,
         composition: comp,
         hpMul,
-        spawnInterval: Math.max(350, 900 - (wave - 1) * 40),
+        spawnInterval: Math.max(500, 1100 - (wave - 1) * 45),
       };
     }
 
@@ -620,7 +620,7 @@
 
     const MOB_EMOJI = '👹';
     const MOB_COLOR = '#ef4444';
-    const MOB_SPEED = 1.45;   // было 1.2 — мобы идут быстрее
+    const MOB_SPEED = 1.3;   // было 1.45 — вернул к среднему
 
     // ═══════════════════════════════════════════════
     //  ДОРОЖКА (периметр 8×8, по часовой)
