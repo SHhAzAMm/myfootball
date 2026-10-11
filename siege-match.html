@@ -535,6 +535,10 @@ const PATH_LEN = PATH.length;
 let state, units, mobs, effects, selectedUnit, handCard, lastTime, gameOver;
 let skeletons = [];   // скелеты-юниты (не занимают клетки)
 
+// ─── Dirty-флаг: рендерим только когда что-то изменилось ───
+let needsRender = true;
+function invalidate() { needsRender = true; }
+
 // ─── Параметры скелетов ───
 const SKELETON_DOG = {
   damage: 4,
@@ -590,6 +594,7 @@ function newGame() {
 const _endOverlay = document.getElementById('endOverlay');
 if (_endOverlay) _endOverlay.classList.remove('active');
   updateUI();
+  invalidate();
 }
 
 // ═══════════════════════════════════════════════
@@ -739,6 +744,7 @@ function sellSelected() {
   effects.push({ type: 'text', x: selectedUnit.col + 0.5, y: selectedUnit.row + 0.5, text: '+' + refund, color: '#ffd700', ttl: 0.9, maxTtl: 0.9 });
   units = units.filter(u => u !== selectedUnit);
   selectedUnit = null;
+  invalidate();
   updateUI();
 }
 
@@ -749,6 +755,7 @@ function placeUnit(col, row) {
   if (!existing) {
     units.push({ cardId: handCard.cardId, level: handCard.level, col, row, cooldown: 0 });
     handCard = null;
+    invalidate();
     updateUI();
     return true;
   }
@@ -758,6 +765,7 @@ function placeUnit(col, row) {
     existing.cooldown = 0;
     handCard = null;
     effects.push({ type: 'text', x: col + 0.5, y: row + 0.5, text: 'MERGED!', color: '#a855f7', ttl: 1.0, maxTtl: 1.0 });
+    invalidate();
     updateUI();
     return true;
   }
@@ -773,6 +781,7 @@ function moveUnit(unit, col, row) {
   unit.row = row;
   effects.push({ type: 'text', x: col + 0.5, y: row + 0.5, text: '↔', color: '#60a5fa', ttl: 0.6, maxTtl: 0.6 });
   selectedUnit = null;
+  invalidate();
   updateUI();
 }
 
@@ -795,6 +804,7 @@ function tryDragMerge(sourceUnit, targetUnit) {
       color: '#f87171',
       ttl: 0.6, maxTtl: 0.6,
     });
+    invalidate();
     return;
   }
 
@@ -813,11 +823,13 @@ function tryDragMerge(sourceUnit, targetUnit) {
     ttl: 1.0, maxTtl: 1.0,
   });
 
+  invalidate();
   updateUI();
 }
 
 function flashMsg(text) {
   effects.push({ type: 'text', x: 4, y: 4, text, color: '#f87171', ttl: 1.2, maxTtl: 1.2 });
+  invalidate();
 }
 
 function spawnMob(typeId) {
@@ -852,6 +864,7 @@ function spawnMob(typeId) {
   }
 
   mobs.push(mob);
+  invalidate();
 }
 
 function pickMobTypeFromComposition(composition, alreadySpawned) {
@@ -929,12 +942,14 @@ function damageMob(mob, dmg, sourceUnit) {
     mob.shieldLastHit = performance.now();
     mob.shieldSlowStacks = (mob.shieldSlowStacks || 0) + 1;
     mob.hitFlash = 0.15;
+    invalidate();
     return; // урон НЕ проходит в HP
   }
 
   mob.hp -= dmg;
   mob.hitFlash = 0.15;
   if (sourceUnit) mob.lastHitBy = sourceUnit;
+  invalidate();
 }
 
 // ═══════════════════════════════════════════════
@@ -962,6 +977,7 @@ function spawnSkeleton(progress, type, ttlSec, ownerId) {
     cooldown: 0,
     ownerId: ownerId || 0,
   });
+  invalidate();
 }
 
 // Пробуем слить 3 собаки в голема
@@ -1004,6 +1020,9 @@ function mobPosFromProgress(progress) {
 }
 
 function updateSkeletons(now, dt) {
+  // Если есть скелеты — точно надо рендерить
+  if (skeletons.length > 0) invalidate();
+
   // ─── Пробуем слияние ───
   tryMergeSkeletons(now);
 
@@ -1062,7 +1081,9 @@ function updateSkeletons(now, dt) {
   }
 
   // Убираем мёртвых по TTL
+  const beforeLen = skeletons.length;
   skeletons = skeletons.filter(sk => sk.ttl > 0);
+  if (skeletons.length !== beforeLen) invalidate();
 }
 
 // ═══════════════════════════════════════════════
@@ -1099,6 +1120,7 @@ function tick(now) {
         color: '#4ade80',
         ttl: 1.0, maxTtl: 1.0,
       });
+      invalidate();
     }
 
     const cfg = getWaveConfig(state.wave);
@@ -1139,6 +1161,7 @@ function tick(now) {
         if (u.bonusDamage) u.bonusDamage = 0;
         if (u.hitCounter) u.hitCounter = 0;
       }
+      invalidate();
     }
 
     // Баффы от Ритма — пересчёт каждый кадр
@@ -1202,6 +1225,9 @@ function tick(now) {
       mob.progress += spd * dt;
       if (mob.hitFlash > 0) mob.hitFlash -= dt;
     }
+
+    // Мобы двигались, если их больше 0 — считаем, что состояние изменилось
+    if (mobs.length > 0) invalidate();
 
     // ─── Скелеты некромансера ───
     updateSkeletons(now, dt);
@@ -1786,6 +1812,7 @@ function tick(now) {
       }
     }                                       // ← ЭТА СКОБКА ЗАКРЫВАЕТ for (const m of dead)
 
+    if (dead.length > 0) invalidate();
     mobs = mobs.filter(m => m.hp > 0);
 
     // Если волна зачищена — следующая через 3 секунды
@@ -1793,6 +1820,7 @@ function tick(now) {
       if (!state.waveClearPending) {
         state.waveClearPending = true;
         state.nextWaveAt = Math.min(state.nextWaveAt, now + 2000);  // было 3000
+        invalidate();
       }
     }
 
@@ -1803,13 +1831,20 @@ function tick(now) {
     }
 
     // Эффекты
-    for (const e of effects) e.ttl -= dt;
-    effects = effects.filter(e => e.ttl > 0);
+    if (effects.length > 0) {
+      for (const e of effects) e.ttl -= dt;
+      effects = effects.filter(e => e.ttl > 0);
+      invalidate();   // эффекты тикают каждый кадр — надо перерисовывать
+    }
 
     updateUI(now);
   }
 
-  render(now);
+  // Рендерим только если что-то изменилось
+  if (needsRender) {
+    render(now);
+    needsRender = false;
+  }
 }
 
 function endGame() {
@@ -1862,6 +1897,7 @@ function endGame() {
      ${rewardHTML}`;
 const _endOverlay = document.getElementById('endOverlay');
 if (_endOverlay) _endOverlay.classList.add('active');
+  invalidate();
 }
 
 // ═══════════════════════════════════════════════
@@ -2459,6 +2495,7 @@ canvas.addEventListener('pointerdown', (e) => {
   isDragging = false;
   u.beingDragged = true;
   canvas.setPointerCapture(e.pointerId);   // ← жёсткий захват указателя
+  invalidate();
 });
 
 canvas.addEventListener('pointermove', (e) => {
@@ -2472,6 +2509,8 @@ canvas.addEventListener('pointermove', (e) => {
     const dy = y - dragStartY;
     if (Math.hypot(dx, dy) > DRAG_THRESHOLD) isDragging = true;
   }
+
+  if (isDragging) invalidate();
 });
 
 document.addEventListener('pointerup', (e) => {
@@ -2495,8 +2534,10 @@ document.addEventListener('pointerup', (e) => {
     // Случай 2: тащим на СВОЮ же клетку → выделяем
     else if (u.col === col && u.row === row) {
       selectedUnit = u;
+      invalidate();
       updateUI();
     }
+
     // Случай 3: тащим на ДРУГОГО юнита → пробуем мерж
     else if (inField(col, row) && targetUnit && targetUnit !== u) {
       tryDragMerge(u, targetUnit);
@@ -2509,6 +2550,7 @@ document.addEventListener('pointerup', (e) => {
 
   dragCandidate = null;
   isDragging = false;
+  invalidate();
 });
 
 // Страховка: если pointerup потерялся, сбросить флаг при потере фокуса
@@ -2540,6 +2582,7 @@ canvas.addEventListener('click', (e) => {
 
   if (targetUnit) {
     selectedUnit = (selectedUnit === targetUnit) ? null : targetUnit;
+    invalidate();
     updateUI();
     return;
   }
