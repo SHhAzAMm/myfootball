@@ -399,7 +399,7 @@ function getWaveConfig(wave) {
   if (wave >= 11) { warriorChance = 0.35; swiftChance = 0.25; golemChance = 0.15; shellChance = 0.10; jumperChance = 0.10; screamerChance = 0.05; }
   if (wave >= 16) { warriorChance = 0.25; swiftChance = 0.20; golemChance = 0.15; shellChance = 0.18; jumperChance = 0.14; screamerChance = 0.08; }
   if (wave >= 21) { warriorChance = 0.18; swiftChance = 0.15; golemChance = 0.15; shellChance = 0.22; jumperChance = 0.18; screamerChance = 0.12; }
-  if (wave >= 25) { dealerChance = 0.04; }
+  // dealerChance убран — Делец только на боссовых волнах (10, 20, 30…)
 
   // Нормализуем шансы, чтобы сумма была ровно 1
   const chanceSum = warriorChance + swiftChance + golemChance + shellChance + jumperChance + screamerChance;
@@ -417,7 +417,7 @@ function getWaveConfig(wave) {
   const shellN    = Math.round(totalCount * shellChance);
   const jumperN   = Math.round(totalCount * jumperChance);
   const screamerN = Math.round(totalCount * screamerChance);
-  const dealerN   = Math.round(totalCount * dealerChance);
+  const dealerN   = 0;
   const assigned  = warriorN + swiftN + shellN + jumperN + screamerN + dealerN;
   const golemN    = Math.max(0, totalCount - assigned);
 
