@@ -1802,32 +1802,32 @@ function tick(now) {
       }
 
       // ─── Некромансер: попытка поднять скелета ───
-      for (const u of units) {
-        if (u.cardId !== 'necromancer') continue;
+      // Только если моба убил САМ некромансер (не его скелеты)
+      if (killer && killer.cardId === 'necromancer') {
+        const u = killer;
         const ux = u.col + 0.5;
         const uy = u.row + 0.5;
-        // Моб умер в радиусе 3 клеток от некромансера
-        if (Math.hypot(p.x - ux, p.y - uy) > 3.0) continue;
 
+        // Моб умер в радиусе 3 клеток от некромансера
+        const inRange = Math.hypot(p.x - ux, p.y - uy) <= 3.0;
         // Лимит собак
         const dogCount = skeletons.filter(s => s.type === 'dog').length;
-        if (dogCount >= maxSkeletonsAllowed()) continue;
-
+        const underLimit = dogCount < maxSkeletonsAllowed();
         // Шанс по уровню
         const chance = u.level === 1 ? 0.25 : 0.40;
-        if (Math.random() >= chance) continue;
+        const lucky = Math.random() < chance;
 
-        // Определяем progress для спавна — берём позицию моба
-        const ttlSec = SKELETON_DOG_TTL[Math.min(u.level, 3) - 1];
-        if (!u.id) u.id = Math.random();
-        spawnSkeleton(m.progress, 'dog', ttlSec, u.id);
+        if (inRange && underLimit && lucky) {
+          const ttlSec = SKELETON_DOG_TTL[Math.min(u.level, 3) - 1];
+          if (!u.id) u.id = Math.random();
+          spawnSkeleton(m.progress, 'dog', ttlSec, u.id);
 
-        effects.push({
-          type: 'text', x: p.x, y: p.y - 0.5,
-          text: '💀 +1', color: '#c084fc', ttl: 0.9, maxTtl: 0.9,
-        });
-      }
-    }                                       // ← ЭТА СКОБКА ЗАКРЫВАЕТ for (const m of dead)
+          effects.push({
+            type: 'text', x: p.x, y: p.y - 0.5,
+            text: '💀 +1', color: '#c084fc', ttl: 0.9, maxTtl: 0.9,
+          });
+        }
+      }                                    // ← ЭТА СКОБКА ЗАКРЫВАЕТ for (const m of dead)
 
     if (dead.length > 0) invalidate();
     mobs = mobs.filter(m => m.hp > 0);
