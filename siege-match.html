@@ -1059,8 +1059,9 @@ function updateSkeletons(now, dt) {
     // ─── Движение к порталу ТОЛЬКО если нет цели ───
     if (!target) {
       sk.progress -= cfg.moveSpeed * dt;
-      // Не уходим ниже 0 — упираемся у портала
-      if (sk.progress < 0) sk.progress = 0;
+      // Не подходим ближе 2 клеток к порталу
+      const MIN_PROGRESS = 2;
+      if (sk.progress < MIN_PROGRESS) sk.progress = MIN_PROGRESS;
     }
 
     // ─── Атака ───
